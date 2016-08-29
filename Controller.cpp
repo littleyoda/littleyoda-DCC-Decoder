@@ -114,8 +114,7 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 }
 
 
-void Controller::notifyDCCFun(int id, int startbit, int stopbit,
-		int partValues) {
+void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long partValues) {
 	// Get the old status ...
 	FuncData* data;
 	if (funcdatas.find(id) == funcdatas.end()) {
@@ -144,7 +143,6 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit,
 		}
 	}
 	if (changed) {
-//		Logger::getInstance()->addToLog("DCC Func changed [ID: " + String(id) + " / Value: " +  String(data->status,BIN)  + "]");
 		for (int idx = 0; idx < actions.size(); idx++) {
 			actions.get(idx)->DCCFunc(id, data->status);
 		}

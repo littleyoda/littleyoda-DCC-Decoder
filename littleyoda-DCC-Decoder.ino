@@ -96,7 +96,7 @@ void setup() {
 	controller->registerCmdReceiver(
 			new CmdReceiverZ21Wlan(controller, 192, 168, 0, 111));
 	loop();
-	controller->registerCmdReceiver(new CmdReceiverDCC(controller, D5, D5));
+	//controller->registerCmdReceiver(new CmdReceiverDCC(controller, D5, D5));
 	loop();
 
 	Logger::getInstance()->addToLog("Setup finish!");

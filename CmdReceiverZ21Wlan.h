@@ -29,8 +29,11 @@ private:
 	unsigned char packetBuffer[30];
 	IPAddress* z21Server;
 	void doReceive(int cb);
-	long int lastTime = 0;
+	void handleTurnout();
+	void handleDCCSpeed(unsigned int locoid);
+	void handleFunc(unsigned int locoid);
 
+	long int lastTime = 0;
 };
 
 #endif /* CMDRECEIVERZ21WLAN_H_ */

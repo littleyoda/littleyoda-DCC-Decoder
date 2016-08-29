@@ -31,7 +31,7 @@ public:
 	// Notifications from Outside (via DCC, WLAN, ..)
 	void notifyTurnout(int id, int direction);
 	void notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps);
-	void notifyDCCFun(int id, int startbit, int stopbit, int value);
+	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value);
 
 	String getHTMLController();
 	void setRequest(String id, int status);

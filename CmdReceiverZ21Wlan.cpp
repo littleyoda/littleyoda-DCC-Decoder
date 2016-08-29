@@ -42,6 +42,45 @@ void CmdReceiverZ21Wlan::loop() {
 
 }
 
+void CmdReceiverZ21Wlan::handleTurnout() {
+	// Check if this is a message for us
+	int id = packetBuffer[5] << 8 | packetBuffer[6];
+	int status = packetBuffer[7];
+	// see z21 documention, why this hack is neccessary
+	int output = -1;
+	if (status == 1) {
+		output = 0;
+	} else if (status == 2) {
+		output = 1;
+	}
+
+	controller->notifyTurnout(id, output);
+}
+
+void CmdReceiverZ21Wlan::handleDCCSpeed(unsigned int locoid) {
+	unsigned int fahrstufen = packetBuffer[7] & 7;
+	if (fahrstufen == 0) {
+		fahrstufen = 14;
+	} else if (fahrstufen == 2) {
+		fahrstufen = 28;
+	} else if (fahrstufen == 4) {
+		fahrstufen = 128;
+	}
+
+	int richtung = (packetBuffer[8] & 128) == 0 ? -1 : 1;
+	;
+	unsigned int v = (packetBuffer[8] & 127);
+	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen);
+}
+
+void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
+	unsigned long func = (((packetBuffer[9] & 16) > 0) ? 1 : 0)
+			+ ((packetBuffer[9] & 15) << 1) + ((packetBuffer[10]) << 5)
+			+ ((packetBuffer[11]) << (8 + 5))
+			+ ((packetBuffer[12]) << (16 + 5));
+	controller->notifyDCCFun(locoid, 0, 29, func);
+}
+
 void CmdReceiverZ21Wlan::doReceive(int cb) {
 //	Serial.print("packet received, length=");
 	Serial.println(cb);
@@ -54,27 +93,26 @@ void CmdReceiverZ21Wlan::doReceive(int cb) {
 	boolean turnOutInfoPaket = cb == 9 && packetBuffer[0] == 0x09
 			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
 			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0x43;
-	if (!turnOutInfoPaket) {
-//		for (int i = 0; i < cb; i++) {
-//			Serial.print(packetBuffer[i], HEX);
-//			Serial.print(" ");
-//		}
-//		Serial.println();
+	if (turnOutInfoPaket) {
+		handleTurnout();
 		return;
 	}
-
-	// Check if this is a message for us
-	int id = packetBuffer[5] << 8 | packetBuffer[6];
-	int status = packetBuffer[7];
-
-	// see z21 documention, why this hack is neccessary
-	int output = -1;
-	if (status == 1) {
-		output = 0;
-	} else if (status == 2) {
-		output = 1;
+	boolean loco_info = cb >=7 && packetBuffer[0] >= 8
+			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
+			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0xEF;
+	if (loco_info) {
+		unsigned int locoid = ((packetBuffer[5] & 0x3f) << 8) + packetBuffer[6];
+		handleDCCSpeed(locoid);
+		handleFunc(locoid);
+		return;
 	}
-	controller->notifyTurnout(id, output);
+//	// Print unknown packets:
+//	Serial.println("New Paket:");
+//	for (int i = 0; i < cb; i++) {
+//		Serial.print(packetBuffer[i], HEX);
+//		Serial.print(" ");
+//	}
+//	Serial.println();
 }
 
 /**
