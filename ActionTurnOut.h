@@ -20,7 +20,7 @@ public:
 	virtual ~ActionTurnOut();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
-	virtual void setSettings(int status);
+	virtual void setSettings(String key, String value);
 
 private:
 	int dirPin[2];

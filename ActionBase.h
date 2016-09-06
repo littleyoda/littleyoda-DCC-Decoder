@@ -23,7 +23,7 @@ public:
 	virtual void DCCFunc(int id, unsigned long int newvalue);
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
-	virtual void setSettings(int status);
+	virtual void setSettings(String key, String value);
 
 };
 

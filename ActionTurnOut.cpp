@@ -36,11 +36,11 @@ String ActionTurnOut::getHTMLController(String urlprefix) {
 	message += String(id);
 	message += " <a href=\"";
 	message += urlprefix;
-	message += "status=0";
+	message += "value=0";
 	message += "\">Flip to 0</a>";
 	message += " <a href=\"";
 	message += urlprefix;
-	message += "status=1";
+	message += "value=1";
 	message += "\">Flip to 1</a>";
 	return message;
 }
@@ -75,7 +75,7 @@ void ActionTurnOut::TurnoutCmd(int id, int status) {
 ActionTurnOut::~ActionTurnOut() {
 }
 
-void ActionTurnOut::setSettings(int status) {
-	TurnoutCmd(id, status);
+void ActionTurnOut::setSettings(String key, String value) {
+	TurnoutCmd(id, value.toInt());
 }
 

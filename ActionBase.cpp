@@ -25,9 +25,6 @@ String ActionBase::getHTMLController(String urlprefix) {
 	return "";
 }
 
-void ActionBase::setSettings(int status) {
-}
-
 void ActionBase::loop() {
 }
 
@@ -42,3 +39,7 @@ void ActionBase::DCCFunc(int id, int bit, int newvalue) {
 
 void ActionBase::DCCFunc(int id, unsigned long int newvalue) {
 }
+
+void ActionBase::setSettings(String key, String value) {
+}
+

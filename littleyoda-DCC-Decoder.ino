@@ -18,6 +18,9 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "Config.h"
+#include "ActionDFPlayerMP3.h"
+#include "ActionTesting.h"
+
 Controller* controller;
 
 const char compile_date[] = "Compiledate: " __DATE__ " " __TIME__;
@@ -86,6 +89,8 @@ void setup() {
 	controller = new Controller();
 	json();
 
+	controller->registerAction(new ActionDFPlayerMP3(D1, D2));
+//	controller->registerAction(new ActionTesting(D3));
 	// Webservices
 	Webserver* web = new Webserver(controller);
 	web->addServices(new WebserviceWifiScanner());

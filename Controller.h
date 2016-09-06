@@ -34,7 +34,7 @@ public:
 	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value);
 
 	String getHTMLController();
-	void setRequest(String id, int status);
+	void setRequest(String id, String key, String value);
 
 private:
 	struct LocData {

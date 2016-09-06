@@ -45,7 +45,6 @@ void Webserver::loop() {
 }
 
 Webserver::~Webserver() {
-	// TODO Auto-generated destructor stub
 }
 
 /**
@@ -118,11 +117,6 @@ ESP8266WebServer* Webserver::server = 0;
 void Webserver::handleController() {
 	String message = "<html><head></head><body>";
 	message += controll->getHTMLController();
-	//for (int i = 0; i < actions.size(); i++) {
-//		String s = actions.get(i)->getHTMLController();
-//		message += s;
-//		message += "<br>";
-//	}
 	server->send(200, "text/html", message);
 }
 
@@ -133,7 +127,7 @@ void Webserver::addServices(WebserviceBase* base) {
 
 void Webserver::handleSet() {
 	Serial.println("Webserver");
-	controll->setRequest(server->arg("id"), server->arg("status").toInt());
+	controll->setRequest(server->arg("id"), server->arg("key"), server->arg("value"));
 	server->send(200, "text/html",
 			"<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>");
 }

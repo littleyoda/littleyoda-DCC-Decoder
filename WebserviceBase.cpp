@@ -4,11 +4,11 @@
  *  Created on: 21.08.2016
  *      Author: sven
  */
-
+#include "Arduino.h"
 #include "WebserviceBase.h"
 
 WebserviceBase::WebserviceBase() {
-
+	server = NULL;
 }
 
 WebserviceBase::~WebserviceBase() {

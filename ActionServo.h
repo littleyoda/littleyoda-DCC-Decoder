@@ -21,6 +21,7 @@ public:
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps);
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
+	virtual void setSettings(String key, String value);
 	virtual void setSettings(int status);
 private:
 	int pin;

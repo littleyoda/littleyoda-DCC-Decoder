@@ -18,6 +18,7 @@ public:
 
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
+	virtual void setSettings(String key, String value);
 	virtual void setSettings(int status);
 	// Reports just the changed Bit
 	virtual void DCCFunc(int id, int bit, int newvalue);
@@ -25,7 +26,6 @@ private:
 	int locoId;
 	int func;
 	int gpio;
-
 };
 
 #endif /* ACTIONLED_H_ */

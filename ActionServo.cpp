@@ -39,7 +39,7 @@ String ActionServo::getHTMLController(String urlprefix) {
 
 	message += " <a href=\"";
 	message += urlprefix;
-	message += "status=";
+	message += "value=";
 	message += String(-1);
 	message += "\">";
 	message += "disable";
@@ -48,13 +48,17 @@ String ActionServo::getHTMLController(String urlprefix) {
 	for (int i = 0; i <= 180; i = i + 10) {
 		message += " <a href=\"";
 		message += urlprefix;
-		message += "status=";
+		message += "value=";
 		message += String(i);
 		message += "\">";
 		message += String(i);
 		message += "</a>";
 	}
 	return message;
+}
+
+void ActionServo::setSettings(String key, String value) {
+	setSettings(value.toInt());
 }
 
 void ActionServo::setSettings(int status) {

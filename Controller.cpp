@@ -72,7 +72,7 @@ String Controller::getHTMLController() {
 	return msg;
 }
 
-void Controller::setRequest(String id, int status) {
+void Controller::setRequest(String id, String key, String value) {
 	Serial.println("setRequest");
 	int idx = id.toInt();
 	Serial.println(idx);
@@ -80,7 +80,7 @@ void Controller::setRequest(String id, int status) {
 		return;
 	}
 	Serial.println("Actions");
-	actions.get(idx)->setSettings(status);
+	actions.get(idx)->setSettings(key, value);
 }
 
 void Controller::notifyDCCSpeed(int id, int speed, int direction,

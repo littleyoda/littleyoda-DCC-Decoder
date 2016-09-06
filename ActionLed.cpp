@@ -1,5 +1,5 @@
 /*
- * ActionLed.cpp
+ c++	* ActionLed.cpp
  *
  *  Created on: 27.08.2016
  *      Author: sven
@@ -27,14 +27,19 @@ String ActionLed::getHTMLController(String urlprefix) {
 	String message = "LED ";
 	message += " <a href=\"";
 	message += urlprefix;
-	message += "status=0";
+	message += "value=0";
 	message += "\">Flip to 0</a>";
 	message += " <a href=\"";
 	message += urlprefix;
-	message += "status=1";
+	message += "value=1";
 	message += "\">Flip to 1</a>";
 	return message;
 
+}
+
+void ActionLed::setSettings(String key, String value) {
+	int status = value.toInt();
+	setSettings(status);
 }
 
 void ActionLed::setSettings(int status) {
