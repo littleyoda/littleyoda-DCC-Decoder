@@ -8,6 +8,7 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <ESP8266WiFi.h>
 #include "Logger.h"
 
 #define set_bit(var, bitIdx) ((var) |= (1 << (bitIdx)))
@@ -17,6 +18,28 @@
 
 class Utils {
 public:
+
+	static String getHTMLHeader() {
+		return "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"stylesheet\" href=\"milligram.min.css\"><link rel=\"stylesheet\" href=\"css.css\"><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/></head><body>\n";
+	}
+
+	static String getHTMLFooter() {
+		String r = "<hr/><div class=\"row\">"
+
+				"<div class=\"column\">"
+				"<a style=\"font-size: 4rem;\" class=\"button\" href=\"/\">&#x29CD;</a>"
+				"</div>"
+
+				"<div class=\"column\">"
+				"<a style=\"font-size: 4rem;\" class=\"button\" href=\"/controll\">Controll</a>"
+				"</div>"
+
+
+				"</div>"
+				"</body></html>";
+
+		return r;
+	}
 
 	static String wifi2String(int status) {
 		switch (status) {
