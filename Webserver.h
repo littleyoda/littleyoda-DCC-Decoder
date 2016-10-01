@@ -11,19 +11,21 @@
 #include <LinkedList.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-
+#include <FS.h>
 #include "interfaceLoop.h"
 #include "WebserviceBase.h"
+
 
 class Controller;
 
 class Webserver: public interfaceLoop {
 public:
 	Webserver(Controller* c);
-	virtual void loop();
+	virtual int loop();
 	virtual ~Webserver();
 	static ESP8266WebServer* server;
 	void addServices(WebserviceBase* base);
+
 
 private:
 	bool loadFromSPIFFS(String filepath);
@@ -31,10 +33,13 @@ private:
 	void handleRoot();
 	void handleController();
 	void handleSet();
+	void handleFilelist();
+	void handleUpload();
 	int lastWifiStatus = 6;
-
+	File fsUploadFile;
 	Controller* controll;
-
+	LinkedList<WebserviceBase*> services = LinkedList<WebserviceBase*>();
 };
+
 
 #endif /* WEBSERVER_H_ */
