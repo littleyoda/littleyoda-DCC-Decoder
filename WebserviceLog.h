@@ -19,6 +19,8 @@ public:
 	virtual ~WebserviceLog();
 	virtual char const* getUri();
 	virtual void run();
+	virtual String  getLinkText();
+
 };
 
 #endif /* WEBSERVICELOG_H_ */

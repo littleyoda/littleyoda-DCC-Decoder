@@ -17,3 +17,7 @@ WebserviceBase::~WebserviceBase() {
 void WebserviceBase::setServer(ESP8266WebServer* server) {
 	this->server = server;
 }
+
+String  WebserviceBase::getLinkText() {
+	return "";
+}

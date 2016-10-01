@@ -7,6 +7,7 @@
 
 #include "WebserviceLog.h"
 #include "Logger.h"
+#include "Webserver.h"
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include "Utils.h"
@@ -22,8 +23,8 @@ char const* WebserviceLog::getUri() {
 }
 
 void WebserviceLog::run() {
-	String message =
-			"<html><body><table border=\"1\"><tr><th>Attribut</th><th>Status</th></tr>";
+	String message = Utils::getHTMLHeader() +
+			"<table border=\"1\"><tr><th>Attribut</th><th>Status</th></tr>";
 	message += "<tr><td>Memory</td><td>" + String(ESP.getFreeHeap()) + "/"
 			+ String(Logger::getInstance()->startmemory) + " Bytes </td></tr>";
 	message += "<tr><td>Uptime</td><td>" + String(millis() / 1000)
@@ -34,7 +35,13 @@ void WebserviceLog::run() {
 			+ Utils::wifi2String(WiFi.status()) + "</td></tr>";
 	message += "<tr><td>Wifi SSID</td><td>" + WiFi.SSID() + "</td></tr>";
 	message += Logger::getInstance()->logsToString();
-	message += "</body></html>";
+	message += "</table>";
+	message += Utils::getHTMLFooter();
 	server->send(200, "text/html", message);
 
 }
+
+String  WebserviceLog::getLinkText() {
+	return "&#128214;";
+}
+

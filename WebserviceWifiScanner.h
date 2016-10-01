@@ -19,6 +19,8 @@ public:
 	virtual ~WebserviceWifiScanner();
 	virtual char const* getUri();
 	virtual void run();
+	virtual String  getLinkText();
+
 private:
 	int dbm2qual(int dbm);
 };

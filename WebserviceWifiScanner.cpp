@@ -49,3 +49,9 @@ void WebserviceWifiScanner::run() {
 	message += "</table></body></html>";
 	server->send(200, "text/html", message);
 }
+
+
+String WebserviceWifiScanner::getLinkText() {
+	return "&#x1F4F6;";
+}
+
