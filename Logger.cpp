@@ -7,6 +7,7 @@
 
 #include "Logger.h"
 
+
 Logger::Logger() {
 	startmemory = ESP.getFreeHeap();
 }
@@ -23,26 +24,23 @@ Logger::~Logger() {
 
 void Logger::addToLog(String s) {
 	Serial.println(s);
-	logger.add(String(millis() / 1000) + ": " + s);
+	logger.add(String(millis() / 1000) + String(": ") + s);
 	if (logger.size() > 100) {
 		logger.shift();
 	}
 }
 
-LinkedList<String> Logger::getLogs() {
-	return logger;
+LinkedList<String>* Logger::getLogs() {
+	return &logger;
 }
 
 Logger* Logger::theInstance = NULL;
 
-String Logger::logsToString() {
-	String message = "";
+
+unsigned int Logger::getMemUsage() {
+	unsigned int usage = 0;
 	for (int i = 0; i < logger.size(); i++) {
-		message += "<tr><td>Log ";
-		message += String(i);
-		message += "</td><td>";
-		message += String(logger.get(i));
-		message += "</td></tr>\n";
+		usage +=  logger.get(i).length();
 	}
-	return message;
+	return usage;
 }

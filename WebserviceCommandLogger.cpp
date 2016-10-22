@@ -17,9 +17,6 @@ WebserviceCommandLogger::WebserviceCommandLogger() {
 WebserviceCommandLogger::~WebserviceCommandLogger() {
 }
 
-int WebserviceCommandLogger::loop() {
-	return -1;
-}
 
 void WebserviceCommandLogger::TurnoutCmd(int id, int direction, int source) {
 	addToLog("Turnout</td><td>" + String(id) + "</td><td>" + String(direction) + "</td><td>" + String(source));
@@ -58,21 +55,30 @@ const char* WebserviceCommandLogger::getUri() {
 }
 
 void WebserviceCommandLogger::run() {
-	String message = Utils::getHTMLHeader();
-	message += "<table>"
+	sendBasicHeader();
+	send(Utils::getHTMLHeader());
+	send("<table>"
 			"<thead>"
 			"<tr><th>Zeitpunkt</th><th></th><th>ID</th><th>Wert</th><th>Quelle (0=DCC, 1=WLAN)</th>"
-		    "</thead><tbody>";
+		    "</thead><tbody>");
 	for (int i = 0; i < logger.size(); i++) {
-		message += "<tr><td>";
-		message += String(logger.get(i));
-		message += "</td></tr>\n";
+		send("<tr><td>");
+		send(logger.get(i));
+		send("</td></tr>\n");
 	}
-	message += "</tbody></table>";
-	message += Utils::getHTMLFooter();
-	server->send(200, "text/html", message);
+	send("</tbody></table>");
+	send(Utils::getHTMLFooter());
+	finishSend();
 }
 
 String WebserviceCommandLogger::getLinkText() {
 	return "&#x2315;";
+}
+
+unsigned int WebserviceCommandLogger::getMemUsage() {
+	unsigned long usage = 0;
+	for (int i = 0; i < logger.size(); i++) {
+		usage +=  logger.get(i).length();
+	}
+	return usage;
 }

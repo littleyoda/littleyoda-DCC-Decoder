@@ -16,9 +16,9 @@ public:
 	ActionServo(int pin, int id);
 	virtual ~ActionServo();
 
-	virtual void loop();
+	virtual int loop();
 	virtual void TurnoutCmd(int id, int direction);
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps);
+	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
 	virtual void setSettings(String key, String value);

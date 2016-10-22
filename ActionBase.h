@@ -8,19 +8,20 @@
 #ifndef ACTIONBASE_H_
 #define ACTIONBASE_H_
 #include <Arduino.h>
+#include "interfaceLoop.h"
 
-class ActionBase {
+class ActionBase: public interfaceLoop {
 public:
 	ActionBase();
 	virtual ~ActionBase();
-	virtual void loop();
-	virtual void TurnoutCmd(int id, int direction);
+	//virtual int loop();
+	virtual void TurnoutCmd(int id, int direction, int source);
 	// Reports the Loco Speed and Direction
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps);
+	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	// Reports just the changed Bit
-	virtual void DCCFunc(int id, int bit, int newvalue);
+	virtual void DCCFunc(int id, int bit, int newvalue, int source);
 	// Reports the Status of the all functions (bit 0 => F0, bit 1 => F1, ...)
-	virtual void DCCFunc(int id, unsigned long int newvalue);
+	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
 	virtual void setSettings(String key, String value);

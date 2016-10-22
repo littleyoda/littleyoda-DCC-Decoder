@@ -11,17 +11,18 @@
 #include "CmdReceiverBase.h"
 #include "NmraDcc2.h"
 #include "Controller.h"
+#include "Logger.h"
 
 class CmdReceiverDCC: public CmdReceiverBase {
 private:
 	NmraDcc Dcc;
-	DCC_MSG Packet;
+	//DCC_MSG Packet;
 
 public:
 	static CmdReceiverDCC* _instance; // Hack for access from NmraDCC
 	CmdReceiverDCC(Controller* c, uint8_t ExtIntNum, uint8_t ExtIntPinNum);
 	virtual ~CmdReceiverDCC();
-	virtual void loop();
+	virtual int loop();
 	virtual void handleTurnOut(uint16_t Addr, uint8_t Direction);
 	virtual void handleDccSpeed(uint16_t Addr, uint8_t Speed, DCC_DIRECTION Dir,
 			DCC_SPEED_STEPS SpeedSteps);

@@ -16,7 +16,7 @@ class CmdReceiverZ21Wlan: public CmdReceiverBase {
 public:
 	CmdReceiverZ21Wlan(Controller* c, uint8_t ip1, uint8_t ip2, uint8_t ip3,
 			uint8_t ip4);
-	virtual void loop();
+	virtual int loop();
 	virtual ~CmdReceiverZ21Wlan();
 	void requestTurnoutInfo(int addr);
 	void enableBroadcasts();

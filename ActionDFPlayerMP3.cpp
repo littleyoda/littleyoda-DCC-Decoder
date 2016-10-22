@@ -42,7 +42,7 @@ ActionDFPlayerMP3::ActionDFPlayerMP3(int s1, int s2) {
 ActionDFPlayerMP3::~ActionDFPlayerMP3() {
 }
 
-void ActionDFPlayerMP3::loop() {
+int ActionDFPlayerMP3::loop() {
 	int count = 0;
 	while (true) {
 		int b = mp3Serial->read();
@@ -50,12 +50,12 @@ void ActionDFPlayerMP3::loop() {
 			if (count > 0) {
 				Serial.println();
 			}
-			return;
+			return 0;
 		}
 		Serial.print(b, HEX);
 		Serial.print(" ");
 	}
-
+	return 0;
 }
 
 String ActionDFPlayerMP3::getHTMLCfg(String urlprefix) {
@@ -63,9 +63,12 @@ String ActionDFPlayerMP3::getHTMLCfg(String urlprefix) {
 }
 
 String ActionDFPlayerMP3::getHTMLController(String urlprefix) {
-	String message = "MP3 ";
+	String message = "<div class=\"row\">";
+	message += "<div class=\"column column-10\">Songs</div>";
+	message += "<div class=\"column column-90\">";
+
 	for (int i = 0; i <= 10; i++) {
-		message += " Play Song <a href=\"";
+		message += " <a class=\"button\" href=\"";
 		message += urlprefix;
 		message += "key=play&value=";
 		message += String(i);
@@ -73,9 +76,15 @@ String ActionDFPlayerMP3::getHTMLController(String urlprefix) {
 		message += String(i);
 		message += "</a>";
 	}
-	message += "<br>";
+	message += "</div>";
+	message += "</div>";
+
+
+	message += "<div class=\"row\">";
+	message += "<div class=\"column column-10\">Volume</div>";
+	message += "<div class=\"column column-90\">";
 	for (int i = 0; i <= 29; i++) {
-		message += " <a href=\"";
+		message += " <a class=\"button\" href=\"";
 		message += urlprefix;
 		message += "key=volume&value=";
 		message += String(i);
@@ -83,6 +92,8 @@ String ActionDFPlayerMP3::getHTMLController(String urlprefix) {
 		message += String(i);
 		message += "</a>";
 	}
+	message += "</div>";
+	message += "</div>";
 	return message;
 
 }

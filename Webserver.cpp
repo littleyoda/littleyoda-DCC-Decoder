@@ -7,6 +7,7 @@
 
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266HTTPUpdateServer.h>
 #include <Arduino.h>
 #include <FS.h>
 
@@ -16,6 +17,8 @@
 #include "WebserviceLog.h"
 #include "Utils.h"
 
+ESP8266WebServer* Webserver::server = 0;
+ESP8266HTTPUpdateServer* Webserver::httpUpdater = 0;
 
 
 Webserver::Webserver(Controller* c) {
@@ -31,6 +34,9 @@ Webserver::Webserver(Controller* c) {
 	if (!SPIFFS.begin()) {
 		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
 	}
+	httpUpdater = new ESP8266HTTPUpdateServer();
+	const char* update_path = "/firmware";
+	httpUpdater->setup(server, update_path, "admin", "admin");
 }
 
 void Webserver::handleUpload() {
@@ -195,7 +201,6 @@ void Webserver::handleNotFound() {
 	server->send(404, "text/plain", message);
 }
 
-ESP8266WebServer* Webserver::server = 0;
 
 void Webserver::handleController() {
 	String message = Utils::getHTMLHeader();
@@ -216,5 +221,3 @@ void Webserver::handleSet() {
 	server->send(200, "text/html",
 			"<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>");
 }
-
-

@@ -29,9 +29,9 @@ public:
 	void doLoops();
 
 	// Notifications from Outside (via DCC, WLAN, ..)
-	void notifyTurnout(int id, int direction);
-	void notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps);
-	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value);
+	void notifyTurnout(int id, int direction, int source);
+	void notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
+	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value, int source);
 
 	String getHTMLController();
 	void setRequest(String id, String key, String value);
@@ -54,6 +54,7 @@ private:
 	LinkedList<CmdReceiverBase*> receiver = LinkedList<CmdReceiverBase*>();
 	LinkedList<ActionBase*> actions = LinkedList<ActionBase*>();
 	LinkedList<interfaceLoop*> loops = LinkedList<interfaceLoop*>();
+	LinkedList<unsigned long> nextRun = LinkedList<unsigned long>();
 	long int lastTurnoutCmd[3];
 
 };

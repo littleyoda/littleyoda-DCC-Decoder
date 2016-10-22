@@ -15,8 +15,8 @@
 class ActionTurnOut: public ActionBase {
 public:
 	ActionTurnOut(int dir1, int dir2, int enable, int id);
-	virtual void loop();
-	virtual void TurnoutCmd(int id, int direction);
+	virtual int loop();
+	virtual void TurnoutCmd(int id, int direction, int source);
 	virtual ~ActionTurnOut();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);

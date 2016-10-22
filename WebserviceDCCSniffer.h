@@ -15,8 +15,6 @@ class WebserviceDCCSniffer : public WebserviceBase {
 public:
 	WebserviceDCCSniffer();
 	virtual ~WebserviceDCCSniffer();
-
-	virtual int loop();
 	static WebserviceDCCSniffer* _instance; // Hack for access from NmraDCC
 
 	virtual String getHTMLCfg(String urlprefix);
@@ -26,6 +24,8 @@ public:
 	virtual void run();
 	virtual String  getLinkText();
 	 void addToLog(String s);
+		unsigned int getMemUsage();
+
 private:
 	LinkedList<String> logger = LinkedList<String>();
 

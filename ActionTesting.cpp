@@ -32,7 +32,7 @@ String ActionTesting::getHTMLController(String urlprefix) {
 void ActionTesting::setSettings(String key, String value) {
 }
 
-void ActionTesting::loop() {
+int ActionTesting::loop() {
 //	//int currentstatus = digitalRead(gpio);
 //	if (millis() > last + 1000) {
 //		unsigned int x = (unsigned int) analogRead(A0);
@@ -46,4 +46,5 @@ void ActionTesting::loop() {
 		Serial.println(String(millis()) + "/" + String(millis() - last) + ": Now " + String(status));
 		last = millis();
 	}
+	return 0;
 }

@@ -19,7 +19,7 @@ public:
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
 	virtual void setSettings(String key, String value);
-	virtual void loop();
+	virtual int loop();
 private:
 	int status = 2;
 	int gpio;

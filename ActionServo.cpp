@@ -18,15 +18,17 @@ ActionServo::ActionServo(int pin, int id) {
 ActionServo::~ActionServo() {
 }
 
-void ActionServo::loop() {
+int ActionServo::loop() {
 	if (lastcommand == 0) {
-		return;
+		return 2000;
 	}
 	// Autodetach after 2 sec
 	if (millis() > lastcommand + 2000) {
 		lastcommand = 0;
 		detach();
+		return 2000;
 	}
+	return 20;
 }
 
 String ActionServo::getHTMLCfg(String urlprefix) {
@@ -34,10 +36,11 @@ String ActionServo::getHTMLCfg(String urlprefix) {
 }
 
 String ActionServo::getHTMLController(String urlprefix) {
-	String message = "Servo ";
-	message += "";
+	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
+	message += "Servo ";
+	message += "</div><div class=\"column column-90\">";
 
-	message += " <a href=\"";
+	message += " <a class=\"button\" href=\"";
 	message += urlprefix;
 	message += "value=";
 	message += String(-1);
@@ -46,14 +49,16 @@ String ActionServo::getHTMLController(String urlprefix) {
 	message += "</a>";
 
 	for (int i = 0; i <= 180; i = i + 10) {
-		message += " <a href=\"";
+		message += " <a class=\"button\" href=\"";
 		message += urlprefix;
 		message += "value=";
 		message += String(i);
 		message += "\">";
 		message += String(i);
-		message += "</a>";
+		message += "°</a>";
 	}
+	message += "</div>";
+	message += "</div>";
 	return message;
 }
 
@@ -92,7 +97,7 @@ void ActionServo::detach() {
 	isAttach = false;
 }
 
-void ActionServo::DCCSpeed(int id, int speed, int direction, int SpeedSteps) {
+void ActionServo::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
 	if (id != this->id) {
 		return;
 	}

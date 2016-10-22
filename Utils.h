@@ -23,6 +23,15 @@ public:
 		return "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"stylesheet\" href=\"milligram.min.css\"><link rel=\"stylesheet\" href=\"css.css\"><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/></head><body>\n";
 	}
 
+	static String repeatString(String rep, int number) {
+		String s;
+		s.reserve(rep.length() * number);
+		for (int i = 0; i < number; i++) {
+			s.concat(rep);
+		}
+		return s;
+	}
+
 	static String getHTMLFooter() {
 		String r = "<hr/><div class=\"row\">"
 
@@ -87,6 +96,17 @@ public:
 			Logger::getInstance()->addToLog(
 					String("Unbekannte PIN in Config: ") + pin);
 			return -1;
+		}
+	}
+
+	static int hextoint(char c) {
+		unsigned int value = (unsigned int) c;
+		if (isdigit(c)) {
+			return value - '0';
+		} else if (isalpha(c)) {
+			return value - (isupper(c) ? 'A' - 10 : 'a' - 10);
+		} else {
+			return 0;
 		}
 	}
 

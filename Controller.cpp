@@ -19,30 +19,34 @@ Controller::~Controller() {
 
 void Controller::registerCmdReceiver(CmdReceiverBase* base) {
 	receiver.add(base);
+	loops.add(base);
 }
 
 void Controller::doLoops() {
 	int idx;
-	for (idx = 0; idx < receiver.size(); idx++) {
-		receiver.get(idx)->loop();
+	while (nextRun.size() < loops.size()) {
+		nextRun.add(0);
 	}
-	for (idx = 0; idx < actions.size(); idx++) {
-		actions.get(idx)->loop();
-	}
+	// Run and save the new execute time
+	unsigned long now = millis();
 	for (idx = 0; idx < loops.size(); idx++) {
-		loops.get(idx)->loop();
+		if (nextRun.get(idx)  <= now) {
+			int wait = loops.get(idx)->loop();
+			nextRun.set(idx, now + wait);
+		}
 	}
 }
 
 void Controller::registerAction(ActionBase* base) {
 	actions.add(base);
+	loops.add(base);
 }
 
 void Controller::registerLoop(interfaceLoop* loop) {
 	loops.add(loop);
 }
 
-void Controller::notifyTurnout(int id, int direction) {
+void Controller::notifyTurnout(int id, int direction, int source) {
 	// ignore the same command within 50 msec
 	if (lastTurnoutCmd[0] == id && lastTurnoutCmd[1] == direction
 			&& (millis() - lastTurnoutCmd[2]) < 50) {
@@ -58,17 +62,18 @@ void Controller::notifyTurnout(int id, int direction) {
 	// Send the information to the actions
 	int idx;
 	for (idx = 0; idx < actions.size(); idx++) {
-		actions.get(idx)->TurnoutCmd(id, direction);
+		actions.get(idx)->TurnoutCmd(id, direction, source);
 	}
 }
 
 String Controller::getHTMLController() {
-	String msg = "";
+	String msg = "<div class=\"container\">";
 	for (int idx = 0; idx < actions.size(); idx++) {
 		msg += actions.get(idx)->getHTMLController(
 				"/set?id=" + String(idx) + "&");
-		msg += "<br>";
+		msg += "\n";
 	}
+	msg += "</div>";
 	return msg;
 }
 
@@ -84,7 +89,7 @@ void Controller::setRequest(String id, String key, String value) {
 }
 
 void Controller::notifyDCCSpeed(int id, int speed, int direction,
-		int SpeedSteps) {
+		int SpeedSteps, int source) {
 	// Filter out known commands
 	LocData* data;
 	if (items.find(id) == items.end()) {
@@ -109,12 +114,12 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 	// Send the information to the actions
 	int idx;
 	for (idx = 0; idx < actions.size(); idx++) {
-		actions.get(idx)->DCCSpeed(id, speed, direction, SpeedSteps);
+		actions.get(idx)->DCCSpeed(id, speed, direction, SpeedSteps, source);
 	}
 }
 
 
-void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long partValues) {
+void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long partValues, int source) {
 	// Get the old status ...
 	FuncData* data;
 	if (funcdatas.find(id) == funcdatas.end()) {
@@ -139,12 +144,13 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 			set_bit(data->status, i);
 		}
 		for (int idx = 0; idx < actions.size(); idx++) {
-			actions.get(idx)->DCCFunc(id, i, (newBitValue == 0) ? 0 : 1);
+			actions.get(idx)->DCCFunc(id, i, (newBitValue == 0) ? 0 : 1, source);
 		}
 	}
 	if (changed) {
+		Serial.println("Func " + String(id) + " " + String(data->status));
 		for (int idx = 0; idx < actions.size(); idx++) {
-			actions.get(idx)->DCCFunc(id, data->status);
+			actions.get(idx)->DCCFunc(id, data->status, source);
 		}
 	}
 }

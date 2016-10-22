@@ -5,10 +5,16 @@
  *      Author: sven
  */
 
+#include <climits>
 #include "interfaceLoop.h"
 
 interfaceLoop::interfaceLoop() {
 }
+
+int interfaceLoop::loop() {
+	return 1000 * 60 * 60 * 24; // One day
+}
+
 
 interfaceLoop::~interfaceLoop() {
 }

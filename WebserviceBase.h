@@ -20,8 +20,12 @@ public:
 	void setServer(ESP8266WebServer* server);
 	virtual String  getLinkText();
 
+
 protected:
 	ESP8266WebServer* server;
+	void sendBasicHeader();
+	void finishSend();
+	void send(const String& content);
 
 };
 

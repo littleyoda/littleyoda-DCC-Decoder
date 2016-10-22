@@ -16,9 +16,6 @@ class WebserviceCommandLogger : public WebserviceBase, public ActionBase {
 public:
 	WebserviceCommandLogger();
 	virtual ~WebserviceCommandLogger();
-
-	virtual int loop();
-
 	virtual void TurnoutCmd(int id, int direction, int source);
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
@@ -29,6 +26,7 @@ public:
 	virtual char const* getUri();
 	virtual void run();
 	virtual String  getLinkText();
+	unsigned int getMemUsage();
 private:
 	LinkedList<String> logger = LinkedList<String>();
 	 void addToLog(String s);

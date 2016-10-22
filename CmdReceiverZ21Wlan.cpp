@@ -8,10 +8,13 @@
 #include "CmdReceiverZ21Wlan.h"
 #include <stdint.h>
 #include "Controller.h"
+#include "Logger.h"
+
 
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, uint8_t ip1, uint8_t ip2,
 		uint8_t ip3, uint8_t ip4) :
 		CmdReceiverBase(c) {
+	Logger::getInstance()->addToLog("Starting Z21 Wlan Receiver ...");
 
 	z21Server = new IPAddress(ip1, ip2, ip3, ip4);
 	udp = new WiFiUDP();
@@ -19,7 +22,7 @@ CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, uint8_t ip1, uint8_t ip2,
 	enableBroadcasts();
 }
 
-void CmdReceiverZ21Wlan::loop() {
+int CmdReceiverZ21Wlan::loop() {
 	// Check for UDP
 	int cb = udp->parsePacket();
 	if (cb != 0) {
@@ -39,6 +42,7 @@ void CmdReceiverZ21Wlan::loop() {
 //	      loopstatus = 0;
 //	    }
 	}
+	return 2;
 
 }
 
@@ -54,7 +58,7 @@ void CmdReceiverZ21Wlan::handleTurnout() {
 		output = 1;
 	}
 
-	controller->notifyTurnout(id, output);
+	controller->notifyTurnout(id, output, 1);
 }
 
 void CmdReceiverZ21Wlan::handleDCCSpeed(unsigned int locoid) {
@@ -68,9 +72,8 @@ void CmdReceiverZ21Wlan::handleDCCSpeed(unsigned int locoid) {
 	}
 
 	int richtung = (packetBuffer[8] & 128) == 0 ? -1 : 1;
-	;
 	unsigned int v = (packetBuffer[8] & 127);
-	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen);
+	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen, 1);
 }
 
 void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
@@ -78,7 +81,7 @@ void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
 			+ ((packetBuffer[9] & 15) << 1) + ((packetBuffer[10]) << 5)
 			+ ((packetBuffer[11]) << (8 + 5))
 			+ ((packetBuffer[12]) << (16 + 5));
-	controller->notifyDCCFun(locoid, 0, 29, func);
+	controller->notifyDCCFun(locoid, 0, 29, func, 1);
 }
 
 void CmdReceiverZ21Wlan::doReceive(int cb) {

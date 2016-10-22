@@ -11,8 +11,8 @@
 class interfaceLoop {
 public:
 	interfaceLoop();
-	virtual ~interfaceLoop() = 0;
-	virtual void loop() = 0;
+	virtual ~interfaceLoop();
+	virtual int loop();
 };
 
 #endif /* INTERFACELOOP_H_ */

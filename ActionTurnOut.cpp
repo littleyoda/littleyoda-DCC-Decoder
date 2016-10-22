@@ -11,7 +11,7 @@
 
 ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable, int id) {
 	Logger::getInstance()->addToLog(
-			"Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: "
+			"Starting Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: "
 					+ enable + " ID: " + id);
 	dirPin[0] = dir1;
 	dirPin[1] = dir2;
@@ -32,16 +32,19 @@ String ActionTurnOut::getHTMLCfg(String urlprefix) {
 }
 
 String ActionTurnOut::getHTMLController(String urlprefix) {
-	String message = "Turnout-ID ";
+	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
+	message += "Turnout-ID ";
 	message += String(id);
-	message += " <a href=\"";
+	message += "</div>";
+	message += "<div class=\"column column-90\"><a style=\"font-size: 4rem;\" class=\"button\" href=\"";
 	message += urlprefix;
 	message += "value=0";
-	message += "\">Flip to 0</a>";
-	message += " <a href=\"";
+	message += "\">&#9756;</a>";
+	message += " <a style=\"font-size: 4rem;\" class=\"button\" href=\"";
 	message += urlprefix;
 	message += "value=1";
-	message += "\">Flip to 1</a>";
+	message += "\">&#9758;</a></div>";
+	message += "</div>";
 	return message;
 }
 
@@ -52,11 +55,12 @@ void ActionTurnOut::off() {
 	}
 }
 
-void ActionTurnOut::loop() {
+int ActionTurnOut::loop() {
 	off();
+	return 1000;
 }
 
-void ActionTurnOut::TurnoutCmd(int id, int status) {
+void ActionTurnOut::TurnoutCmd(int id, int status, int source) {
 	if (id != this->id) {
 		return;
 	}
@@ -76,6 +80,6 @@ ActionTurnOut::~ActionTurnOut() {
 }
 
 void ActionTurnOut::setSettings(String key, String value) {
-	TurnoutCmd(id, value.toInt());
+	TurnoutCmd(id, value.toInt(), -1);
 }
 

@@ -8,7 +8,6 @@
 #include "CmdReceiverDCC.h"
 
 #include "NmraDcc2.h"
-#include <stdexcept>
 
 void notifyDccFunc(uint16_t Addr, DCC_ADDR_TYPE AddrType, FN_GROUP FuncGrp,
 		uint8_t FuncState) {
@@ -31,8 +30,8 @@ void notifyDccAccTurnoutOutput(uint16_t Addr, uint8_t Direction,
 CmdReceiverDCC::CmdReceiverDCC(Controller* c, uint8_t ExtIntNum,
 		uint8_t ExtIntPinNum) :
 		CmdReceiverBase(c) {
+	Logger::getInstance()->addToLog("Starting DCC Receiver ...");
 	CmdReceiverDCC::_instance = this;
-	Serial.println("Starting DCC Receiver ...");
 	Dcc.pin(ExtIntNum, ExtIntPinNum, 1);
 	Dcc.init( MAN_ID_DIY, 10,
 			CV29_ACCESSORY_DECODER | FLAGS_OUTPUT_ADDRESS_MODE, 0);
@@ -41,19 +40,20 @@ CmdReceiverDCC::CmdReceiverDCC(Controller* c, uint8_t ExtIntNum,
 CmdReceiverDCC::~CmdReceiverDCC() {
 }
 
-void CmdReceiverDCC::loop() {
+int CmdReceiverDCC::loop() {
 	Dcc.process();
+	return 0;
 }
 
 CmdReceiverDCC *CmdReceiverDCC::_instance = NULL;
 
 void CmdReceiverDCC::handleTurnOut(uint16_t Addr, uint8_t Direction) {
-	controller->notifyTurnout(Addr, Direction);
+	controller->notifyTurnout(Addr, Direction, 0);
 }
 
 void CmdReceiverDCC::handleDccSpeed(uint16_t Addr, uint8_t Speed,
 		DCC_DIRECTION Dir, DCC_SPEED_STEPS SpeedSteps) {
-	controller->notifyDCCSpeed(Addr, Speed, (Dir == 1) ? Dir : -1, SpeedSteps);
+	controller->notifyDCCSpeed(Addr, Speed, (Dir == 1) ? Dir : -1, SpeedSteps, 0);
 }
 
 void CmdReceiverDCC::handleDccFun(uint16_t Addr, FN_GROUP FuncGrp,
@@ -125,5 +125,5 @@ void CmdReceiverDCC::handleDccFun(uint16_t Addr, FN_GROUP FuncGrp,
 		value = value << 21;
 		break;
 	}
-	controller->notifyDCCFun(Addr, startbit, stopbit, value);
+	controller->notifyDCCFun(Addr, startbit, stopbit, value, 0);
 }

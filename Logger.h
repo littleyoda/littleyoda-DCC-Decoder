@@ -14,14 +14,15 @@ class Logger {
 public:
 	static Logger* getInstance();
 	void addToLog(String s);
-	LinkedList<String> getLogs();
+	LinkedList<String>* getLogs();
 	int startmemory;
-	String logsToString();
+	unsigned int getMemUsage();
 private:
 	LinkedList<String> logger = LinkedList<String>();
 	Logger();
 	virtual ~Logger();
 	static Logger *theInstance;
+
 };
 
 #endif /* LOGGER_H_ */

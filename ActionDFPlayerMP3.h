@@ -14,7 +14,7 @@
 class ActionDFPlayerMP3: public ActionBase {
 public:
 	ActionDFPlayerMP3(int s1, int s2);
-	virtual void loop();
+	virtual int loop();
 	virtual ~ActionDFPlayerMP3();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
