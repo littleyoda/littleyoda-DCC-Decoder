@@ -25,7 +25,7 @@ Logger::~Logger() {
 void Logger::addToLog(String s) {
 	Serial.println(s);
 	logger.add(String(millis() / 1000) + String(": ") + s);
-	if (logger.size() > 100) {
+	if (logger.size() > maxLog) {
 		logger.shift();
 	}
 }

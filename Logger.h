@@ -16,6 +16,7 @@ public:
 	void addToLog(String s);
 	LinkedList<String>* getLogs();
 	int startmemory;
+	int maxLog = 50;
 	unsigned int getMemUsage();
 private:
 	LinkedList<String> logger = LinkedList<String>();

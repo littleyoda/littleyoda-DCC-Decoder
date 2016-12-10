@@ -45,7 +45,7 @@ void WebserviceCommandLogger::setSettings(String key, String value) {
 void WebserviceCommandLogger::addToLog(String s) {
 	Serial.println(s);
 	logger.add(String(millis() / 1000) + "</td><td>" + s);
-	if (logger.size() > 100) {
+	if (logger.size() > maxLog) {
 		logger.shift();
 	}
 }

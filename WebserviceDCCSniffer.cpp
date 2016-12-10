@@ -52,7 +52,7 @@ String WebserviceDCCSniffer::getHTMLController(String urlprefix) {
 void WebserviceDCCSniffer::addToLog(String s) {
 	//Serial.println(s);
 	logger.add(String(millis() / 1000) + "</td><td>" + s);
-	if (logger.size() > 100) {
+	if (logger.size() > maxLog) {
 		logger.shift();
 	}
 }

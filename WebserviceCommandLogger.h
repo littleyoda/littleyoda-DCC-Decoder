@@ -27,6 +27,7 @@ public:
 	virtual void run();
 	virtual String  getLinkText();
 	unsigned int getMemUsage();
+	int maxLog = 50;
 private:
 	LinkedList<String> logger = LinkedList<String>();
 	 void addToLog(String s);
