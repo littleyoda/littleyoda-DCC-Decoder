@@ -96,7 +96,7 @@ void ActionPWMOutput::setDirection(int dir) {
 
 void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
 	if (id != locid) {
-		continue;
+		return;
 	}
 	setDirection(direction);
 	int v = PWMRANGE * speed / SpeedSteps;
