@@ -77,6 +77,17 @@ String Controller::getHTMLController() {
 	return msg;
 }
 
+String Controller::getHTMLCfg() {
+	String msg = "<div class=\"container\">";
+	for (int idx = 0; idx < actions.size(); idx++) {
+		msg += actions.get(idx)->getHTMLCfg(
+				"/set?id=" + String(idx) + "&");
+		msg += "\n";
+	}
+	msg += "</div>";
+	return msg;
+}
+
 void Controller::setRequest(String id, String key, String value) {
 	Serial.println("setRequest");
 	int idx = id.toInt();

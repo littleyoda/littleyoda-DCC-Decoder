@@ -27,6 +27,7 @@ Webserver::Webserver(Controller* c) {
 	server->onNotFound(std::bind(&Webserver::handleNotFound, this));
 	server->on("/", std::bind(&Webserver::handleRoot, this));
 	server->on("/controll", std::bind(&Webserver::handleController, this));
+	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
 	server->on("/upload", HTTP_POST, []() { server->send(200, "text/plain", ""); }, std::bind(&Webserver::handleUpload, this));
@@ -220,4 +221,11 @@ void Webserver::handleSet() {
 	controll->setRequest(server->arg("id"), server->arg("key"), server->arg("value"));
 	server->send(200, "text/html",
 			"<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>");
+}
+
+void Webserver::handleCfg() {
+	String message = Utils::getHTMLHeader();
+	message += controll->getHTMLCfg();
+	message += Utils::getHTMLFooter();
+	server->send(200, "text/html", message);
 }

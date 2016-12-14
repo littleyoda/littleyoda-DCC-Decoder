@@ -34,6 +34,7 @@ public:
 	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value, int source);
 
 	String getHTMLController();
+	String getHTMLCfg();
 	void setRequest(String id, String key, String value);
 
 private:

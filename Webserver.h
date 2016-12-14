@@ -33,6 +33,7 @@ private:
 	void handleNotFound();
 	void handleRoot();
 	void handleController();
+	void handleCfg();
 	void handleSet();
 	void handleFilelist();
 	void handleUpload();
