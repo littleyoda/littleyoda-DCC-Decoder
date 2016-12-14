@@ -9,10 +9,11 @@
 #define CMDRECEIVERZ21WLAN_H_
 
 #include "CmdReceiverBase.h"
+#include "CmdSenderBase.h"
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 
-class CmdReceiverZ21Wlan: public CmdReceiverBase {
+class CmdReceiverZ21Wlan: public CmdReceiverBase, CmdSenderBase {
 public:
 	CmdReceiverZ21Wlan(Controller* c, uint8_t ip1, uint8_t ip2, uint8_t ip3,
 			uint8_t ip4);
@@ -20,7 +21,7 @@ public:
 	virtual ~CmdReceiverZ21Wlan();
 	void requestTurnoutInfo(int addr);
 	void enableBroadcasts();
-	void sendSetTurnout(String id, String status);
+	virtual void sendSetTurnout(String id, String status);
 
 private:
 	WiFiUDP* udp;

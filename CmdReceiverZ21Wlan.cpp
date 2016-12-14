@@ -30,7 +30,7 @@ int CmdReceiverZ21Wlan::loop() {
 	}
 	// Scheduler for Requests
 	long int time = millis();
-	if (time - lastTime > 1000) {
+	if (time - lastTime > 700) {
 		lastTime = time;
 //	    if (loopstatus < turnoutCount) {
 //	      requestTurnoutInfo(turnoutAddr[loopstatus]);
