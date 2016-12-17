@@ -11,7 +11,6 @@
 #include "Logger.h"
 #include "Consts.h"
 
-
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, const char* ip) : CmdReceiverBase(c)  {
 	Logger::getInstance()->addToLog("Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {
@@ -31,21 +30,28 @@ int CmdReceiverZ21Wlan::loop() {
 	// Check for UDP
 	int cb = udp->parsePacket();
 	if (cb != 0) {
+//		Serial.println("Paket received");
 		doReceive(cb);
 	}
-	// Scheduler for Requests
 	long int time = millis();
-	if (time - lastTime > 700) {
+	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
+		Logger::getInstance()->addToLog("Z21 wlan Timeout");
+		emergencyStop();
+		timeout = 0;
+	}
+
+	// Scheduler for Requests
+	if (time - lastTime > (emergencyStopTimeout / 4)) {
 		lastTime = time;
-		//	    if (loopstatus < turnoutCount) {
-		//	      requestTurnoutInfo(turnoutAddr[loopstatus]);
-		//	    } else {
-		enableBroadcasts();
-		//	    }
-		//	    loopstatus++;
-		//	    if (loopstatus >= turnoutCount + 1) {
-		//	      loopstatus = 0;
-		//	    }
+		if (loopStatus == 0) {
+			enableBroadcasts();
+		} else if (loopStatus == 1) {
+			sendLanGetSerialNumber();
+		}
+		loopStatus++;
+		if (loopStatus == 2) {
+			loopStatus = 0;
+		}
 	}
 	return 2;
 
@@ -97,20 +103,30 @@ void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
 
 void CmdReceiverZ21Wlan::doReceive(int cb) {
 	//	Serial.print("packet received, length=");
-	Serial.println(cb);
+//	Serial.println(cb);
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
 	}
 	udp->read(packetBuffer, cb);
+	resetTimeout();
+
+	boolean getSerialNumber = cb >= 8  && packetBuffer[0] == 0x08
+			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x10
+			&& packetBuffer[3] == 0x00;
+	if (getSerialNumber) {
+		return;
+	}
 
 	// Check if this is a TURNOUT_INFO
-	boolean turnOutInfoPaket = cb == 9 && packetBuffer[0] == 0x09
+	boolean turnOutInfoPaket = cb >= 9 && packetBuffer[0] == 0x09
 			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
 			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0x43;
 	if (turnOutInfoPaket) {
 		handleTurnout();
 		return;
 	}
+
+
 	boolean loco_info = cb >=7 && packetBuffer[0] >= 8
 			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
 			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0xEF;
@@ -126,7 +142,7 @@ void CmdReceiverZ21Wlan::doReceive(int cb) {
 			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0x61
 			&& packetBuffer[5] == 0x00 && packetBuffer[6] == 0x61;
 	if (poweroff) {
-		controller->notifyDCCSpeed(Consts::LOCID_ALL, 0, 0, 128, Consts::SOURCE_WLAN);
+		emergencyStop();
 		return;
 	}
 
@@ -230,7 +246,7 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
 																	   ^ packetBuffer[7];
 
 	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, 9);
+	udp->write(packetBuffer, packetBuffer[0]);
 	udp->endPacket();
 }
 
@@ -247,3 +263,25 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
 CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
 }
 
+void CmdReceiverZ21Wlan::resetTimeout() {
+	timeout = millis();
+}
+
+void CmdReceiverZ21Wlan::sendLanGetSerialNumber() {
+	memset(packetBuffer, 0, packetBufferSize);
+
+	// 5.2 LAN_X_SET_TURNOUT
+	packetBuffer[0] = 0x04;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x10;
+	packetBuffer[3] = 0x00;
+
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, packetBuffer[0]);
+	udp->endPacket();
+}
+
+void CmdReceiverZ21Wlan::emergencyStop() {
+	controller->notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
+							   Consts::SPEED_FORWARD, 128, Consts::SOURCE_WLAN);
+}

@@ -27,13 +27,20 @@ private:
 	unsigned int localPort = 21105;
 	const int packetBufferSize = 30;
 	unsigned char packetBuffer[30];
+	unsigned long timeout = 0;
 	IPAddress* z21Server;
 	void doReceive(int cb);
+	void resetTimeout();
 	void handleTurnout();
 	void handleDCCSpeed(unsigned int locoid);
 	void handleFunc(unsigned int locoid);
+	void sendLanGetSerialNumber();
+
+	void emergencyStop();
 
 	long int lastTime = 0;
+	static const int emergencyStopTimeout = 1000;
+	int loopStatus = 0;
 };
 
 #endif /* CMDRECEIVERZ21WLAN_H_ */

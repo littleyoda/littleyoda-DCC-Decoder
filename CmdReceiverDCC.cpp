@@ -8,6 +8,7 @@
 #include "CmdReceiverDCC.h"
 
 #include "NmraDcc2.h"
+#include "Consts.h"
 
 void notifyDccFunc(uint16_t Addr, DCC_ADDR_TYPE AddrType, FN_GROUP FuncGrp,
 		uint8_t FuncState) {
@@ -53,7 +54,7 @@ void CmdReceiverDCC::handleTurnOut(uint16_t Addr, uint8_t Direction) {
 
 void CmdReceiverDCC::handleDccSpeed(uint16_t Addr, uint8_t Speed,
 		DCC_DIRECTION Dir, DCC_SPEED_STEPS SpeedSteps) {
-	controller->notifyDCCSpeed(Addr, Speed, (Dir == 1) ? Dir : -1, SpeedSteps, 0);
+	controller->notifyDCCSpeed(Addr, Speed, (Dir == 1) ? Dir : Consts::SPEED_REVERSE, SpeedSteps, 0);
 }
 
 void CmdReceiverDCC::handleDccFun(uint16_t Addr, FN_GROUP FuncGrp,

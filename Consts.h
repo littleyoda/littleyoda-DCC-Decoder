@@ -14,6 +14,9 @@ public:
 
 	const static int SPEED_EMERGENCY = 0;
 	const static int SPEED_STOP = 1;
+	const static int SPEED_FORWARD = 1;
+	const static int SPEED_REVERSE = -1;
+
 	const static int LOCID_ALL = -1;
 
 

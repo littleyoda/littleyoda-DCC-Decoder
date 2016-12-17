@@ -101,10 +101,14 @@ void Controller::setRequest(String id, String key, String value) {
 }
 
 /**
- * @param speed 0 =
+ * @param speed see Consts.h
+ * @param direction 1 = forward / 1 = reverse
  */
 void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		int SpeedSteps, int source) {
+	if (direction == 0) {
+		Logger::getInstance()->addToLog("Ungültige Richtung (0)");
+	}
 	// Filter out known commands
 	LocData* data;
 	if (items.find(id) == items.end()) {
