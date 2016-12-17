@@ -71,6 +71,33 @@ public:
 		};
 	}
 
+	static String gpio2string(int gpio) {
+		if (D1 == gpio) {
+			return "D1";
+		} else 	if (D2 == gpio) {
+			return "D2";
+		} else 	if (D3 == gpio) {
+			return "D3";
+		} else 	if (D4 == gpio) {
+			return "D4";
+		} else 	if (D5 == gpio) {
+			return "D5";
+		} else 	if (D6 == gpio) {
+			return "D6";
+		} else 	if (D7 == gpio) {
+			return "D7";
+		} else 	if (D8 == gpio) {
+			return "D8";
+		} else 	if (D9 == gpio) {
+			return "D9";
+		} else 	if (D10 == gpio) {
+			return "D10";
+		} else {
+			Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
+			return "Pin " + String(gpio);
+		}
+	}
+
 	static int string2gpio(const char* pin) {
 		if (strcmp("D1", pin) == 0) {
 			return D1;
@@ -94,7 +121,7 @@ public:
 			return D10;
 		} else {
 			Logger::getInstance()->addToLog(
-					String("Unbekannte PIN in Config: ") + pin);
+					"Unbekannte PIN in Config: " + String(pin));
 			return -1;
 		}
 	}

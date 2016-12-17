@@ -9,14 +9,19 @@
 #include <stdint.h>
 #include "Controller.h"
 #include "Logger.h"
+#include "Consts.h"
 
 
-CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, uint8_t ip1, uint8_t ip2,
-		uint8_t ip3, uint8_t ip4) :
-		CmdReceiverBase(c) {
+CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, const char* ip) : CmdReceiverBase(c)  {
 	Logger::getInstance()->addToLog("Starting Z21 Wlan Receiver ...");
+	if (ip == NULL) {
+		z21Server = new IPAddress(192,168,0,111);
+	} else {
+		z21Server = new IPAddress();
+		z21Server->fromString(ip);
 
-	z21Server = new IPAddress(ip1, ip2, ip3, ip4);
+	}
+	Logger::getInstance()->addToLog("Using: " + String(z21Server->toString()));
 	udp = new WiFiUDP();
 	udp->begin(localPort);
 	enableBroadcasts();
@@ -32,15 +37,15 @@ int CmdReceiverZ21Wlan::loop() {
 	long int time = millis();
 	if (time - lastTime > 700) {
 		lastTime = time;
-//	    if (loopstatus < turnoutCount) {
-//	      requestTurnoutInfo(turnoutAddr[loopstatus]);
-//	    } else {
+		//	    if (loopstatus < turnoutCount) {
+		//	      requestTurnoutInfo(turnoutAddr[loopstatus]);
+		//	    } else {
 		enableBroadcasts();
-//	    }
-//	    loopstatus++;
-//	    if (loopstatus >= turnoutCount + 1) {
-//	      loopstatus = 0;
-//	    }
+		//	    }
+		//	    loopstatus++;
+		//	    if (loopstatus >= turnoutCount + 1) {
+		//	      loopstatus = 0;
+		//	    }
 	}
 	return 2;
 
@@ -73,19 +78,25 @@ void CmdReceiverZ21Wlan::handleDCCSpeed(unsigned int locoid) {
 
 	int richtung = (packetBuffer[8] & 128) == 0 ? -1 : 1;
 	unsigned int v = (packetBuffer[8] & 127);
+	// Adjust to match NmraDCC Schema
+	if (v == 0) {
+		v = Consts::SPEED_STOP;
+	} else if (v == 1) {
+		v = Consts::SPEED_EMERGENCY;
+	}
 	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen, 1);
 }
 
 void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
 	unsigned long func = (((packetBuffer[9] & 16) > 0) ? 1 : 0)
-			+ ((packetBuffer[9] & 15) << 1) + ((packetBuffer[10]) << 5)
-			+ ((packetBuffer[11]) << (8 + 5))
-			+ ((packetBuffer[12]) << (16 + 5));
+					+ ((packetBuffer[9] & 15) << 1) + ((packetBuffer[10]) << 5)
+					+ ((packetBuffer[11]) << (8 + 5))
+					+ ((packetBuffer[12]) << (16 + 5));
 	controller->notifyDCCFun(locoid, 0, 29, func, 1);
 }
 
 void CmdReceiverZ21Wlan::doReceive(int cb) {
-//	Serial.print("packet received, length=");
+	//	Serial.print("packet received, length=");
 	Serial.println(cb);
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
@@ -109,13 +120,37 @@ void CmdReceiverZ21Wlan::doReceive(int cb) {
 		handleFunc(locoid);
 		return;
 	}
-//	// Print unknown packets:
-//	Serial.println("New Paket:");
-//	for (int i = 0; i < cb; i++) {
-//		Serial.print(packetBuffer[i], HEX);
-//		Serial.print(" ");
-//	}
-//	Serial.println();
+
+	boolean poweroff = cb >= 7 && packetBuffer[0] == 0x07
+			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
+			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0x61
+			&& packetBuffer[5] == 0x00 && packetBuffer[6] == 0x61;
+	if (poweroff) {
+		controller->notifyDCCSpeed(Consts::LOCID_ALL, 0, 0, 128, Consts::SOURCE_WLAN);
+		return;
+	}
+
+	boolean poweron = cb >= 7 && packetBuffer[0] == 0x07
+			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
+			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0x61
+			&& packetBuffer[5] == 0x01 && packetBuffer[6] == 0x60;
+	if (poweron) {
+		// todo
+		return;
+	}
+
+
+	// Print unknown packets:
+	Serial.println("New Paket:");
+	for (int i = 0; i < cb; i++) {
+		Serial.print("&& packetBuffer["+ String(i) + "] == 0x");
+		if (packetBuffer[i] < 16) {
+			Serial.print("0");
+		}
+		Serial.print(packetBuffer[i], HEX);
+		Serial.print(" ");
+	}
+	Serial.println();
 }
 
 /**
@@ -147,7 +182,7 @@ void CmdReceiverZ21Wlan::requestTurnoutInfo(int addr) {
  * Sendet der Z21 einen BroadcastRequest
  */
 void CmdReceiverZ21Wlan::enableBroadcasts() {
-//  Serial.println("Sending Broadcast Request");
+	//  Serial.println("Sending Broadcast Request");
 	memset(packetBuffer, 0, packetBufferSize);
 
 	// 0x08 0x00 0x50 0x00 0x01 0x00 0x01 0x00
@@ -192,7 +227,7 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
 	packetBuffer[6] = id.toInt();
 	packetBuffer[7] = 0xA8 | statuscode;
 	packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
-			^ packetBuffer[7];
+																	   ^ packetBuffer[7];
 
 	udp->beginPacket(*z21Server, localPort);
 	udp->write(packetBuffer, 9);
@@ -210,6 +245,5 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
 //}
 
 CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
-	// TODO Auto-generated destructor stub
 }
 

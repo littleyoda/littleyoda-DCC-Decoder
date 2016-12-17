@@ -8,14 +8,22 @@
 #include <Arduino.h>
 #include "ActionPWMOutput.h"
 #include "Consts.h"
+#include "Utils.h"
 
 ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8_t reverse) {
+	Logger::getInstance()->addToLog("Starting PWM...");
+	Logger::getInstance()->addToLog("PWM-Pin: "
+			+ Utils::gpio2string(pwm) + " Forward-Pin: "
+			+ Utils::gpio2string(forward) + " Reverse-Pin: "
+			+ Utils::gpio2string(reverse)
+			+ "Addr: " + Utils::gpio2string(locoId)
+	);
 	  analogWriteFreq(100);
 	  locid = locoId;
 	  gpioPWM = pwm;
 	  gpioForward = forward;
 	  gpioReverse = reverse;
-	  pinMode(gpioPWM, OUTPUT); digitalWrite(gpioPWM, LOW); // PWM Singal
+	  pinMode(gpioPWM, OUTPUT); digitalWrite(gpioPWM, LOW); // PWM Signal
 	  pinMode(gpioForward, OUTPUT); digitalWrite(gpioForward, LOW); // Forward
 	  pinMode(gpioReverse, OUTPUT); digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);

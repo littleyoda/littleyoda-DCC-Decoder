@@ -10,6 +10,7 @@
 #include "ActionTurnOut.h"
 #include "ActionServo.h"
 #include "ActionLed.h"
+#include "ActionPWMOutput.h"
 #include "Config.h"
 
 #include "Webserver.h"
@@ -39,7 +40,6 @@ void initWifi() {
  * Auswertung der Configuration (json-Format)
  */
 void loadCFG(Webserver* web) {
-	//StaticJsonBuffer<2000> jsonBuffer;
 	DynamicJsonBuffer jsonBuffer;
 	Serial.println("Starting Parsing");
 	Serial.println(configuration);
@@ -53,12 +53,11 @@ void loadCFG(Webserver* web) {
 	}
 
 	JsonArray& r1 = root["action"];
-	Serial.println(r1.size());
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
 		JsonObject& value = *it;
 		const char* art = (const char*) value["m"];
 		if (art == NULL) {
-			Logger::getInstance()->addToLog("Null from json");
+			//Logger::getInstance()->addToLog("Null from json");
 			continue;
 		}
 		if (strcmp(art, "led") == 0) {
@@ -95,16 +94,17 @@ void loadCFG(Webserver* web) {
 			int gpio = Utils::string2gpio(value["gpio"].as<const char*>());
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 		} else if (strcmp(art, "z21") == 0) {
-			controller->registerCmdReceiver(new CmdReceiverZ21Wlan(controller, 192, 168, 0, 111));
+			controller->registerCmdReceiver(new CmdReceiverZ21Wlan(controller, value["ip"].as<const char*>()));
 		} else if (strcmp(art, "webservicewifiscanner") == 0) {
 			web->addServices(new WebserviceWifiScanner());
-//		} else if (strcmp(art, "mp3") == 0) {
-//			controller->registerAction(new ActionDFPlayerMP3(
-//					Utils::string2gpio(value["rx"].as<const char*>()),
-//					Utils::string2gpio(value["tx"].as<const char*>())
-//					));
 		} else if (strcmp(art, "webservicelog") == 0) {
 			web->addServices(new WebserviceLog());
+		} else if (strcmp(art, "pwm") == 0) {
+			int gpiopwm = Utils::string2gpio(value["pwm"].as<const char*>());
+			int gpiof = Utils::string2gpio(value["forward"].as<const char*>());
+			int gpior = Utils::string2gpio(value["reverse"].as<const char*>());
+			int  addr = value["addr"].as<int>();
+			controller->registerAction(new ActionPWMOutput(addr, gpiopwm, gpiof, gpior));
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
@@ -113,6 +113,24 @@ void loadCFG(Webserver* web) {
 	}
 	controller->registerLoop(web);
 	Logger::getInstance()->addToLog("JSON Parsing finish");
+}
+
+void handleSerial() {
+	if (Serial.available() > 0) {
+		int chr = Serial.read();
+		if (chr == 'd') {
+			Serial.println("IP: " + Utils::wifi2String(WiFi.status()) + "  / " + WiFi.localIP().toString());
+			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
+			Serial.println("Free memory: " + String(ESP.getFreeHeap()));
+			Serial.println("Logger: " + String(Logger::getInstance()->getMemUsage()));
+			Serial.println("Sniffer: " + String(dccSniffer->getMemUsage()));
+			Serial.println("Commandlogger: " + String(cmdlogger->getMemUsage()));
+		} else if (chr == 'r') {
+			ESP.restart();
+		} else {
+			Serial.println("Key: " + String(chr));
+		}
+	}
 }
 
 void setup() {
@@ -129,29 +147,8 @@ void setup() {
 	Logger::getInstance()->addToLog("Setup finish!");
 }
 
+
 void loop() {
 	controller->doLoops();
-	if (Serial.available() > 0) {
-		int chr = Serial.read();
-		if (chr == 'd') {
-			Serial.println("IP: " + Utils::wifi2String(WiFi.status()) + "  / " + WiFi.localIP().toString());
-			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
-			Serial.println("Free memory: " + String(ESP.getFreeHeap()));
-			Serial.println("Logger: " + String(Logger::getInstance()->getMemUsage()));
-			Serial.println("Sniffer: " + String(dccSniffer->getMemUsage()));
-			Serial.println("Commandlogger: " + String(cmdlogger->getMemUsage()));
-		} else if (chr == 'r') {
-			ESP.restart();
-		} else if (chr == '#') {
-			for (int i = 0; i < 20; i++) {
-				Logger::getInstance()->addToLog(String("Hallo World ") + String(millis() + String("log")));
-			}
-		} else if (chr == '+') {
-			for (int i = 0; i < 20; i++) {
-				WebserviceDCCSniffer::_instance->addToLog(String("Hallo World ") + String(millis() + String(" DCC")));
-			}
-		} else {
-			Serial.println("Key: " + String(chr));
-		}
-	}
+	handleSerial();
 }
