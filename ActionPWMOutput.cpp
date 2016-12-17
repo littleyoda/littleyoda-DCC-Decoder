@@ -7,9 +7,10 @@
 
 #include <Arduino.h>
 #include "ActionPWMOutput.h"
+#include "Consts.h"
 
 ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8_t reverse) {
-	  analogWriteFreq(10000);
+	  analogWriteFreq(100);
 	  locid = locoId;
 	  gpioPWM = pwm;
 	  gpioForward = forward;
@@ -24,7 +25,7 @@ ActionPWMOutput::~ActionPWMOutput() {
 }
 
 int ActionPWMOutput::loop() {
-	return 1000;
+	return 10000;
 }
 
 String ActionPWMOutput::getHTMLCfg(String urlprefix) {
@@ -95,12 +96,14 @@ void ActionPWMOutput::setDirection(int dir) {
 }
 
 void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
-	if (id != locid) {
-		return;
+	if (id == locid || id == Consts::LOCID_ALL) {
+		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
+			speed = 0;
+		}
+		setDirection(direction);
+		int v = PWMRANGE * speed / SpeedSteps;
+		setSpeedInProcent(v);
 	}
-	setDirection(direction);
-	int v = PWMRANGE * speed / SpeedSteps;
-	setSpeedInProcent(v);
 }
 
 void ActionPWMOutput::setSpeedInProcent(int speedProc) {

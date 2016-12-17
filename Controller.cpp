@@ -9,6 +9,7 @@
 #include "Controller.h"
 #include "Utils.h"
 #include "Logger.h"
+#include "Consts.h"
 
 Controller::Controller() {
 
@@ -99,13 +100,18 @@ void Controller::setRequest(String id, String key, String value) {
 	actions.get(idx)->setSettings(key, value);
 }
 
+/**
+ * @param speed 0 =
+ */
 void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		int SpeedSteps, int source) {
 	// Filter out known commands
 	LocData* data;
 	if (items.find(id) == items.end()) {
 		data = new LocData();
-		items[id] = data;
+		if (id != Consts::LOCID_ALL) {
+			items[id] = data;
+		}
 	} else {
 		data = items[id];
 		if (data->direction == direction && data->speed == speed
@@ -127,6 +133,9 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 	for (idx = 0; idx < actions.size(); idx++) {
 		actions.get(idx)->DCCSpeed(id, speed, direction, SpeedSteps, source);
 	}
+	if (id == Consts::LOCID_ALL) {
+		delete data;
+	}
 }
 
 
@@ -135,6 +144,7 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 	FuncData* data;
 	if (funcdatas.find(id) == funcdatas.end()) {
 		data = new FuncData();
+		data->status = 0;
 		funcdatas[id] = data;
 	} else {
 		data = funcdatas[id];

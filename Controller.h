@@ -37,6 +37,7 @@ public:
 	String getHTMLCfg();
 	void setRequest(String id, String key, String value);
 
+
 private:
 	struct LocData {
 		int speed;
