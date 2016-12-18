@@ -31,7 +31,6 @@ Webserver::Webserver(Controller* c) {
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
-	server->on("/upload", HTTP_POST, []() { server->send(200, "text/plain", ""); }, std::bind(&Webserver::handleUpload, this));
 	server->begin();
 	if (!SPIFFS.begin()) {
 		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
@@ -42,31 +41,6 @@ Webserver::Webserver(Controller* c) {
 
 }
 
-void Webserver::handleUpload() {
-	HTTPUpload& upload = server->upload();
-	Serial.println("UPload fkt");
-	Serial.println("Status: " + String(upload.status));
-	Serial.println("Status: " + upload.filename);
-	if(upload.status == UPLOAD_FILE_START){
-		String filename = upload.filename;
-		Serial.println("handleFileUpload Name: " + filename);
-		if(!filename.startsWith("/")) {
-			filename = "/"+filename;
-		}
-		fsUploadFile = SPIFFS.open(filename, "w");
-		filename = String();
-	} else if(upload.status == UPLOAD_FILE_WRITE){
-		Serial.println("handleFileUpload Data: " + String(upload.currentSize));
-		if(fsUploadFile) {
-			fsUploadFile.write(upload.buf, upload.currentSize);
-		}
-	} else if(upload.status == UPLOAD_FILE_END){
-		if(fsUploadFile)
-			fsUploadFile.close();
-		Serial.println("handleFileUpload Size: " + String(upload.totalSize));
-	}
-	yield();
-}
 void Webserver::handleFilelist() {
 	Dir dir = SPIFFS.openDir("/");
 
@@ -79,18 +53,6 @@ void Webserver::handleFilelist() {
 		output += "</td><td>";
 		output += String(dir.fileSize());
 		output += "</td></tr>";
-//
-//		output += dir.
-//		if (output != "[") output += ',';
-//		bool isDir = false;
-//		output += "{\"type\":\"";
-//		output += (isDir)?"dir":"file";
-//		output += "\",\"name\":\"";
-//		output += String(entry.name()).substring(1);
-//		output += "\",\"name\":\"";
-//		output += String(entry.size());
-//		output += "\"}";
-//		entry.close();
 	}
 	output += "</tbody></table><hr>";
 
