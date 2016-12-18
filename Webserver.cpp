@@ -31,6 +31,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
+	server->on("/upload", HTTP_POST, []() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); }, std::bind(&Webserver::handleUpload, this));
 	server->begin();
 	if (!SPIFFS.begin()) {
 		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
@@ -39,6 +40,27 @@ Webserver::Webserver(Controller* c) {
 	const char* update_path = "/firmware";
 	httpUpdater->setup(server, update_path, "admin", "admin");
 
+}
+
+void Webserver::handleUpload() {
+	HTTPUpload& upload = server->upload();
+	if(upload.status == UPLOAD_FILE_START){
+		String filename = upload.filename;
+		if(!filename.startsWith("/")) {
+			filename = "/"+filename;
+		}
+		fsUploadFile = SPIFFS.open(filename, "w");
+		filename = String();
+	} else if(upload.status == UPLOAD_FILE_WRITE) {
+		if(fsUploadFile) {
+			fsUploadFile.write(upload.buf, upload.currentSize);
+		}
+	} else if(upload.status == UPLOAD_FILE_END){
+		if(fsUploadFile) {
+			fsUploadFile.close();
+		}
+	}
+	yield();
 }
 
 void Webserver::handleFilelist() {
