@@ -9,12 +9,9 @@
 #include <Arduino.h>
 
 ActionBase::ActionBase() {
-	// TODO Auto-generated constructor stub
-
 }
 
 ActionBase::~ActionBase() {
-	// TODO Auto-generated destructor stub
 }
 
 String ActionBase::getHTMLCfg(String urlprefix) {
