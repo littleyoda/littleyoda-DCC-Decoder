@@ -16,7 +16,7 @@ ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8
 			+ Utils::gpio2string(pwm) + " Forward-Pin: "
 			+ Utils::gpio2string(forward) + " Reverse-Pin: "
 			+ Utils::gpio2string(reverse)
-			+ "Addr: " + Utils::gpio2string(locoId)
+			+ " Addr: " + String(locoId)
 	);
 	  analogWriteFreq(100);
 	  locid = locoId;
