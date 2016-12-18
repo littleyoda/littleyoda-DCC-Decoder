@@ -23,6 +23,7 @@ ESP8266HTTPUpdateServer* Webserver::httpUpdater = 0;
 
 Webserver::Webserver(Controller* c) {
 	controll = c;
+
 	server = new ESP8266WebServer(80);
 	server->onNotFound(std::bind(&Webserver::handleNotFound, this));
 	server->on("/", std::bind(&Webserver::handleRoot, this));
@@ -38,6 +39,7 @@ Webserver::Webserver(Controller* c) {
 	httpUpdater = new ESP8266HTTPUpdateServer();
 	const char* update_path = "/firmware";
 	httpUpdater->setup(server, update_path, "admin", "admin");
+
 }
 
 void Webserver::handleUpload() {
@@ -48,13 +50,16 @@ void Webserver::handleUpload() {
 	if(upload.status == UPLOAD_FILE_START){
 		String filename = upload.filename;
 		Serial.println("handleFileUpload Name: " + filename);
-		if(!filename.startsWith("/")) filename = "/"+filename;
+		if(!filename.startsWith("/")) {
+			filename = "/"+filename;
+		}
 		fsUploadFile = SPIFFS.open(filename, "w");
 		filename = String();
 	} else if(upload.status == UPLOAD_FILE_WRITE){
 		Serial.println("handleFileUpload Data: " + String(upload.currentSize));
-		if(fsUploadFile)
+		if(fsUploadFile) {
 			fsUploadFile.write(upload.buf, upload.currentSize);
+		}
 	} else if(upload.status == UPLOAD_FILE_END){
 		if(fsUploadFile)
 			fsUploadFile.close();
@@ -129,6 +134,8 @@ int Webserver::loop() {
 		+ " => " + Utils::wifi2String(WiFi.status()) + " IP:"
 		+ WiFi.localIP().toString());
 		lastWifiStatus = WiFi.status();
+		MDNS.begin(controll->getHostname().c_str());
+		MDNS.addService("http", "tcp", 80);
 	}
 	return 2;
 

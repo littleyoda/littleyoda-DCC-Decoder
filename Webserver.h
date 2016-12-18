@@ -15,6 +15,7 @@
 #include <FS.h>
 #include "interfaceLoop.h"
 #include "WebserviceBase.h"
+#include <ESP8266mDNS.h>
 
 
 class Controller;

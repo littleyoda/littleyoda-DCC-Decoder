@@ -179,3 +179,7 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 		}
 	}
 }
+
+String Controller::getHostname() {
+	return "ly-dcc-" + Utils::getMAC();
+}

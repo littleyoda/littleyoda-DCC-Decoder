@@ -26,14 +26,13 @@
 Controller* controller;
 
 const char compile_date[] = "Compiledate: " __DATE__ " " __TIME__;
-
 WebserviceCommandLogger* cmdlogger;
 WebserviceDCCSniffer* dccSniffer;
 
 void initWifi() {
 	Serial.println("Starting Wifi...");
+	WiFi.hostname(controller->getHostname());
 	WiFi.begin(ssid, password);
-	Serial.println("");
 }
 
 /**
@@ -137,13 +136,10 @@ void setup() {
 	Serial.begin(115200);
 	Logger::getInstance()->addToLog("Started!");
 	Logger::getInstance()->addToLog(compile_date);
-	initWifi();
-	delay(3000);
-
 	controller = new Controller();
+	initWifi();
 	Webserver* web = new Webserver(controller);
 	loadCFG(web);
-
 	Logger::getInstance()->addToLog("Setup finish!");
 }
 
