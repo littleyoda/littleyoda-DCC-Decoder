@@ -8,6 +8,7 @@
 #ifndef ACTIONBASE_H_
 #define ACTIONBASE_H_
 #include <Arduino.h>
+#include <LinkedList.h>
 #include "interfaceLoop.h"
 
 class ActionBase: public interfaceLoop {
@@ -32,6 +33,13 @@ public:
 	// Calls from the Webserver for post and get requests
 	virtual void setSettings(String key, String value);
 
+	struct requestInfo {
+		enum ART {TURNOUT, LOCO } art;
+		unsigned int id;
+	};
+	LinkedList<requestInfo*>* getRequestList();
+protected:
+    LinkedList<requestInfo*> requestList = LinkedList<requestInfo*>();
 };
 
 #endif /* ACTIONBASE_H_ */

@@ -38,3 +38,8 @@ void ActionBase::DCCFunc(int id, unsigned long int newvalue, int source) {
 void ActionBase::setSettings(String key, String value) {
 }
 
+LinkedList<ActionBase::requestInfo*>* ActionBase::getRequestList() {
+	return &requestList;
+}
+
+

@@ -8,13 +8,14 @@
 #include "CmdSenderBase.h"
 
 CmdSenderBase::CmdSenderBase() {
-	// TODO Auto-generated constructor stub
-
 }
 
 CmdSenderBase::~CmdSenderBase() {
-	// TODO Auto-generated destructor stub
 }
 
 void CmdSenderBase::sendSetTurnout(String id, String status) {
+}
+
+void CmdSenderBase::setRequestList(LinkedList<ActionBase::requestInfo*>* list) {
+	requestList = list;
 }

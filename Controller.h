@@ -13,6 +13,7 @@
 #include <map>
 
 #include "CmdReceiverBase.h"
+#include "CmdSenderBase.h"
 #include "ActionBase.h"
 #include "interfaceLoop.h"
 
@@ -23,9 +24,11 @@ class Controller {
 public:
 	Controller();
 	virtual ~Controller();
+	void registerCmdSender(CmdSenderBase* base);
 	void registerCmdReceiver(CmdReceiverBase* base);
 	void registerAction(ActionBase* base);
 	void registerLoop(interfaceLoop* loop);
+	void updateRequestList();
 	void doLoops();
 
 	// Notifications from Outside (via DCC, WLAN, ..)
@@ -40,6 +43,7 @@ public:
 	String getHostname();
 
 
+	void emergencyStop();
 private:
 	struct LocData {
 		int speed;
@@ -56,9 +60,11 @@ private:
 	FuncDatas funcdatas;
 
 	LinkedList<CmdReceiverBase*> receiver = LinkedList<CmdReceiverBase*>();
+	LinkedList<CmdSenderBase*> sender = LinkedList<CmdSenderBase*>();
 	LinkedList<ActionBase*> actions = LinkedList<ActionBase*>();
 	LinkedList<interfaceLoop*> loops = LinkedList<interfaceLoop*>();
 	LinkedList<unsigned long> nextRun = LinkedList<unsigned long>();
+	LinkedList<ActionBase::requestInfo*> requestList = LinkedList<ActionBase::requestInfo*>();
 	long int lastTurnoutCmd[3];
 
 };

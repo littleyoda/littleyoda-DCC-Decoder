@@ -13,12 +13,13 @@
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 
-class CmdReceiverZ21Wlan: public CmdReceiverBase, CmdSenderBase {
+class CmdReceiverZ21Wlan: public CmdReceiverBase, public CmdSenderBase {
 public:
 	CmdReceiverZ21Wlan(Controller* c, const char* ip);
 	virtual int loop();
 	virtual ~CmdReceiverZ21Wlan();
 	void requestTurnoutInfo(int addr);
+	void requestLocoInfo(int addr);
 	void enableBroadcasts();
 	virtual void sendSetTurnout(String id, String status);
 
@@ -40,7 +41,7 @@ private:
 
 	long int lastTime = 0;
 	static const int emergencyStopTimeout = 1000;
-	int loopStatus = 0;
+	int loopStatus = -2;
 };
 
 #endif /* CMDRECEIVERZ21WLAN_H_ */

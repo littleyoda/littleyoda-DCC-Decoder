@@ -93,7 +93,9 @@ void loadCFG(Webserver* web) {
 			int gpio = Utils::string2gpio(value["gpio"].as<const char*>());
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 		} else if (strcmp(art, "z21") == 0) {
-			controller->registerCmdReceiver(new CmdReceiverZ21Wlan(controller, value["ip"].as<const char*>()));
+			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, value["ip"].as<const char*>());
+			controller->registerCmdReceiver(rec);
+			controller->registerCmdSender(rec);
 		} else if (strcmp(art, "webservicewifiscanner") == 0) {
 			web->addServices(new WebserviceWifiScanner());
 		} else if (strcmp(art, "webservicelog") == 0) {
@@ -111,6 +113,7 @@ void loadCFG(Webserver* web) {
 		loop();
 	}
 	controller->registerLoop(web);
+	controller->updateRequestList();
 	Logger::getInstance()->addToLog("JSON Parsing finish");
 }
 

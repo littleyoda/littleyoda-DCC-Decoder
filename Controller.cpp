@@ -25,6 +25,7 @@ void Controller::registerCmdReceiver(CmdReceiverBase* base) {
 
 void Controller::doLoops() {
 	int idx;
+	// Make sure that the nextRun List is as long as the loop list
 	while (nextRun.size() < loops.size()) {
 		nextRun.add(0);
 	}
@@ -120,6 +121,7 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		data = items[id];
 		if (data->direction == direction && data->speed == speed
 				&& data->speedsteps == SpeedSteps) {
+			Serial.println("Known for " + String(id));
 			return;
 		}
 	}
@@ -171,7 +173,7 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 		for (int idx = 0; idx < actions.size(); idx++) {
 			actions.get(idx)->DCCFunc(id, i, (newBitValue == 0) ? 0 : 1, source);
 		}
-	}
+ 	}
 	if (changed) {
 		Serial.println("Func " + String(id) + " " + String(data->status));
 		for (int idx = 0; idx < actions.size(); idx++) {
@@ -182,4 +184,29 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 
 String Controller::getHostname() {
 	return "ly-dcc-" + Utils::getMAC();
+}
+
+void Controller::registerCmdSender(CmdSenderBase* base) {
+	sender.add(base);
+}
+
+void Controller::updateRequestList() {
+	requestList.clear();
+	for (int idx = 0; idx < actions.size(); idx++) {
+		ActionBase* b = actions.get(idx);
+		LinkedList<ActionBase::requestInfo*>*  list = b->getRequestList();
+		for (int i = 0; i < list->size(); i++) {
+			requestList.add(list->get(i));
+		}
+	}
+	for (int idx = 0; idx < sender.size(); idx++) {
+		CmdSenderBase* s = sender.get(idx);
+		s->setRequestList(&requestList);
+	}
+
+}
+
+void Controller::emergencyStop() {
+	notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
+				   Consts::SPEED_FORWARD, 128, Consts::SOURCE_WLAN);
 }

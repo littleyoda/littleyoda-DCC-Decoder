@@ -27,6 +27,11 @@ ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8
 	  pinMode(gpioForward, OUTPUT); digitalWrite(gpioForward, LOW); // Forward
 	  pinMode(gpioReverse, OUTPUT); digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);
+
+	  requestInfo* r = new requestInfo();
+	  r->art = requestInfo::ART::LOCO;
+	  r->id = locoId;
+	  requestList.add(r);
 }
 
 ActionPWMOutput::~ActionPWMOutput() {

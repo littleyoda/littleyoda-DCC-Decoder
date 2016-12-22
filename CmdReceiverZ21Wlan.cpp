@@ -43,14 +43,22 @@ int CmdReceiverZ21Wlan::loop() {
 	// Scheduler for Requests
 	if (time - lastTime > (emergencyStopTimeout / 4)) {
 		lastTime = time;
-		if (loopStatus == 0) {
+		if (loopStatus == -2) {
 			enableBroadcasts();
-		} else if (loopStatus == 1) {
+		} else if (loopStatus == -1) {
 			sendLanGetSerialNumber();
+		} else {
+			ActionBase::requestInfo* ri = requestList->get(loopStatus);
+			if (ri->art == ActionBase::requestInfo::LOCO) {
+				requestLocoInfo(ri->id);
+			} else if (ri->art == ActionBase::requestInfo::TURNOUT) {
+				requestTurnoutInfo(ri->id);
+			}
 		}
 		loopStatus++;
-		if (loopStatus == 2) {
-			loopStatus = 0;
+		if ((requestList == NULL && loopStatus == 0) ||
+		    (requestList != NULL && loopStatus == requestList->size())) {
+			loopStatus = -2;
 		}
 	}
 	return 2;
@@ -250,16 +258,6 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
 	udp->endPacket();
 }
 
-//int getTurnoutIdx(int id) {
-//  int i;
-//  for (i = 0; i < turnoutCount; i++) {
-//    if (turnoutAddr[i] == id) {
-//      return i;
-//    }
-//  }
-//  return -1;
-//}
-
 CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
 }
 
@@ -282,6 +280,30 @@ void CmdReceiverZ21Wlan::sendLanGetSerialNumber() {
 }
 
 void CmdReceiverZ21Wlan::emergencyStop() {
-	controller->notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
-							   Consts::SPEED_FORWARD, 128, Consts::SOURCE_WLAN);
+	controller->emergencyStop();
+}
+
+void CmdReceiverZ21Wlan::requestLocoInfo(int addr) {
+	memset(packetBuffer, 0, packetBufferSize);
+
+	// 4.1 LAN_X_GET_LOCO_INFO
+	packetBuffer[0] = 0x09;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x40;
+	packetBuffer[3] = 0x00;
+
+	packetBuffer[4] = 0xE3;
+	packetBuffer[5] = 0xF0;
+
+	packetBuffer[6] =  addr >> 8;
+     if (addr >= 128){
+    	 packetBuffer[6] += 0b11000000;
+     }
+
+	packetBuffer[7] = addr & 0xFF;
+	packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6] ^ packetBuffer[7];
+
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, packetBuffer[0]);
+	udp->endPacket();
 }
