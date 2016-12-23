@@ -125,7 +125,9 @@ void handleSerial() {
 			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
 			Serial.println("Free memory: " + String(ESP.getFreeHeap()));
 			Serial.println("Logger: " + String(Logger::getInstance()->getMemUsage()));
-			Serial.println("Sniffer: " + String(dccSniffer->getMemUsage()));
+			if (dccSniffer != NULL) {
+				Serial.println("Sniffer: " + String(dccSniffer->getMemUsage()));
+			}
 			Serial.println("Commandlogger: " + String(cmdlogger->getMemUsage()));
 		} else if (chr == 'r') {
 			ESP.restart();
