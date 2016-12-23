@@ -43,6 +43,11 @@ void loadCFG(Webserver* web) {
 	Serial.println("Starting Parsing");
 	Serial.println(configuration);
 	Logger::getInstance()->addToLog("Config-File: " + String(configuration));
+
+//	IPAddress* ip = new IPAddress();
+//	ip->fromString("192.168.2.154");
+//	Logger::getInstance()->setIPAddress(ip);
+
 	JsonObject& root = jsonBuffer.parseObject(configuration);
 
 	if (!root.success()) {
@@ -113,6 +118,7 @@ void loadCFG(Webserver* web) {
 		loop();
 	}
 	controller->registerLoop(web);
+	controller->registerLoop(Logger::getInstance());
 	controller->updateRequestList();
 	Logger::getInstance()->addToLog("JSON Parsing finish");
 }

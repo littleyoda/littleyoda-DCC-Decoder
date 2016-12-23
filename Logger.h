@@ -9,21 +9,29 @@
 #define LOGGER_H_
 #include <LinkedList.h>
 #include <Arduino.h>
+#include <WiFiUdp.h>
+#include "interfaceLoop.h"
 
-class Logger {
+class Logger : public interfaceLoop  {
 public:
+	struct logdata { boolean send; String msg; };
 	static Logger* getInstance();
 	void addToLog(String s);
-	LinkedList<String>* getLogs();
+	LinkedList<logdata*>* getLogs();
 	int startmemory;
 	int maxLog = 50;
 	unsigned int getMemUsage();
+	virtual int loop();
+	void setIPAddress(IPAddress* ip);
+
 private:
-	LinkedList<String> logger = LinkedList<String>();
+	LinkedList<logdata*> logger = LinkedList<logdata*>();
 	Logger();
 	virtual ~Logger();
+	WiFiUDP* udp;
+	IPAddress* logserver;
 	static Logger *theInstance;
-
+	int findLastUnsend();
 };
 
 #endif /* LOGGER_H_ */

@@ -35,12 +35,12 @@ void WebserviceLog::run() {
 	send("<tr><td>Wifi Status</td><td>"
 			+ Utils::wifi2String(WiFi.status()) + "</td></tr>\n");
 	send("<tr><td>Wifi SSID</td><td>" + WiFi.SSID() + "</td></tr>");
-	LinkedList<String>* list = Logger::getInstance()->getLogs();
+	LinkedList<Logger::logdata*>* list = Logger::getInstance()->getLogs();
 	for (int i = 0; i < list->size(); i++) {
 		send("<tr><td>Log ");
 		send(String(i));
 		send("</td><td>");
-		send(list->get(i));
+		send(list->get(i)->msg);
 		send("</td></tr>\n");
 	}
 	send("</table>");
