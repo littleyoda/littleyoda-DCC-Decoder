@@ -149,6 +149,23 @@ public:
 		}
 	}
 
+	static String getHex(unsigned char c) {
+		String out = "0x";
+		out.reserve(4);
+		if (c < 16) {
+			out += "0";
+		}
+		out += String(c, HEX);
+		return out;
+	}
+
+	static String getBin(unsigned char c) {
+		String out = String(c, BIN);
+		while (out.length() < 8) {
+			out = "0" + out;
+		}
+		return out;
+	}
 };
 
 #endif /* UTILS_H_ */

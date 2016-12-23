@@ -121,7 +121,6 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		data = items[id];
 		if (data->direction == direction && data->speed == speed
 				&& data->speedsteps == SpeedSteps) {
-			Serial.println("Known for " + String(id));
 			return;
 		}
 	}
