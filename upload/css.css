@@ -1,0 +1,10 @@
+.button-black {
+  background-color: black;
+  border-color: black;
+}
+
+.button-white {
+  background-color: white;
+  color: black;
+  border-color: black;
+}

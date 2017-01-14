@@ -33,7 +33,7 @@ Andere Zentralen, die über einen Netzwerkanschluß verfügen, können relativ e
 
 
 ### Konfiguration
-Zur Zeit über einen json-String in Config.h. Langfristig sol die Konfiguration über den Webserver hochgeladen werden.
+Zur Zeit über einen json-String in Config.h. Langfristig soll die Konfiguration über den Webserver hochgeladen werden.
 Eine Konfiguration über DCC wird wegen der fehlenden Flexibilität nicht unterstützt.
 
 
