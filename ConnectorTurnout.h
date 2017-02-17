@@ -16,10 +16,10 @@ public:
 	ConnectorTurnout(ISettings* a, int addr);
 	virtual ~ConnectorTurnout();
 	virtual void TurnoutCmd(int id, int direction, int source);
+
 private:
 	int id;
 	ISettings* action;
-
 };
 
 #endif /* CONNECTORTURNOUT_H_ */

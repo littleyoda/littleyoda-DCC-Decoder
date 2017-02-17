@@ -12,11 +12,9 @@ ConnectorONOFF::ConnectorONOFF(ISettings* a, int locoaddr, int f) {
 	addr = locoaddr;
 	funcbit = f;
 
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = addr;
-	requestList.add(r);
-
 }
 
 ConnectorONOFF::~ConnectorONOFF() {
@@ -27,3 +25,4 @@ void ConnectorONOFF::DCCFunc(int id, int bit, int newvalue, int source) {
 		action->setSettings("onoff", String(newvalue));
 	}
 }
+

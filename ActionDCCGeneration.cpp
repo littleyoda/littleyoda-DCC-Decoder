@@ -35,10 +35,9 @@ ActionDCCGeneration::ActionDCCGeneration(Pin* gpio, int locoaddr, int dccoutput)
 		trackenabled = true;
 	}
 
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = LOCO_ADR;
-	requestList.add(r);
 }
 
 ActionDCCGeneration::~ActionDCCGeneration() {

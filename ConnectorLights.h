@@ -25,7 +25,7 @@ private:
 	int f0;
 	unsigned long int fstatus;
 	int richtung;
-
+	requestInfo* r;
 };
 
 #endif /* CONNECTORLIGHTS_H_ */

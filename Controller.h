@@ -76,7 +76,6 @@ public:
 	WebserviceDCCSniffer* dccSniffer;
 
 private:
-	boolean requestListContains(INotify::requestInfo* element);
 	typedef std::map<int, LocData*> Items;
 	Items items;
 

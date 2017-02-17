@@ -35,9 +35,11 @@ public:
 		enum ART {TURNOUT, LOCO } art;
 		unsigned int id;
 	};
-	LinkedList<requestInfo*>* getRequestList();
+	virtual void getRequestList(LinkedList<requestInfo*>* list);
 protected:
-    LinkedList<requestInfo*> requestList = LinkedList<requestInfo*>();
+	boolean requestListContains(LinkedList<requestInfo*>* list, requestInfo* element);
+	requestInfo* r;
+
 };
 
 #endif /* INOTIFY_H_ */

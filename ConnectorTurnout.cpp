@@ -10,10 +10,9 @@
 ConnectorTurnout::ConnectorTurnout(ISettings* a, int addr) {
 	action = a;
 	id = addr;
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::TURNOUT;
 	r->id = addr;
-	requestList.add(r);
 }
 
 ConnectorTurnout::~ConnectorTurnout() {
@@ -25,3 +24,4 @@ void ConnectorTurnout::TurnoutCmd(int id, int direction, int source) {
 	}
 	action->setSettings(String(id), String(direction));
 }
+

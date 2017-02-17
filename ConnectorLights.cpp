@@ -19,10 +19,9 @@ ConnectorLights::ConnectorLights(ISettings* vorne, ISettings* hinten, int locoad
 	fstatus = 0;
 	f0 = anaus;
 
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = locoaddr;
-	requestList.add(r);
 
 }
 
@@ -41,6 +40,7 @@ void ConnectorLights::DCCFunc(int id, unsigned long int newvalue, int source) {
 	fstatus = newvalue;
 	update();
 }
+
 
 void ConnectorLights::update() {
 	int vorne = (richtung == Consts::SPEED_FORWARD && bit_is_set(fstatus, f0)) ? 1 : 0;

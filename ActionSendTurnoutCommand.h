@@ -18,7 +18,6 @@ public:
 	virtual void setSettings(String key, String value);
 	virtual void setSettings(int status);
 	virtual void TurnoutCmd(int id, int direction, int source);
-
 private:
 	Controller* controller;
 	int id;

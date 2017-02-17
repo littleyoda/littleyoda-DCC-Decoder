@@ -29,10 +29,9 @@ ActionSUSIGeneration::ActionSUSIGeneration(int locoaddr) {
 	SPI.begin(spiS, "SUSI");
 	SPI.beginTransaction(spiS);
 
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = LOCO_ADR;
-	requestList.add(r);
 }
 
 ActionSUSIGeneration::~ActionSUSIGeneration() {
@@ -75,6 +74,7 @@ void ActionSUSIGeneration::fillSpiBuffer() {
 	SPIBuf[SPIBufUsed++] = B01100011;
 	SPIBuf[SPIBufUsed++] = ((FUNC_STATE >> 21) & 0xFF);
 }
+
 
 void ActionSUSIGeneration::invertBuffer() {
 	for (int i = 0; i < SPIBufUsed; i++) {

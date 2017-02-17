@@ -58,6 +58,7 @@ private:
 	uint8_t SPEED_STATE = 0;
 
 	Pin* enableGpio;
+	requestInfo* r;
 };
 
 #endif /* ACTIONDCCGENERATION_H_ */

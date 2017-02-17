@@ -11,10 +11,9 @@
 ConnectorLocoSpeed::ConnectorLocoSpeed(ISettings* b, int locoaddr) {
 	action = b;
 	addr = locoaddr;
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = addr;
-	requestList.add(r);
 }
 
 ConnectorLocoSpeed::~ConnectorLocoSpeed() {
@@ -28,3 +27,4 @@ void ConnectorLocoSpeed::DCCSpeed(int id, int speed, int direction, int SpeedSte
 		action->setSettings("sd", String(direction * 100 * speed / SpeedSteps));
 	}
 }
+

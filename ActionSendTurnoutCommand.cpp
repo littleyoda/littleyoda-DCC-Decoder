@@ -13,10 +13,9 @@ ActionSendTurnoutCommand::ActionSendTurnoutCommand(Controller* c, int number) {
 	controller = c;
 	id = number;
 
-	requestInfo* r = new requestInfo();
+	r = new requestInfo();
 	r->art = requestInfo::ART::TURNOUT;
 	r->id = number;
-	requestList.add(r);
 
 }
 
@@ -59,3 +58,4 @@ void ActionSendTurnoutCommand::setSettings(int status) {
     	b->sendSetTurnout(String(id), s);
     }
 }
+

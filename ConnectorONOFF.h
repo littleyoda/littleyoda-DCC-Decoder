@@ -21,7 +21,7 @@ private:
 	ISettings* action;
 	int addr;
 	int funcbit;
-
+	requestInfo* r;
 
 
 };
