@@ -43,7 +43,7 @@ public:
 	String getHostname();
 
 
-	void emergencyStop();
+	void emergencyStop(int source);
 private:
 	struct LocData {
 		int speed;

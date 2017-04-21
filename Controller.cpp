@@ -36,7 +36,9 @@ void Controller::doLoops() {
 			int wait = loops.get(idx)->loop();
 			nextRun.set(idx, now + wait);
 		}
+		delay(0);
 	}
+	delay(0);
 }
 
 void Controller::registerAction(ActionBase* base) {
@@ -205,7 +207,7 @@ void Controller::updateRequestList() {
 
 }
 
-void Controller::emergencyStop() {
+void Controller::emergencyStop(int source) {
 	notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
-				   Consts::SPEED_FORWARD, 128, Consts::SOURCE_WLAN);
+				   Consts::SPEED_FORWARD, 128, source);
 }

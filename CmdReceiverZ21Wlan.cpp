@@ -37,7 +37,7 @@ int CmdReceiverZ21Wlan::loop() {
 	long int time = millis();
 	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
 		Logger::getInstance()->addToLog("Z21 wlan Timeout");
-		emergencyStop();
+		controller->emergencyStop(Consts::SOURCE_INTERNAL);
 		timeout = 0;
 	}
 
@@ -404,7 +404,7 @@ void CmdReceiverZ21Wlan::sendXGetStatus() {
 }
 
 void CmdReceiverZ21Wlan::emergencyStop() {
-	controller->emergencyStop();
+	controller->emergencyStop(Consts::SOURCE_WLAN);
 }
 
 void CmdReceiverZ21Wlan::requestLocoInfo(int addr) {

@@ -20,8 +20,9 @@ public:
 	const static int LOCID_ALL = -1;
 
 
-	const static int SOURCE_DCC = 0;
+	const static int SOURCE_DCC = 1;
 	const static int SOURCE_WLAN = 0;
+	const static int SOURCE_INTERNAL = 2;
 
 
 };
