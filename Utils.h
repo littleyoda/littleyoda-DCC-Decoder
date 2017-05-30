@@ -92,6 +92,8 @@ public:
 			return "D9";
 		} else 	if (D10 == gpio) {
 			return "D10";
+		} else 	if (255 == gpio) {
+			return "DISABLE";
 		} else {
 			Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
 			return "Pin " + String(gpio);
@@ -130,10 +132,12 @@ public:
 			return D9;
 		} else if (strcmp("D10", pin) == 0) {
 			return D10;
+		} else if (strcmp("DISABLE", pin) == 0) {
+			return 255;
 		} else {
 			Logger::getInstance()->addToLog(
 					"Unbekannte PIN in Config: " + String(pin));
-			return -1;
+			return 255;
 		}
 	}
 
