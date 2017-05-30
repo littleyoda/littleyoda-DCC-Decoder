@@ -23,7 +23,9 @@ ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8
 	  gpioPWM = pwm;
 	  gpioForward = forward;
 	  gpioReverse = reverse;
-	  pinMode(gpioPWM, OUTPUT); digitalWrite(gpioPWM, LOW); // PWM Signal
+	  if (gpioPWM != Consts::DISABLE) {
+		  pinMode(gpioPWM, OUTPUT); digitalWrite(gpioPWM, LOW); // PWM Signal
+	  }
 	  pinMode(gpioForward, OUTPUT); digitalWrite(gpioForward, LOW); // Forward
 	  pinMode(gpioReverse, OUTPUT); digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);
@@ -58,9 +60,10 @@ String ActionPWMOutput::getHTMLController(String urlprefix) {
 	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
 	message += "PWM ";
 	message += "</div>";
-	message += "<div class=\"column column-90\">Speed: ";
+	message += "<div class=\"column column-90\">";
 	message += " <a class=\"button\" href=\"" + urlprefix + "key=dir&value=" +  String(-1) + "\">&#x1F850;</a>\n";
 	message += " <a class=\"button\" href=\"" + urlprefix + "key=dir&value=" +  String(1) + "\">&#x1F852;</a>\n";
+	message += "<br/>";
 
 	for (int i = 0; i <= 100; i = i + 10) {
 		message += " <a class=\"button\" href=\"";
@@ -93,6 +96,10 @@ void ActionPWMOutput::setSettings(String key, String value) {
 }
 
 void ActionPWMOutput::setDirection(int dir) {
+	if (gpioPWM == Consts::DISABLE) {
+		handleSpeedandDirection(dir, currentSpeed);
+		return;
+	}
 	if (dir == 1) {
 		digitalWrite(gpioForward, HIGH);
 		digitalWrite(gpioReverse, LOW);
@@ -120,5 +127,26 @@ void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps,
 }
 
 void ActionPWMOutput::setSpeedInProcent(int speedProc) {
+	if (gpioPWM == Consts::DISABLE) {
+		handleSpeedandDirection(direction, speedProc);
+		return;
+	}
 	analogWrite(gpioPWM, speedProc);
+}
+
+void ActionPWMOutput::handleSpeedandDirection(int dir, int speed) {
+	currentSpeed = speed;
+	if (dir == 1) {
+		analogWrite(gpioForward, currentSpeed);
+		analogWrite(gpioReverse, 0);
+		direction = 1;
+	} else if (dir == -1) {
+		analogWrite(gpioForward, 0);
+		analogWrite(gpioReverse, currentSpeed);
+		direction = -1;
+	} else {
+		digitalWrite(gpioForward, LOW);
+		digitalWrite(gpioReverse, LOW);
+		direction = 0;
+	}
 }
