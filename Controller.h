@@ -17,11 +17,18 @@
 #include "ActionBase.h"
 #include "interfaceLoop.h"
 
+	struct LocData {
+		int speed;
+		int direction;
+		int speedsteps;
+	};
+
 class CmdReceiverBase;
 // forward declaration
 
 class Controller {
 public:
+
 	Controller();
 	virtual ~Controller();
 	void registerCmdSender(CmdSenderBase* base);
@@ -42,14 +49,10 @@ public:
 
 	String getHostname();
 
-
+	LocData* getLocData(int id);
 	void emergencyStop(int source);
+
 private:
-	struct LocData {
-		int speed;
-		int direction;
-		int speedsteps;
-	};
 	typedef std::map<int, LocData*> Items;
 	Items items;
 

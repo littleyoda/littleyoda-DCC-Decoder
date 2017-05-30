@@ -6,11 +6,13 @@
 #include "Controller.h"
 #include "CmdReceiverDCC.h"
 #include "CmdReceiverZ21Wlan.h"
+#include "CmdZentraleZ21.h"
 
 #include "ActionTurnOut.h"
 #include "ActionServo.h"
 #include "ActionLed.h"
 #include "ActionPWMOutput.h"
+#include "ActionDFPlayerMP3.h"
 #include "Config.h"
 
 #include "Webserver.h"
@@ -101,6 +103,9 @@ void loadCFG(Webserver* web) {
 			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, value["ip"].as<const char*>());
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);
+		} else if (strcmp(art, "z21server") == 0) {
+			CmdZentraleZ21* rec = new CmdZentraleZ21(controller, value["ip"].as<const char*>());
+			controller->registerCmdReceiver(rec);
 		} else if (strcmp(art, "webservicewifiscanner") == 0) {
 			web->addServices(new WebserviceWifiScanner());
 		} else if (strcmp(art, "webservicelog") == 0) {
@@ -111,6 +116,11 @@ void loadCFG(Webserver* web) {
 			int gpior = Utils::string2gpio(value["reverse"].as<const char*>());
 			int  addr = value["addr"].as<int>();
 			controller->registerAction(new ActionPWMOutput(addr, gpiopwm, gpiof, gpior));
+		} else if (strcmp(art, "mp3") == 0) {
+			int  addr = value["addr"].as<int>();
+			int tx = Utils::string2gpio(value["tx"].as<const char*>());
+			int rx = Utils::string2gpio(value["rx"].as<const char*>());
+			controller->registerAction(new ActionDFPlayerMP3(addr, tx, rx));
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));

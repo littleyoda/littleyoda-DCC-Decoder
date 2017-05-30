@@ -103,6 +103,18 @@ void Controller::setRequest(String id, String key, String value) {
 	actions.get(idx)->setSettings(key, value);
 }
 
+LocData* Controller::getLocData(int id) {
+	LocData* data;
+	if (items.find(id) == items.end()) {
+		data = new LocData();
+		if (id != Consts::LOCID_ALL) {
+			items[id] = data;
+		}
+		return data;
+	}
+	return items[id];
+}
+
 /**
  * @param speed see Consts.h
  * @param direction 1 = forward / 1 = reverse
