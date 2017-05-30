@@ -21,9 +21,11 @@ public:
 	virtual void setSettings(String key, String value);
 	virtual void setDirection(int dir);
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
+private:
+	void handleSpeedandDirection(int dir, int currentSpeed);
 	virtual void setSpeedInProcent(int proc);
 	int direction = 1;
-private:
+	int currentSpeed = 0;
 	int locid;
 	int gpioPWM;
 	int gpioForward;
