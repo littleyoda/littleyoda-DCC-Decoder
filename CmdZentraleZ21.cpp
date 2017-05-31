@@ -69,14 +69,9 @@ int CmdZentraleZ21::loop() {
 }
 
 void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
-	LocData* data = controller->getLocData(locoid);
 	unsigned int value = (pb[8] >> 6) & 1;
 	unsigned int bit = pb[8] & 63;
-	if (value == 0) {
-		clear_bit(data->status, bit);
-	} else {
-		set_bit(data->status, bit);
-	}
+	controller->notifyDCCFun(locoid, bit, value, Consts::SOURCE_Z21SERVER);
 }
 
 void CmdZentraleZ21::doReceive(int cb) {

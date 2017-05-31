@@ -43,6 +43,7 @@ public:
 	void notifyTurnout(int id, int direction, int source);
 	void notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value, int source);
+	void notifyDCCFun(int id, int bit, unsigned int value, int source);
 
 	String getHTMLController();
 	String getHTMLCfg();

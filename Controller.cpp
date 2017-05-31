@@ -161,6 +161,35 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 }
 
 
+void Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int source) {
+	// Get the old status ...
+	LocData* data = getLocData(id);
+
+	boolean changed = false;
+	// .. and send only the changed bits
+	unsigned long int value = data->status;
+	unsigned long int oldBitValue = bit_is_set(value, bit);
+	if (oldBitValue == newBitValue) {
+		return;
+	}
+	changed = true;
+	if (newBitValue == 0) {
+		clear_bit(data->status, bit);
+	} else {
+		set_bit(data->status, bit);
+	}
+	for (int idx = 0; idx < actions.size(); idx++) {
+		actions.get(idx)->DCCFunc(id, bit, (newBitValue == 0) ? 0 : 1, source);
+	}
+	if (changed) {
+		Serial.println("Func " + String(id) + " " + String(data->status));
+		for (int idx = 0; idx < actions.size(); idx++) {
+			actions.get(idx)->DCCFunc(id, data->status, source);
+		}
+	}
+}
+
+
 void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long partValues, int source) {
 	// Get the old status ...
 	LocData* data = getLocData(id);
