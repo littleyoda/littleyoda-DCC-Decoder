@@ -68,6 +68,16 @@ int CmdZentraleZ21::loop() {
 
 }
 
+void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
+	LocData* data = controller->getLocData(locoid);
+	unsigned int value = (pb[8] >> 6) & 1;
+	unsigned int bit = pb[8] & 63;
+	if (value == 0) {
+		clear_bit(data->status, bit);
+	} else {
+		set_bit(data->status, bit);
+	}
+}
 
 void CmdZentraleZ21::doReceive(int cb) {
 	// TODO Handle Packets with multiple Blocks in one UDP Paket
@@ -94,7 +104,7 @@ void CmdZentraleZ21::doReceive(int cb) {
 			&& pb[4] == 0xe3 && pb[5] == 0xf0;;
 	if (X_GET_LOCO_INFO) {
 		int id = ((pb[6] & 0x3F) << 8) + pb[7];
-		handleLocoInfo(id);
+		sendLocoInfoToClient(id);
 		return;
 	}
 
@@ -113,8 +123,17 @@ void CmdZentraleZ21::doReceive(int cb) {
 	unsigned char SET_LOCO_DRIVE[5] = {0x0a, 0x00, 0x40, 0x00, 0xe4};
 	if (cb>= 10 && memcmp(SET_LOCO_DRIVE, pb, 5) == 0) {
 		unsigned int locoid = ((pb[6] & 0x3f) << 8) + pb[7];
-		handleSetLoco(locoid);
-		return;
+		if (pb[5] == 0xF8) {
+			handleSetLocoFunc(locoid);
+			sendLocoInfoToClient(locoid);
+			return;
+		}
+		if ((pb[5] >> 4) == 1) {
+			handleSetLoco(locoid);
+			sendLocoInfoToClient(locoid);
+			return;
+		}
+
 	}
 	printPacketBuffer(cb);
 }
@@ -140,10 +159,10 @@ void CmdZentraleZ21::handleSetLoco(int locoid) {
 		v = Consts::SPEED_EMERGENCY;
 	}
 	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen, 1);
-	handleLocoInfo(locoid);
+	sendLocoInfoToClient(locoid);
 }
 
-void CmdZentraleZ21::handleLocoInfo(int addr) {
+void CmdZentraleZ21::sendLocoInfoToClient(int addr) {
 	LocData* data = controller->getLocData(addr);
 	if (data->speedsteps == 0) {
 		data->speedsteps = 128;
@@ -171,10 +190,10 @@ void CmdZentraleZ21::handleLocoInfo(int addr) {
 		v = 1;
 	}
 	pb[8] = v | ((data->direction == -1) ? 0 : 128);
-	pb[9] = data->speed & 15; // F1,3,5 on
-	pb[10] = 0;
-	pb[11] = 0;
-	pb[12] = 0;
+	pb[9] = ((data->status >> 1) & 15) | (data->status & 1) << 4;
+	pb[10] = (data->status >> 5) & 255;
+	pb[11] = (data->status >> 13) & 255;
+	pb[12] = (data->status >> 21) & 255;
 
 	pb[13] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8] ^ pb[9] ^ pb[10] ^ pb[11] ^ pb[12];
 	udp->beginPacket(udp->remoteIP(), udp->remotePort());

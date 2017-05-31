@@ -107,6 +107,9 @@ LocData* Controller::getLocData(int id) {
 	LocData* data;
 	if (items.find(id) == items.end()) {
 		data = new LocData();
+		data->status = 0;
+		data->speed = 0;
+		data->speedsteps = 0;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
 		}
@@ -160,14 +163,8 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 
 void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long partValues, int source) {
 	// Get the old status ...
-	FuncData* data;
-	if (funcdatas.find(id) == funcdatas.end()) {
-		data = new FuncData();
-		data->status = 0;
-		funcdatas[id] = data;
-	} else {
-		data = funcdatas[id];
-	}
+	LocData* data = getLocData(id);
+
 	boolean changed = false;
 	// .. and send only the changed bits
 	unsigned long int value = data->status;

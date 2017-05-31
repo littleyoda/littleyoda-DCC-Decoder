@@ -21,6 +21,7 @@
 		int speed;
 		int direction;
 		int speedsteps;
+		unsigned long int status;
 	};
 
 class CmdReceiverBase;
@@ -56,11 +57,6 @@ private:
 	typedef std::map<int, LocData*> Items;
 	Items items;
 
-	struct FuncData {
-		unsigned long int status;
-	};
-	typedef std::map<int, FuncData*> FuncDatas;
-	FuncDatas funcdatas;
 
 	LinkedList<CmdReceiverBase*> receiver = LinkedList<CmdReceiverBase*>();
 	LinkedList<CmdSenderBase*> sender = LinkedList<CmdSenderBase*>();

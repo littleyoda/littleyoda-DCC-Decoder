@@ -18,7 +18,7 @@ public:
 
 private:
 	void handleLocoMode();
-	void handleLocoInfo(int locid);
+	void sendLocoInfoToClient(int locid);
 	void handleSetLoco(int locoid);
 
 
@@ -33,6 +33,7 @@ private:
 	void printPacketBuffer(int size);
 
 	void emergencyStop();
+	void handleSetLocoFunc(unsigned int locoid);
 
 	long int lastTime = 0;
 	static const int emergencyStopTimeout = 4200;
