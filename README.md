@@ -18,10 +18,12 @@ Mit diesem Decoder möchte ich eine möglichst flexible Platform nutzen.
 Aus diesem Grund setze ich auf die Prozessoren vom Typ [ESP8266](https://de.wikipedia.org/wiki/ESP8266) und hier insbesondere auf die fertigen [NodeMCU-Boards](https://en.wikipedia.org/wiki/NodeMCU).  Sie verfügen über 8 nutzbare GPIO, jeder GPIO ist u.a. als PWM-Ausgang nutzbar. Selbst ein kleiner Webserver läuft auf diesem Prozessor.
 
 ### Input
-Befehle können über die folgenden Wege empfangen werden:
+Befehle können, je nach Hardware, über die folgenden Wege empfangen werden:
  * klassisch über DCC
  * drahtlos über WLAN in Verbindung mit einer [Z21](http://www.z21.eu/). Wenn mit einem Handgerät ein Befehl ausgeführt wird, wird dieser Befehl per WLAN an den Decoder weitergeleitet.
  * Über einen Webbrowser
+ * Direkte Nutzung der Z21-App oder der Roco WLAN Maus. Hierbei ist keine(!) Z21 notwendig. Die Z21-App oder die Roco WLAN Maus kann direkt dem Dekoder kommunizieren.
+ 
 
 Andere Zentralen, die über einen Netzwerkanschluß verfügen, können relativ einfach hinzugefügt werden. Hierzu muss eine Klasse analog zur Klasse CmdReceiverZ21Wlan implementiert werden.
 
