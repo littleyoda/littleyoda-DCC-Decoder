@@ -20,6 +20,11 @@ private:
 	void handleLocoMode();
 	void sendLocoInfoToClient(int locid);
 	void handleSetLoco(int locoid);
+	void handleGetSerial();
+	void handleGetVersion();
+	void handleGetStatus();
+	void sendFirmware();
+	void sendHwinfo();
 
 
 	WiFiUDP* udp;
