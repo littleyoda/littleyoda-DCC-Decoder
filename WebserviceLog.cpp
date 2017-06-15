@@ -35,7 +35,10 @@ void WebserviceLog::run() {
 	send("<tr><td>Wifi Status</td><td>"
 			+ Utils::wifi2String(WiFi.status()) + "</td></tr>\n");
 	send("<tr><td>Wifi SSID</td><td>" + WiFi.SSID() + "</td></tr>");
-	LinkedList<Logger::logdata*>* list = Logger::getInstance()->getLogs();
+	send("<tr><td>IP (Access Point)</td><td>" + WiFi.softAPIP().toString() + "</td></tr>");
+	send("<tr><td>IP (WLAN Client)</td><td>" + WiFi.localIP().toString() + "</td></tr>");
+
+	  LinkedList<Logger::logdata*>* list = Logger::getInstance()->getLogs();
 	for (int i = 0; i < list->size(); i++) {
 		send("<tr><td>Log ");
 		send(String(i));
