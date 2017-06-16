@@ -15,14 +15,6 @@
 CmdZentraleZ21::CmdZentraleZ21(Controller* c, const char* ip) :
 		CmdReceiverBase(c) {
 	Logger::getInstance()->addToLog("Starting Z21 Zentrale ...");
-//	if (ip == NULL) {
-//		z21Server = new IPAddress(192, 168, 0, 111);
-//	} else {
-//		z21Server = new IPAddress();
-//		z21Server->fromString(ip);
-//
-//	}
-//	Logger::getInstance()->addToLog("Z21-Server Using: " + String(z21Server->toString()));
 	udp = new WiFiUDP();
 	udp->begin(localPort);
 }
