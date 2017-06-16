@@ -40,30 +40,6 @@ int CmdZentraleZ21::loop() {
 		controller->emergencyStop(Consts::SOURCE_Z21SERVER);
 		timeout = 0;
 	}
-
-//	// Scheduler for Requests
-//	if (time - lastTime > (emergencyStopTimeout / 4)) {
-//		lastTime = time;
-//		if (loopStatus == -3) {
-//			sendXGetStatus();
-//		} else if (loopStatus == -2) {
-//			enableBroadcasts();
-//		} else if (loopStatus == -1) {
-//			sendCfg12Request();
-//		} else {
-//			ActionBase::requestInfo* ri = requestList->get(loopStatus);
-//			if (ri->art == ActionBase::requestInfo::LOCO) {
-//				requestLocoInfo(ri->id);
-//			} else if (ri->art == ActionBase::requestInfo::TURNOUT) {
-//				requestTurnoutInfo(ri->id);
-//			}
-//		}
-//		loopStatus++;
-//		if ((requestList == NULL && loopStatus == 0)
-//				|| (requestList != NULL && loopStatus == requestList->size())) {
-//			loopStatus = firstLoopStatus;
-//		}
-//	}
 	return 2;
 
 }
@@ -137,7 +113,6 @@ void CmdZentraleZ21::handleGetStatus() {
 	pb[18] = 0x00; // 14
 	pb[19] = 0x00; // 15
 
-//	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7]^ pb[8] ^ pb[9] ^ pb[10]^ pb[11];
 	udp->beginPacket(udp->remoteIP(), udp->remotePort());
 	udp->write(pb, pb[0]);
 	udp->endPacket();
@@ -155,7 +130,6 @@ void CmdZentraleZ21::handleGetSerial() {
 	pb[6] = 0x03;
 	pb[7] = 0x04;
 
-//	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7]^ pb[8] ^ pb[9] ^ pb[10]^ pb[11];
 	udp->beginPacket(udp->remoteIP(), udp->remotePort());
 	udp->write(pb, pb[0]);
 	udp->endPacket();
@@ -361,27 +335,6 @@ void CmdZentraleZ21::sendLocoInfoToClient(int addr) {
 	udp->beginPacket(udp->remoteIP(), udp->remotePort());
 	udp->write(pb, pb[0]);
 	udp->endPacket();
-// DEBUG zum decode the packet
-//
-//	unsigned int locoid = ((pb[5] & 0x3f) << 8) + pb[6];
-//	unsigned int fahrstufen = pb[7] & 7;
-//	if (fahrstufen == 0) {
-//		fahrstufen = 14;
-//	} else if (fahrstufen == 2) {
-//		fahrstufen = 28;
-//	} else if (fahrstufen == 4) {
-//		fahrstufen = 128;
-//	}
-//
-//	int richtung = (pb[8] & 128) == 0 ? -1 : 1;
-//	v = (pb[8] & 127);
-//	// Adjust to match NmraDCC Schema
-//	if (v == 0) {
-//		v = Consts::SPEED_STOP;
-//	} else if (v == 1) {
-//		v = Consts::SPEED_EMERGENCY;
-//	}
-//	Serial.println("Gesendet: D:" + String(richtung) + " Speed:" + String(v) + "/ Steps" + String(fahrstufen));
 }
 
 void CmdZentraleZ21::handleLocoMode() {
