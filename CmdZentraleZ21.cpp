@@ -12,7 +12,7 @@
 #include "Consts.h"
 #include "Utils.h"
 
-CmdZentraleZ21::CmdZentraleZ21(Controller* c, const char* ip) :
+CmdZentraleZ21::CmdZentraleZ21(Controller* c) :
 		CmdReceiverBase(c) {
 	Logger::getInstance()->addToLog("Starting Z21 Zentrale ...");
 	udp = new WiFiUDP();
