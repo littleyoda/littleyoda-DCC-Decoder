@@ -100,16 +100,6 @@ public:
 		}
 	}
 
-	static String getMAC() {
-		byte mac[6];
-		WiFi.macAddress(mac);
-		return String(mac[0],HEX) + "-"
-					 + String(mac[1],HEX) + "-"
-		         	 + String(mac[2],HEX) + "-"
-		         	 + String(mac[3],HEX) + "-"
-		         	 + String(mac[4],HEX) + "-"
-		         	 + String(mac[5],HEX);
-	}
 
 	static int string2gpio(const char* pin) {
 		if (strcmp("D1", pin) == 0) {
@@ -139,6 +129,17 @@ public:
 					"Unbekannte PIN in Config: " + String(pin));
 			return 255;
 		}
+	}
+
+	static String getMAC() {
+		byte mac[6];
+		WiFi.macAddress(mac);
+		return String(mac[0],HEX) + "-"
+					 + String(mac[1],HEX) + "-"
+		         	 + String(mac[2],HEX) + "-"
+		         	 + String(mac[3],HEX) + "-"
+		         	 + String(mac[4],HEX) + "-"
+		         	 + String(mac[5],HEX);
 	}
 
 
