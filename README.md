@@ -5,11 +5,12 @@ Ein flexibles Framework für Modelleisenbahnen-Decoder, auf Basis eines ESP8266.
 Der Funktionsumfang lässt sich leicht durch weitere Klassen erweitern.
 
 ## Status
- * in Entwicklung, wird für zwei Dekoder genutzt
+ * in Entwicklung, wird von mehreren Dekodern genutzt
 
 Die folgenden Dekoder nutzen diese Software:
  * [Weichendekoder](http://spurg.open4me.de/wordpress/784/Weichendecoder)
  * [ein sehr einfacher Lokdekoder](http://spurg.open4me.de/wordpress/786/Lokdekoder?2)
+ * [Ein Lokdekoder, der einen anderen DCC-Lokdekoder ansteuert](http://gartenbahntechnik.de/forum/viewtopic.php?f=22&t=418)
 
 ## Beschreibung
 
