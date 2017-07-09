@@ -134,7 +134,7 @@ void loadCFG(Webserver* web) {
 							Utils::string2gpio(
 									value["enable"].as<const char*>()),
 									value["addr"].as<int>()));
-		} else if (strcmp(art, "dcclogger") == 0) {
+		} else if ((strcmp(art, "dcclogger") == 0) || (strcmp(art, "cmdlogger") == 0)) {
 			cmdlogger = new WebserviceCommandLogger();
 			controller->registerAction(cmdlogger);
 			web->addServices(cmdlogger);
