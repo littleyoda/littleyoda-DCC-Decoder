@@ -9,6 +9,7 @@
 #define CONTROLLER_H_
 
 #include <ESP8266WebServer.h>
+#include <DNSServer.h>
 #include <LinkedList.h>
 #include <map>
 
@@ -45,10 +46,11 @@ public:
 	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value, int source);
 	void notifyDCCFun(int id, int bit, unsigned int value, int source);
 
+	void enableAPModus();
 	String getHTMLController();
 	String getHTMLCfg();
 	void setRequest(String id, String key, String value);
-
+	bool isEmergency();
 	String getHostname();
 
 	LocData* getLocData(int id);
@@ -58,7 +60,7 @@ private:
 	typedef std::map<int, LocData*> Items;
 	Items items;
 
-
+	bool EMERGENCYActive;
 	LinkedList<CmdReceiverBase*> receiver = LinkedList<CmdReceiverBase*>();
 	LinkedList<CmdSenderBase*> sender = LinkedList<CmdSenderBase*>();
 	LinkedList<ActionBase*> actions = LinkedList<ActionBase*>();
@@ -66,7 +68,7 @@ private:
 	LinkedList<unsigned long> nextRun = LinkedList<unsigned long>();
 	LinkedList<ActionBase::requestInfo*> requestList = LinkedList<ActionBase::requestInfo*>();
 	long int lastTurnoutCmd[3];
-
+	std::unique_ptr<DNSServer> dnsServer;
 };
 
 #endif /* CONTROLLER_H_ */

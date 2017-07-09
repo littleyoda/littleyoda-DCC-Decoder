@@ -26,7 +26,7 @@ void WebserviceLog::run() {
 	sendBasicHeader();
 	send(Utils::getHTMLHeader());
 	send("<table border=\"1\"><tr><th>Attribut</th><th>Status</th></tr>\n");
-	send("<tr><td>Memory</td><td>" + String(ESP.getFreeHeap()) + "/"
+	send("<tr><td>Memory (free/free at startup)</td><td>" + String(ESP.getFreeHeap()) + "/"
 			+ String(Logger::getInstance()->startmemory) + " Bytes </td></tr>\n");
 	send("<tr><td>Uptime</td><td>" + String(millis() / 1000)
 			+ " sek</td></tr>\n");

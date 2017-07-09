@@ -5,14 +5,19 @@
  *      Author: sven
  */
 
-#include<Arduino.h>
+#include <Arduino.h>
+#include <FS.h>
 #include "Controller.h"
 #include "Utils.h"
 #include "Logger.h"
 #include "Consts.h"
 
-Controller::Controller() {
 
+Controller::Controller() {
+	if (!SPIFFS.begin()) {
+		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
+	}
+	EMERGENCYActive = false;
 }
 
 Controller::~Controller() {
@@ -39,6 +44,9 @@ void Controller::doLoops() {
 		delay(0);
 	}
 	delay(0);
+	if (dnsServer) {
+		dnsServer->processNextRequest();
+	}
 }
 
 void Controller::registerAction(ActionBase* base) {
@@ -127,6 +135,7 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 	if (direction == 0) {
 		Logger::getInstance()->addToLog("Ungültige Richtung (0)");
 	}
+	EMERGENCYActive = speed == Consts::SPEED_EMERGENCY;
 	// Filter out known commands
 	LocData* data;
 	if (items.find(id) == items.end()) {
@@ -248,4 +257,23 @@ void Controller::updateRequestList() {
 void Controller::emergencyStop(int source) {
 	notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
 				   Consts::SPEED_FORWARD, 128, source);
+}
+
+void Controller::enableAPModus() {
+	Logger::getInstance()->addToLog("Aktiviere Access Point!");
+ 	WiFiMode_t mode = WiFi.getMode();
+	if (mode == WIFI_AP || mode == WIFI_AP_STA) {
+		Logger::getInstance()->addToLog("Access Point bereits aktiv!");
+		return;
+	}
+// TODO Station Modus abhalten
+	WiFi.softAP("Hallo World");
+	WiFi.enableAP(true);
+	Serial.println(WiFi.softAPIP().toString());
+	dnsServer.reset(new DNSServer());
+	dnsServer->start(53, "*", WiFi.softAPIP());
+}
+
+bool Controller::isEmergency() {
+	return EMERGENCYActive;
 }

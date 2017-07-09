@@ -33,9 +33,6 @@ Webserver::Webserver(Controller* c) {
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
 	server->on("/upload", HTTP_POST, []() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); }, std::bind(&Webserver::handleUpload, this));
 	server->begin();
-	if (!SPIFFS.begin()) {
-		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
-	}
 	httpUpdater = new ESP8266HTTPUpdateServer();
 	const char* update_path = "/firmware";
 	httpUpdater->setup(server, update_path, "admin", "admin");
@@ -118,8 +115,10 @@ int Webserver::loop() {
 		+ " => " + Utils::wifi2String(WiFi.status()) + " IP:"
 		+ WiFi.localIP().toString());
 		lastWifiStatus = WiFi.status();
-		MDNS.begin(controll->getHostname().c_str());
-		MDNS.addService("http", "tcp", 80);
+		if (WiFi.status() == WL_CONNECTED) {
+			MDNS.begin(controll->getHostname().c_str());
+			MDNS.addService("http", "tcp", 80);
+		}
 	}
 	return 2;
 
@@ -179,18 +178,25 @@ void Webserver::handleNotFound() {
 	if (loadFromSPIFFS(server->uri())) {
 		return;
 	}
-	String message = "File Not Found\n\n";
-	message += "URI: ";
-	message += server->uri();
-	message += "\nMethod: ";
-	message += (server->method() == HTTP_GET) ? "GET" : "POST";
-	message += "\nArguments: ";
-	message += server->args();
-	message += "\n";
-	for (uint8_t i = 0; i < server->args(); i++) {
-		message += " " + server->argName(i) + ": " + server->arg(i) + "\n";
+	if (server->hostHeader().equals(server->client().localIP().toString())) {
+			String message = "File Not Found\n\n";
+			message += "URI: ";
+			message += server->uri();
+			message += "\nMethod: ";
+			message += (server->method() == HTTP_GET) ? "GET" : "POST";
+			message += "\nArguments: ";
+			message += server->args();
+			message += "\n";
+			for (uint8_t i = 0; i < server->args(); i++) {
+				message += " " + server->argName(i) + ": " + server->arg(i) + "\n";
+			}
+			server->send(404, "text/plain", message);
+	} else {
+		Serial.println(server->hostHeader());
+		server->sendHeader("Location", String("http://") + server->client().localIP().toString(), true);
+		server->send ( 302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
+		server->client().stop(); // Stop
 	}
-	server->send(404, "text/plain", message);
 }
 
 
