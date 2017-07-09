@@ -145,6 +145,54 @@ void CmdZentraleZ21::handleGetVersion() {
 	udp->endPacket();
 }
 
+void CmdZentraleZ21::handleBIB() {
+	int len = pb[4] - 0xe5;
+	int id = ((pb[6] & 0x3F) << 8) + pb[7];
+	Serial.print(String((pb[8]) + 1) + "/" + String(pb[9]) + "Length: " + String(len) + " ID: " + String(id) + " Name :");
+	for (int i = 10; i < 10 + len; i++) {
+		Serial.print((char)pb[i]);
+	}
+	Serial.println("<");
+}
+
+void CmdZentraleZ21::sendStatusChanged() {
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 0x08;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
+
+	pb[4] = 0x62;
+	pb[5] = 0x22;
+	if (controller->isEmergency()) {
+		pb[6] = 1;
+	} else {
+		pb[6] = 0;
+	}
+	pb[7] = pb[4] ^ pb[5] ^ pb[6];
+
+	udp->beginPacket(udp->remoteIP(), udp->remotePort());
+	udp->write(pb, pb[0]);
+	udp->endPacket();
+}
+
+void CmdZentraleZ21::handleTurnInfoRequest(int id) {
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 0x09;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
+
+	pb[4] = 0x43;
+	pb[5] = id >> 8;
+	pb[6] = id & 255;
+	pb[7] = 0;
+	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7];
+
+	udp->beginPacket(udp->remoteIP(), udp->remotePort());
+	udp->write(pb, pb[0]);
+	udp->endPacket();
+}
 
 void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
 	unsigned int value = (pb[8] >> 6) & 1;
@@ -165,10 +213,10 @@ void CmdZentraleZ21::doReceive(int cb) {
 	boolean LAN_X_GET_STATUS = cb >= 7
 			&& pb[0] == 0x07 && pb[1] == 0x00
 			&& pb[2] == 0x40 && pb[3] == 0x00
-			&& pb[4] == 0x21 && pb[5] == 0x24 && pb[6] == 0x05;
+			&& pb[4] == 0x21 && pb[5] == 0x24 /** && pb[6] == 0x05 */;
 			;
 	if (LAN_X_GET_STATUS) {
-		Serial.println("Status request");
+		sendStatusChanged();
 		return;
 	}
 
@@ -215,13 +263,7 @@ void CmdZentraleZ21::doReceive(int cb) {
 	}
 
 	unsigned char GET_VERSION[7] = {0x07, 0x00, 0x40, 0x00, 0x21, 0x21, 0x00};
-	if (cb>= 7 && memcmp(GET_VERSION, pb, 7) == 0) {
-		handleGetVersion();
-		return;
-	}
-
-	unsigned char GET_VERSION_2D[7] = {0x07, 0x00, 0x40, 0x00, 0x21, 0x21, 0xd2};
-	if (cb>= 7 && memcmp(GET_VERSION_2D, pb, 7) == 0) {
+	if (cb>= 7 && memcmp(GET_VERSION, pb, 7 - 1) == 0) {
 		handleGetVersion();
 		return;
 	}
@@ -262,6 +304,26 @@ void CmdZentraleZ21::doReceive(int cb) {
 		}
 
 	}
+
+	// Die WLAN MAUS sendet entgegen der Spezifikation dieses Paket an die Z21
+	unsigned char LAN_X_GET_TURNOUT_INFO[5] = {0x09, 0x00, 0x40, 0x00, 0x43};
+	if (cb>= 9 && memcmp(LAN_X_GET_TURNOUT_INFO, pb, 5) == 0) {
+		int id = (pb[5] << 8) + pb[6];
+		handleTurnInfoRequest(id);
+		return;
+	}
+
+		//0xE5 up to 0xEF.
+	boolean LOKBIB_RECEIVED = cb >= 0x0c
+			&& pb[0] >= 0x0c && pb[1] == 0x00
+			&& pb[2] == 0x40 && pb[3] == 0x00
+			&& pb[4] >= 0xE6 && pb[4] <= 0xEF
+			&& pb[5] == 0xf1;
+	if (LOKBIB_RECEIVED) {
+		handleBIB();
+		return;
+	}
+
 	Serial.print("Unbekannt: ");
 	printPacketBuffer(cb);
 }
@@ -356,6 +418,8 @@ void CmdZentraleZ21::printPacketBuffer(int size) {
 	}
 	Serial.print(" [");
 	Serial.print(udp->remoteIP());
+	Serial.print(" => ");
+	Serial.print(udp->destinationIP());
 	Serial.println("]");
 }
 

@@ -12,7 +12,7 @@
 
 class CmdZentraleZ21: public CmdReceiverBase {
 public:
-	CmdZentraleZ21(Controller* c, const char* ip);
+	CmdZentraleZ21(Controller* c);
 	virtual int loop();
 	virtual ~CmdZentraleZ21();
 
@@ -25,7 +25,9 @@ private:
 	void handleGetStatus();
 	void sendFirmware();
 	void sendHwinfo();
-
+	void handleBIB();
+	void sendStatusChanged();
+	void handleTurnInfoRequest(int id);
 
 	WiFiUDP* udp;
 	unsigned int localPort = 21105;
