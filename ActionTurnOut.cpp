@@ -8,6 +8,7 @@
 #include "Arduino.h"
 #include "ActionTurnOut.h"
 #include "Logger.h"
+#include "GPIO.h"
 
 ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable, int id) {
 	Logger::getInstance()->addToLog(
@@ -19,10 +20,10 @@ ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable, int id) {
 	this->id = id;
 	int i;
 	for (i = 0; i < 2; i++) {
-		pinMode(dirPin[i], OUTPUT);
-		digitalWrite(dirPin[i], 0);
+		GPIO.pinMode(dirPin[i], OUTPUT);
+		GPIO.digitalWrite(dirPin[i], 0);
 	}
-	pinMode(enable, OUTPUT);
+	GPIO.pinMode(enable, OUTPUT);
 	off();
 
 }
@@ -49,9 +50,9 @@ String ActionTurnOut::getHTMLController(String urlprefix) {
 }
 
 void ActionTurnOut::off() {
-	digitalWrite(enable, 0);
+	GPIO.digitalWrite(enable, 0);
 	for (int i = 0; i < 2; i++) {
-		digitalWrite(dirPin[i], 0);
+		GPIO.digitalWrite(dirPin[i], 0);
 	}
 }
 
@@ -65,13 +66,13 @@ void ActionTurnOut::TurnoutCmd(int id, int status, int source) {
 		return;
 	}
 	if (status == 1) {
-		digitalWrite(dirPin[0], 0);
-		digitalWrite(dirPin[1], 1);
+		GPIO.digitalWrite(dirPin[0], 0);
+		GPIO.digitalWrite(dirPin[1], 1);
 	} else {
-		digitalWrite(dirPin[0], 1);
-		digitalWrite(dirPin[1], 0);
+		GPIO.digitalWrite(dirPin[0], 1);
+		GPIO.digitalWrite(dirPin[1], 0);
 	}
-	digitalWrite(enable, 1);
+	GPIO.digitalWrite(enable, 1);
 	delay(200);
 	off();
 }

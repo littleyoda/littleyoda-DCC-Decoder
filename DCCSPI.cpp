@@ -24,6 +24,7 @@
 
 #include "DCCSPI.h"
 #include "HardwareSerial.h"
+#include "GPIO.h"
 
 typedef union {
 	uint32_t regValue;
@@ -43,7 +44,7 @@ DCCSPIClass::DCCSPIClass() {
 
 
 void DCCSPIClass::begin() {
-	pinMode(MOSI, SPECIAL); ///< GPIO13
+	GPIO.pinMode(MOSI, SPECIAL); ///< GPIO13
 
 	SPI1C = 0;
 	setFrequency(1000000); ///< 1MHz
@@ -53,7 +54,7 @@ void DCCSPIClass::begin() {
 }
 
 void DCCSPIClass::end() {
-	pinMode(MOSI, OUTPUT);
+	GPIO.pinMode(MOSI, OUTPUT);
 }
 
 

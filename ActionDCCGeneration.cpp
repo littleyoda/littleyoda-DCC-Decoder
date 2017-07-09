@@ -10,13 +10,14 @@
 #include "ActionDCCGeneration.h"
 #include "Logger.h"
 #include "Utils.h"
+#include "GPIO.h"
 
 ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) {
 	DCC_ADRESSE = dccoutput;
 	LOCO_ADR = dccoutput;
 	Logger::getInstance()->addToLog("Starting DCC Generator");
-	Logger::getInstance()->addToLog("DCC-Output:" + Utils::gpio2string(SPI.getUsedPin())
-									+ " Enabled: " + Utils::gpio2string(enableGpio)
+	Logger::getInstance()->addToLog("DCC-Output:" + GPIO.gpio2string(SPI.getUsedPin())
+									+ " Enabled: " + GPIO.gpio2string(enableGpio)
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 									+ " genutzte DCC Adresse: " + String(DCC_ADRESSE)
 	);
@@ -25,8 +26,8 @@ ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) 
 
 	enableGpio = gpio;
 	if (enableGpio != Consts::DISABLE) {
-		pinMode(enableGpio, OUTPUT);
-		digitalWrite(enableGpio, 0);
+		GPIO.pinMode(enableGpio, OUTPUT);
+		GPIO.digitalWrite(enableGpio, 0);
 	}
 
 	requestInfo* r = new requestInfo();
@@ -73,9 +74,9 @@ void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSt
 		if (enableGpio != Consts::DISABLE) {
 			Serial.println("Emergency? " + String(speed == Consts::SPEED_EMERGENCY));
 			if (speed == Consts::SPEED_EMERGENCY) {
-				digitalWrite(enableGpio, 0); // disable Track
+				GPIO.digitalWrite(enableGpio, 0); // disable Track
 			} else {
-				digitalWrite(enableGpio, 1); // Enable Track
+				GPIO.digitalWrite(enableGpio, 1); // Enable Track
 			}
 		}
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {

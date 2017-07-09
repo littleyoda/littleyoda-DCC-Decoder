@@ -11,6 +11,7 @@
 #include <ESP8266WiFi.h>
 #include "Consts.h"
 #include "Logger.h"
+#include "GPIO.h"
 
 #define set_bit(var, bitIdx) ((var) |= (1 << (bitIdx)))
 #define bit_is_set(var, bitIdx) ((var) & (1 << (bitIdx)))
@@ -72,65 +73,6 @@ public:
 		};
 	}
 
-	static String gpio2string(int gpio) {
-		if (D1 == gpio) {
-			return "D1";
-		} else 	if (D2 == gpio) {
-			return "D2";
-		} else 	if (D3 == gpio) {
-			return "D3";
-		} else 	if (D4 == gpio) {
-			return "D4";
-		} else 	if (D5 == gpio) {
-			return "D5";
-		} else 	if (D6 == gpio) {
-			return "D6";
-		} else 	if (D7 == gpio) {
-			return "D7";
-		} else 	if (D8 == gpio) {
-			return "D8";
-		} else 	if (D9 == gpio) {
-			return "D9";
-		} else 	if (D10 == gpio) {
-			return "D10";
-		} else 	if (Consts::DISABLE == gpio) {
-			return "DISABLE";
-		} else {
-			Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
-			return "Pin " + String(gpio);
-		}
-	}
-
-
-	static int string2gpio(const char* pin) {
-		if (strcmp("D1", pin) == 0) {
-			return D1;
-		} else if (strcmp("D2", pin) == 0) {
-			return D2;
-		} else if (strcmp("D3", pin) == 0) {
-			return D3;
-		} else if (strcmp("D4", pin) == 0) {
-			return D4;
-		} else if (strcmp("D5", pin) == 0) {
-			return D5;
-		} else if (strcmp("D6", pin) == 0) {
-			return D6;
-		} else if (strcmp("D7", pin) == 0) {
-			return D7;
-		} else if (strcmp("D8", pin) == 0) {
-			return D8;
-		} else if (strcmp("D9", pin) == 0) {
-			return D9;
-		} else if (strcmp("D10", pin) == 0) {
-			return D10;
-		} else if (strcmp("DISABLE", pin) == 0) {
-			return Consts::DISABLE;
-		} else {
-			Logger::getInstance()->addToLog(
-					"Unbekannte PIN in Config: " + String(pin));
-			return Consts::DISABLE;
-		}
-	}
 
 	static String getMAC() {
 		byte mac[6];

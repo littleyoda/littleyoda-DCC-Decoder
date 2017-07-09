@@ -7,12 +7,13 @@
 
 #include "Arduino.h"
 #include "ActionTesting.h"
+#include "GPIO.h"
 
 ActionTesting::ActionTesting(int gpio) {
 	this->gpio = gpio;
 	status = 0;
-	pinMode(gpio, INPUT);
-	pinMode(D1, OUTPUT);
+	GPIO.pinMode(gpio, INPUT);
+	GPIO.pinMode(D1, OUTPUT);
 	// TODO Auto-generated constructor stub
 
 }
@@ -42,7 +43,7 @@ int ActionTesting::loop() {
 	int currentstatus = digitalRead(gpio);
 	if (currentstatus != status) {
 		status = currentstatus;
-		digitalWrite(D1, status);
+		GPIO.digitalWrite(D1, status);
 		Serial.println(String(millis()) + "/" + String(millis() - last) + ": Now " + String(status));
 		last = millis();
 	}

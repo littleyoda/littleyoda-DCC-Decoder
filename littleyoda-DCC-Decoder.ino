@@ -2,6 +2,7 @@
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
+#include "GPIO.h"
 
 #include "Controller.h"
 #include "CmdReceiverDCC.h"
@@ -23,6 +24,9 @@
 #include "WebserviceDCCSniffer.h"
 #include "DoubleBootDetection.h"
 #include "ActionDCCGeneration.h"
+#include <Wire.h>
+#include "Adafruit_MCP23017.h"
+
 
 Controller* controller;
 
@@ -65,7 +69,6 @@ void loadCFG(Webserver* web) {
 	std::unique_ptr<char[]> buf(new char[size]);
 	configFile.readBytes(buf.get(), size);
 
-	Serial.println(buf.get());
 
 	// Replace ' to ""
 	int counter = 0;
@@ -92,6 +95,7 @@ void loadCFG(Webserver* web) {
 	}
 
 	JsonArray& r1 = root["cfg"];
+	GPIO.init();
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
 		JsonObject& value = *it;
 		const char* art = (const char*) value["m"];
@@ -101,7 +105,7 @@ void loadCFG(Webserver* web) {
 		}
 		if (strcmp(art, "led") == 0) {
 			ActionLed* l = 					new ActionLed(
-					Utils::string2gpio(value["gpio"].as<const char*>()),
+					GPIO.string2gpio(value["gpio"].as<const char*>()),
 					value["locoid"].as<int>(),
 					value["func"].as<int>());
 			const char* pattern = value["pattern"].as<const char*>();
@@ -112,14 +116,14 @@ void loadCFG(Webserver* web) {
 		} else if (strcmp(art, "servo") == 0) {
 			controller->registerAction(
 					new ActionServo(
-							Utils::string2gpio(value["gpio"].as<const char*>()),
+							GPIO.string2gpio(value["gpio"].as<const char*>()),
 							value["locoid"].as<int>()));
 		} else if (strcmp(art, "turnout") == 0) {
 			controller->registerAction(
 					new ActionTurnOut(
-							Utils::string2gpio(value["dir1"].as<const char*>()),
-							Utils::string2gpio(value["dir2"].as<const char*>()),
-							Utils::string2gpio(
+							GPIO.string2gpio(value["dir1"].as<const char*>()),
+							GPIO.string2gpio(value["dir2"].as<const char*>()),
+							GPIO.string2gpio(
 									value["enable"].as<const char*>()),
 									value["addr"].as<int>()));
 		} else if ((strcmp(art, "dcclogger") == 0) || (strcmp(art, "cmdlogger") == 0)) {
@@ -130,7 +134,7 @@ void loadCFG(Webserver* web) {
 			dccSniffer = new WebserviceDCCSniffer();
 			web->addServices(dccSniffer);
 		} else if (strcmp(art, "dcc") == 0) {
-			int gpio = Utils::string2gpio(value["gpio"].as<const char*>());
+			int gpio = GPIO.string2gpio(value["gpio"].as<const char*>());
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 		} else if (strcmp(art, "z21") == 0) {
 			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, value["ip"].as<const char*>());
@@ -144,21 +148,21 @@ void loadCFG(Webserver* web) {
 		} else if (strcmp(art, "webservicelog") == 0) {
 			web->addServices(new WebserviceLog());
 		} else if (strcmp(art, "pwm") == 0) {
-			int gpiopwm = Utils::string2gpio(value["pwm"].as<const char*>());
-			int gpiof = Utils::string2gpio(value["forward"].as<const char*>());
-			int gpior = Utils::string2gpio(value["reverse"].as<const char*>());
+			int gpiopwm = GPIO.string2gpio(value["pwm"].as<const char*>());
+			int gpiof = GPIO.string2gpio(value["forward"].as<const char*>());
+			int gpior = GPIO.string2gpio(value["reverse"].as<const char*>());
 			int  addr = value["addr"].as<int>();
 			controller->registerAction(new ActionPWMOutput(addr, gpiopwm, gpiof, gpior));
 		} else if (strcmp(art, "mp3") == 0) {
 			int  addr = value["addr"].as<int>();
-			int tx = Utils::string2gpio(value["tx"].as<const char*>());
-			int rx = Utils::string2gpio(value["rx"].as<const char*>());
+			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
+			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
 			controller->registerAction(new ActionDFPlayerMP3(addr, tx, rx));
 		} else if (strcmp(art, "wlan") == 0) {
 			WiFi.enableSTA(true);
 			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>());
 		} else if (strcmp(art, "dccout") == 0) {
-			int gpioenable = Utils::string2gpio(value["enable"].as<const char*>());
+			int gpioenable = GPIO.string2gpio(value["enable"].as<const char*>());
 			int locoaddr = value["addr"].as<int>();
 			int dccoutput = value["dccoutputaddr"].as<int>();
 			controller->registerAction(new ActionDCCGeneration(gpioenable, locoaddr, dccoutput));
@@ -175,6 +179,7 @@ void loadCFG(Webserver* web) {
 					"Config: Unbekannter Eintrag " + String(art));
 		}
 		loop();
+
 	}
 	controller->registerLoop(web);
 	controller->registerLoop(Logger::getInstance());
@@ -252,4 +257,3 @@ void loop() {
 	controller->doLoops();
 	handleSerial();
 }
-

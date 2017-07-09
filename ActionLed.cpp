@@ -13,7 +13,7 @@
 
 ActionLed::ActionLed(int gpio, int locoId, int func) {
 	Logger::getInstance()->addToLog("Starting LED  " + String(gpio) + " " + String(locoId) + " " + String(func));
-	pinMode(gpio, OUTPUT);
+	GPIO.pinMode(gpio, OUTPUT);
 	this->gpio = gpio;
 	this->locoId = locoId;
 	this->func = func;
@@ -50,10 +50,10 @@ void ActionLed::setSettings(String key, String value) {
 void ActionLed::setSettings(int status) {
 	Logger::getInstance()->addToLog("Led " + String(gpio) + " changed to " + String(status));
 	if (status == 0) {
-		digitalWrite(gpio, 0);
+		GPIO.digitalWrite(gpio, 0);
 		currentStatus = 0;
 	} else if (status == 1) {
-		digitalWrite(gpio, 1);
+		GPIO.digitalWrite(gpio, 1);
 		currentStatus = 1;
 	}
 }
