@@ -10,6 +10,8 @@
 
 Logger::Logger() {
 	startmemory = ESP.getFreeHeap();
+	udp = NULL;
+	logserver = NULL;
 }
 
 Logger* Logger::getInstance() {
@@ -23,11 +25,11 @@ Logger::~Logger() {
 }
 
 void Logger::addToLog(String s) {
+	Serial.println(s);
 	logdata* log = new logdata;
 	log->send = false;
 	log->msg = String(millis() / 1000) + String(": ") + s;
 	logger.add(log);
-
 	if (logger.size() > maxLog) {
 		logdata* l = logger.shift();
 		delete(l);
