@@ -1,0 +1,15 @@
+	{ "cfg":[
+
+		{"m":"ap", "ssid":"Z21_XXXX", "pwd":"YYYYYY" },
+
+		{"m":"webservicewifiscanner" },
+		{"m":"webservicelog" },
+		{"m":"dcclogger" },
+
+		{"m":"pwm", "pwm": "DISABLE", "forward": "D6", "reverse": "D7", "addr" : 4711},
+
+
+
+		{"m":"simulateZ21" },
+
+		]}
