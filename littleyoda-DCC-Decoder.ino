@@ -35,19 +35,12 @@ void initWifi() {
 	WiFi.persistent(false);
 	WiFi.hostname(controller->getHostname());
 	WiFi.mode(WIFI_OFF);
-//	WiFi.softAP("Hallo World");
-	//	WiFi.mode(WIFI_AP_STA);
-//	WiFi.begin(ssid, password);
-
-
-	//	WiFi.softAP("esp8266_ap", "svensven");
 }
 
 /**
  * Auswertung der Configuration (json-Format)
  */
 void loadCFG(Webserver* web) {
-
 	File configFile = SPIFFS.open("/config.json", "r");
 	if (!configFile) {
 		Logger::getInstance()->addToLog("Konnte Konfig-File nicht öffnen: config.json");
@@ -97,11 +90,6 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
-
-	// For the Config Section
-	//	IPAddress* ip = new IPAddress();
-	//	ip->fromString("192.168.2.154");
-	//	Logger::getInstance()->setIPAddress(ip);
 
 	JsonArray& r1 = root["cfg"];
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
@@ -170,7 +158,10 @@ void loadCFG(Webserver* web) {
 			WiFi.enableSTA(true);
 			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>());
 		} else if (strcmp(art, "dccout") == 0) {
-			controller->registerAction(new ActionDCCGeneration());
+			int gpioenable = Utils::string2gpio(value["enable"].as<const char*>());
+			int locoaddr = value["addr"].as<int>();
+			int dccoutput = value["dccoutputaddr"].as<int>();
+			controller->registerAction(new ActionDCCGeneration(gpioenable, locoaddr, dccoutput));
 		} else if (strcmp(art, "ap") == 0) {
 			IPAddress Ip(192, 168, 0, 111);
 			 IPAddress NMask(255, 255, 255, 0);
@@ -205,7 +196,9 @@ void handleSerial() {
 			if (dccSniffer != NULL) {
 				Serial.println("Sniffer: " + String(dccSniffer->getMemUsage()));
 			}
-			Serial.println("Commandlogger: " + String(cmdlogger->getMemUsage()));
+			if (cmdlogger != NULL) {
+				Serial.println("Commandlogger: " + String(cmdlogger->getMemUsage()));
+			}
 			Serial.println("\nWifi:");
 			Serial.println("==================");
 			Serial.println("IP: " + Utils::wifi2String(WiFi.status()) + "  / " + WiFi.localIP().toString());
