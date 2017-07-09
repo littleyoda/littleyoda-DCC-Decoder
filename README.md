@@ -32,10 +32,11 @@ Andere Zentralen, die über einen Netzwerkanschluß verfügen, können relativ e
  * LED (zur Zeit nur an oder aus)
  * Servo
  * DC Motoren (über PWM)
-
+ * [DCC Signal Generator](http://gartenbahntechnik.de/forum/viewtopic.php?f=22&t=418)
 
 ### Konfiguration
-Zur Zeit über einen json-String in Config.h. Langfristig soll die Konfiguration über den Webserver hochgeladen werden.
+Über dem Webserver wird die Konfig-Datei hochgeladen. Im Verzeichnis
+Config-Templates finden sich Vorlagen, angepasst werden können.
 Eine Konfiguration über DCC wird wegen der fehlenden Flexibilität nicht unterstützt.
 
 
