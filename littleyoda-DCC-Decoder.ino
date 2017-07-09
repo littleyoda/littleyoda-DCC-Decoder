@@ -95,7 +95,6 @@ void loadCFG(Webserver* web) {
 	}
 
 	JsonArray& r1 = root["cfg"];
-	GPIO.init();
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
 		JsonObject& value = *it;
 		const char* art = (const char*) value["m"];
@@ -174,6 +173,23 @@ void loadCFG(Webserver* web) {
 			WiFi.enableAP(true);
 			Serial.println(WiFi.softAPIP().toString());
 			// TODO DNS -Server
+		} else if (strcmp(art, "i2c") == 0) {
+			int sda = GPIO.string2gpio(value["sda"].as<const char*>());
+			int scl = GPIO.string2gpio(value["scl"].as<const char*>());
+			Wire.begin(sda, scl);
+		} else if (strcmp(art, "i2cslave") == 0) {
+			const char* d = (const char*) value["d"];
+			if (d != NULL && strcmp(d, "MCP23017") == 0) {
+				Wire.beginTransmission(0x20);
+				int ret = Wire.endTransmission();
+				Logger::getInstance()->addToLog("Test MCP23017 auf I2c/0x20: " + String(ret));
+				if (ret == 0) {
+					GPIO.enableMCP23017(0);
+				}
+			} else {
+				Logger::getInstance()->addToLog("Unbekanntes Gerät: " + String(d));
+			}
+
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));

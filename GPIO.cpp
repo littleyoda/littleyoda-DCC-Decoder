@@ -8,29 +8,13 @@
 #include "GPIO.h"
 
 GPIOClass::GPIOClass() {
-	// TODO Auto-generated constructor stub
-
+	len = 10;
+	mcp = NULL;
 }
 
 GPIOClass::~GPIOClass() {
 	// TODO Auto-generated destructor stub
 }
-
-void GPIOClass::init() {
-	Wire.begin(D4, D2);
-	Wire.beginTransmission(0x20);
-	int error = Wire.endTransmission();
-	Logger::getInstance()->addToLog(
-			"I2C auf 0x20?: " + String(error));
-	if (error == 0) {
-		len = 28;
-		mcp = new Adafruit_MCP23017();
-		mcp->begin();      // use default address 0
-	} else {
-		len = 10;
-	}
-}
-
 
 String GPIOClass::gpio2string(int gpio) {
 	for (int i = 0; i < len; i++) {
@@ -102,5 +86,11 @@ void GPIOClass::analogWriteFreq(uint32_t freq) {
 	::analogWriteFreq(freq);
 }
 
-GPIOClass GPIO;
 
+void GPIOClass::enableMCP23017(uint8_t addr) {
+	mcp = new Adafruit_MCP23017();
+	mcp->begin(addr);
+	len = 28;
+}
+
+GPIOClass GPIO;

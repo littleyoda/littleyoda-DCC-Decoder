@@ -30,7 +30,6 @@ public:
 
 	GPIOClass();
 	~GPIOClass();
-	void init();
 
 	String gpio2string(int gpio);
 	int string2gpio(const char* pin);
@@ -38,7 +37,7 @@ public:
 	void digitalWrite(uint8_t pin, uint8_t val);
 	void analogWrite(uint8_t pin, int val);
 	void analogWriteFreq(uint32_t freq);
-
+	void enableMCP23017(uint8_t addr);
 private:
 	Adafruit_MCP23017 *mcp;
 	int len = 0;
