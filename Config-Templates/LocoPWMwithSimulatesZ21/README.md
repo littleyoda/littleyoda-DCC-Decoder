@@ -3,3 +3,6 @@ Mit dieser Konfiguration simuliert die ESP8266 eine Z21 und die Lok kann direkt 
 
 Hierfür spannt der ESP8266 ein WLAN-Netz auf und hört auf die IP 192.168.0.111
 Die Z21-App und die WLAN-Maus sollten also ohne große Änderung direkt funktionieren.
+
+Zur Ansteuerung der Lok generiert der ESP8266 PWM Signale, mit denen die H-Bridge kontrolliert wird, die den eigentlichen Motor antreibt.
+ 
