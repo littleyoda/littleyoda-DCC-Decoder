@@ -1,0 +1,13 @@
+	{ "cfg":[
+
+		{"m":"wlan", "ssid":"Z21_XXXX", "pwd":"YYYYYYYYY" },
+		{"m":"z21", "ip":"192.168.0.111" },
+
+
+		{"m":"webservicewifiscanner" },
+		{"m":"webservicelog" },
+		{"m":"cmdlogger" },
+		
+		{"m":"dccout", "enable":"D8", "addr":"3", "dccoutputaddr":"3"},
+
+		]}
