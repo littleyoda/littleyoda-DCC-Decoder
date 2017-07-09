@@ -109,6 +109,7 @@ void ActionPWMOutput::setDirection(int dir) {
 		digitalWrite(gpioReverse, HIGH);
 		direction = -1;
 	} else {
+		Serial.println("Error: Direction " + String(dir));
 		digitalWrite(gpioForward, LOW);
 		digitalWrite(gpioReverse, LOW);
 		direction = 0;
@@ -145,6 +146,7 @@ void ActionPWMOutput::handleSpeedandDirection(int dir, int speed) {
 		analogWrite(gpioReverse, currentSpeed);
 		direction = -1;
 	} else {
+		Serial.println("Error: Direction " + String(dir));
 		digitalWrite(gpioForward, LOW);
 		digitalWrite(gpioReverse, LOW);
 		direction = 0;
