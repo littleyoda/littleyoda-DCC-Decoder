@@ -9,6 +9,7 @@
 #define UTILS_H_
 
 #include <ESP8266WiFi.h>
+#include "Consts.h"
 #include "Logger.h"
 
 #define set_bit(var, bitIdx) ((var) |= (1 << (bitIdx)))
@@ -92,7 +93,7 @@ public:
 			return "D9";
 		} else 	if (D10 == gpio) {
 			return "D10";
-		} else 	if (255 == gpio) {
+		} else 	if (Consts::DISABLE == gpio) {
 			return "DISABLE";
 		} else {
 			Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
@@ -123,11 +124,11 @@ public:
 		} else if (strcmp("D10", pin) == 0) {
 			return D10;
 		} else if (strcmp("DISABLE", pin) == 0) {
-			return 255;
+			return Consts::DISABLE;
 		} else {
 			Logger::getInstance()->addToLog(
 					"Unbekannte PIN in Config: " + String(pin));
-			return 255;
+			return Consts::DISABLE;
 		}
 	}
 
