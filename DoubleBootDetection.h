@@ -20,6 +20,7 @@ public:
 private:
 	int status = 0;
 	String filename = "/DoubleBoot";
+	String blockfilename = "/disabledoubleboot";
 	Controller* controll;
 };
 

@@ -17,6 +17,9 @@ DoubleBootDetection::~DoubleBootDetection() {
 
 
 int DoubleBootDetection::loop() {
+	if (SPIFFS.exists(blockfilename)) {
+		return 10000;
+	}
 	if (status == 0) {
 	//	Serial.println("Check for Existing file");
 		boolean e = SPIFFS.exists(filename);
