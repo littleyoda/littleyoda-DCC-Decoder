@@ -33,6 +33,7 @@ private:
 	bool loadFromSPIFFS(String filepath);
 	void handleNotFound();
 	void handleRoot();
+	void handleDel();
 	void handleController();
 	void handleCfg();
 	void handleSet();

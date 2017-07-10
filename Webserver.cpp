@@ -32,6 +32,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
 	server->on("/upload", HTTP_POST, []() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); }, std::bind(&Webserver::handleUpload, this));
+	server->on("/del", std::bind(&Webserver::handleDel, this));
 	server->begin();
 	httpUpdater = new ESP8266HTTPUpdateServer();
 	const char* update_path = "/firmware";
@@ -63,20 +64,26 @@ void Webserver::handleUpload() {
 void Webserver::handleFilelist() {
 	Dir dir = SPIFFS.openDir("/");
 
-	String output = "" + Utils::getHTMLHeader() + "<table><thead><tr><th>Type</th><th>Name</th><th>Size</th></thead><tbody>";
+	String output = "" + Utils::getHTMLHeader() + F("<table><thead><tr><th>Name</th><th>Size</th></thead><tbody>");
 
 	while(dir.next()){
 		File entry = dir.openFile("r");
 		output += "<tr><td>";
+		output += "<a href=\"" + dir.fileName() + "\">";
 		output += String(dir.fileName()).substring(1);
+		output += "</a>";
 		output += "</td><td>";
 		output += String(dir.fileSize());
+		output += "</td><td>";
+		output += "<a href=\"/del?file=" + dir.fileName() + "\">";
+		output += "&#x2421";
+		output += "</a>";
 		output += "</td></tr>";
 	}
-	output += "</tbody></table><hr>";
+	output += F("</tbody></table><hr>");
 
-	output += "<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><fieldset> <input name=\"Datei\" type=\"file\" size=\"50\"> ";
-	output += "    <input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form> ";
+	output += F("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><fieldset> <input name=\"Datei\" type=\"file\" size=\"50\"> ");
+	output += F("    <input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form> ");
 	output += Utils::getHTMLFooter();
 	server->send(200, "text/html", output);
 }
@@ -213,11 +220,14 @@ void Webserver::addServices(WebserviceBase* base) {
 	server->on(base->getUri(), std::bind(&WebserviceBase::run, base));
 }
 
+void Webserver::handleDel() {
+	SPIFFS.remove(server->arg("file"));
+	server->send(200, "text/html", "<html><head><META http-equiv=\"refresh\" content=\"1;URL=/list\"></head><body>Deleting...</body></html>");
+}
 void Webserver::handleSet() {
 	Serial.println("Webserver");
 	controll->setRequest(server->arg("id"), server->arg("key"), server->arg("value"));
-	server->send(200, "text/html",
-			"<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>");
+	server->send(200, "text/html", "<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>");
 }
 
 void Webserver::handleCfg() {

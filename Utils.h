@@ -22,7 +22,18 @@ class Utils {
 public:
 
 	static String getHTMLHeader() {
-		return "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"stylesheet\" href=\"milligram.min.css\"><link rel=\"stylesheet\" href=\"css.css\"><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/></head><body>\n";
+		return "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><link rel=\"stylesheet\" href=\"milligram.min.css\"><link rel=\"stylesheet\" href=\"css.css\"><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/></head><body>\n"
+
+"				<script>"
+"				function send(url) {"
+"				  var xhttp = new XMLHttpRequest();"
+"				  xhttp.onreadystatechange = function() {"
+"				  };"
+"				  xhttp.open(\"GET\" , url, true);"
+"				  xhttp.send();"
+"				}"
+"				</script>";
+
 	}
 
 	static String repeatString(String rep, int number) {
