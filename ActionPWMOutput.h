@@ -18,11 +18,11 @@ public:
 	virtual int loop();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
-	virtual void setSettings(String key, String value);
-	virtual void setDirection(int dir);
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 private:
-	void handleSpeedandDirection(int dir, int currentSpeed);
+	virtual void setSettings(String key, String value);
+	virtual void setDirection(int dir);
+	void handleSpeedandDirectionWithoutPWMPin(int dir, int currentSpeed);
 	virtual void setSpeedInProcent(int proc);
 	int direction = 1;
 	int currentSpeed = 0;

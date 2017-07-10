@@ -58,23 +58,14 @@ String ActionPWMOutput::getHTMLCfg(String urlprefix) {
 }
 
 String ActionPWMOutput::getHTMLController(String urlprefix) {
+	String action = "document.getElementById('pwmValue').textContent=this.value; send('" + urlprefix + "&key=sd&value='+this.value)";
+	Serial.println(action);
 	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
 	message += "PWM ";
 	message += "</div>";
 	message += "<div class=\"column column-90\">";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=dir&value=" +  String(-1) + "\">&#x1F850;</a>\n";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=dir&value=" +  String(1) + "\">&#x1F852;</a>\n";
-	message += "<br/>";
-
-	for (int i = 0; i <= 100; i = i + 10) {
-		message += " <a class=\"button\" href=\"";
-		message += urlprefix;
-		message += "key=speed&value=";
-		message += String(i);
-		message += "\">";
-		message += String(i);
-		message += "%</a>";
-	}
+	message +=  "<div id=\"pwmValue\">0</div>";
+	message += " <input type=range min=-100 max=100 value=0 step=10 oninput=\"" + action + "\" onchange=\"" + action + "\"><br/>";
 	message += "</div>";
 
 	message += "</div>";
@@ -83,22 +74,25 @@ String ActionPWMOutput::getHTMLController(String urlprefix) {
 
 void ActionPWMOutput::setSettings(String key, String value) {
 	Serial.println(key + " " + value);
-	if (key.equals("speed")) {
+	if (key.equals("sd")) {
+		int v = value.toInt();
+		if (v < 0) {
+			setDirection(-1);
+		} else {
+			setDirection(1);
+		}
 		Serial.println("Speed");
-		int v = PWMRANGE * value.toInt() / 100;
-		setSpeedInProcent(v);
+		int s = PWMRANGE * abs(value.toInt()) / 100;
+		setSpeedInProcent(s);
 	} else if (key.equals("freq")) {
 		Serial.println("Freq");
 		GPIO.analogWriteFreq(value.toInt());
-	} else if (key.equals("dir")) {
-		Serial.println("Direction");
-		setDirection(value.toInt());
 	}
 }
 
 void ActionPWMOutput::setDirection(int dir) {
 	if (gpioPWM == Consts::DISABLE) {
-		handleSpeedandDirection(dir, currentSpeed);
+		handleSpeedandDirectionWithoutPWMPin(dir, currentSpeed);
 		return;
 	}
 	if (dir == 1) {
@@ -130,13 +124,13 @@ void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps,
 
 void ActionPWMOutput::setSpeedInProcent(int speedProc) {
 	if (gpioPWM == Consts::DISABLE) {
-		handleSpeedandDirection(direction, speedProc);
+		handleSpeedandDirectionWithoutPWMPin(direction, speedProc);
 		return;
 	}
 	GPIO.analogWrite(gpioPWM, speedProc);
 }
 
-void ActionPWMOutput::handleSpeedandDirection(int dir, int speed) {
+void ActionPWMOutput::handleSpeedandDirectionWithoutPWMPin(int dir, int speed) {
 	currentSpeed = speed;
 	if (dir == 1) {
 		GPIO.analogWrite(gpioForward, currentSpeed);
