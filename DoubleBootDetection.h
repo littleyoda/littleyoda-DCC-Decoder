@@ -9,10 +9,10 @@
 #define DOUBLEBOOTDETECTION_H_
 
 #include <Arduino.h>
-#include "interfaceLoop.h"
 #include "Controller.h"
+#include "ILoop.h"
 
-class DoubleBootDetection : public interfaceLoop {
+class DoubleBootDetection : public ILoop {
 public:
 	DoubleBootDetection(Controller* c);
 	virtual ~DoubleBootDetection();

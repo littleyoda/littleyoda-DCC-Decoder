@@ -11,16 +11,14 @@
 #include "Utils.h"
 #include "GPIO.h"
 
-ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8_t reverse) {
+ActionPWMOutput::ActionPWMOutput(uint8_t pwm, uint8_t forward, uint8_t reverse) {
 	Logger::getInstance()->addToLog("Starting PWM...");
 	Logger::getInstance()->addToLog("PWM-Pin: "
 			+ GPIO.gpio2string(pwm) + " Forward-Pin: "
 			+ GPIO.gpio2string(forward) + " Reverse-Pin: "
 			+ GPIO.gpio2string(reverse)
-			+ " Addr: " + String(locoId)
 	);
 	  GPIO.analogWriteFreq(100);
-	  locid = locoId;
 	  gpioPWM = pwm;
 	  gpioForward = forward;
 	  gpioReverse = reverse;
@@ -30,18 +28,9 @@ ActionPWMOutput::ActionPWMOutput(int locoId, uint8_t pwm, uint8_t forward, uint8
 	  GPIO.pinMode(gpioForward, OUTPUT); GPIO.digitalWrite(gpioForward, LOW); // Forward
 	  GPIO.pinMode(gpioReverse, OUTPUT); GPIO.digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);
-
-	  requestInfo* r = new requestInfo();
-	  r->art = requestInfo::ART::LOCO;
-	  r->id = locoId;
-	  requestList.add(r);
 }
 
 ActionPWMOutput::~ActionPWMOutput() {
-}
-
-int ActionPWMOutput::loop() {
-	return 10000;
 }
 
 String ActionPWMOutput::getHTMLCfg(String urlprefix) {
@@ -111,16 +100,16 @@ void ActionPWMOutput::setDirection(int dir) {
 	}
 }
 
-void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
-	if (id == locid || id == Consts::LOCID_ALL) {
-		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
-			speed = 0;
-		}
-		setDirection(direction);
-		int v = PWMRANGE * speed / SpeedSteps;
-		setSpeedInProcent(v);
-	}
-}
+//void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+//	if (id == locid || id == Consts::LOCID_ALL) {
+//		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
+//			speed = 0;
+//		}
+//		setDirection(direction);
+//		int v = PWMRANGE * speed / SpeedSteps;
+//		setSpeedInProcent(v);
+//	}
+//}
 
 void ActionPWMOutput::setSpeedInProcent(int speedProc) {
 	if (gpioPWM == Consts::DISABLE) {

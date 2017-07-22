@@ -51,10 +51,10 @@ int CmdReceiverZ21Wlan::loop() {
 		} else if (loopStatus == -1) {
 			sendCfg12Request();
 		} else {
-			ActionBase::requestInfo* ri = requestList->get(loopStatus);
-			if (ri->art == ActionBase::requestInfo::LOCO) {
+			INotify::requestInfo* ri = requestList->get(loopStatus);
+			if (ri->art == INotify::requestInfo::LOCO) {
 				requestLocoInfo(ri->id);
-			} else if (ri->art == ActionBase::requestInfo::TURNOUT) {
+			} else if (ri->art == INotify::requestInfo::TURNOUT) {
 				requestTurnoutInfo(ri->id);
 			}
 		}

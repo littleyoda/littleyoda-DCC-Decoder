@@ -8,12 +8,12 @@
 #ifndef CMDRECEIVERBASE_H_
 #define CMDRECEIVERBASE_H_
 
-#include "interfaceLoop.h"
+#include "ILoop.h"
 
 class Controller;
 // forward declaration
 
-class CmdReceiverBase : public interfaceLoop {
+class CmdReceiverBase : public ILoop {
 public:
 	CmdReceiverBase(Controller* c);
 	virtual ~CmdReceiverBase();

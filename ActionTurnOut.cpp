@@ -1,4 +1,4 @@
-/*
+/*l
  * ActionTurnOut.cpp
  *
  *  Created on: 19.08.2016
@@ -10,14 +10,13 @@
 #include "Logger.h"
 #include "GPIO.h"
 
-ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable, int id) {
+ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable) {
 	Logger::getInstance()->addToLog(
 			"Starting Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: "
 					+ enable + " ID: " + id);
 	dirPin[0] = dir1;
 	dirPin[1] = dir2;
 	this->enable = enable;
-	this->id = id;
 	int i;
 	for (i = 0; i < 2; i++) {
 		GPIO.pinMode(dirPin[i], OUTPUT);
@@ -61,10 +60,11 @@ int ActionTurnOut::loop() {
 	return 1000;
 }
 
-void ActionTurnOut::TurnoutCmd(int id, int status, int source) {
-	if (id != this->id) {
-		return;
-	}
+ActionTurnOut::~ActionTurnOut() {
+}
+
+void ActionTurnOut::setSettings(String key, String value) {
+	int status = value.toInt();
 	if (status == 1) {
 		GPIO.digitalWrite(dirPin[0], 0);
 		GPIO.digitalWrite(dirPin[1], 1);
@@ -75,12 +75,5 @@ void ActionTurnOut::TurnoutCmd(int id, int status, int source) {
 	GPIO.digitalWrite(enable, 1);
 	delay(200);
 	off();
-}
-
-ActionTurnOut::~ActionTurnOut() {
-}
-
-void ActionTurnOut::setSettings(String key, String value) {
-	TurnoutCmd(id, value.toInt(), -1);
 }
 

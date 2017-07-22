@@ -39,7 +39,7 @@ void Controller::doLoops() {
 	for (idx = 0; idx < loops.size(); idx++) {
 		if (nextRun.get(idx)  <= now) {
 			int wait = loops.get(idx)->loop();
-			nextRun.set(idx, now + wait);
+			nextRun.set(idx, millis() + wait);
 		}
 		delay(0);
 	}
@@ -49,12 +49,19 @@ void Controller::doLoops() {
 	}
 }
 
-void Controller::registerAction(ActionBase* base) {
+void Controller::registerNotify(INotify* base) {
+	if (base == NULL) {
+		Logger::getInstance()->addToLog("Null in registeryNotify");
+		return;
+	}
 	actions.add(base);
-	loops.add(base);
 }
 
-void Controller::registerLoop(interfaceLoop* loop) {
+void Controller::registerLoop(ILoop* loop) {
+	if (loop == NULL) {
+		Logger::getInstance()->addToLog("Null in registeryLoop");
+		return;
+	}
 	loops.add(loop);
 }
 
@@ -173,7 +180,6 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 void Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int source) {
 	// Get the old status ...
 	LocData* data = getLocData(id);
-
 	boolean changed = false;
 	// .. and send only the changed bits
 	unsigned long int value = data->status;
@@ -241,8 +247,8 @@ void Controller::registerCmdSender(CmdSenderBase* base) {
 void Controller::updateRequestList() {
 	requestList.clear();
 	for (int idx = 0; idx < actions.size(); idx++) {
-		ActionBase* b = actions.get(idx);
-		LinkedList<ActionBase::requestInfo*>*  list = b->getRequestList();
+		INotify* b = actions.get(idx);
+		LinkedList<INotify::requestInfo*>*  list = b->getRequestList();
 		for (int i = 0; i < list->size(); i++) {
 			requestList.add(list->get(i));
 		}
@@ -276,4 +282,16 @@ void Controller::enableAPModus() {
 
 bool Controller::isEmergency() {
 	return EMERGENCYActive;
+}
+
+LinkedList<ISettings*>* Controller::getSettings() {
+	return &settings;
+}
+
+void Controller::registerSettings(ISettings* loop) {
+	if (loop == NULL) {
+		Logger::getInstance()->addToLog("Null in registerySettings");
+		return;
+	}
+	settings.add(loop);
 }

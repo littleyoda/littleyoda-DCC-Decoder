@@ -41,13 +41,6 @@ WebserviceDCCSniffer::WebserviceDCCSniffer() {
 WebserviceDCCSniffer::~WebserviceDCCSniffer() {
 }
 
-String WebserviceDCCSniffer::getHTMLCfg(String urlprefix) {
-	return "";
-}
-
-String WebserviceDCCSniffer::getHTMLController(String urlprefix) {
-	return "";
-}
 
 void WebserviceDCCSniffer::addToLog(String s) {
 	//Serial.println(s);

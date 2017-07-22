@@ -10,11 +10,13 @@
 
 #include <Arduino.h>
 #include <LinkedList.h>
-#include "ActionBase.h"
 
-class ActionLed: public ActionBase {
+#include "ILoop.h"
+#include "ISettings.h"
+
+class ActionLed: public ILoop, public ISettings {
 public:
-	ActionLed(int gpio, int locoId, int func);
+	ActionLed(int gpio);
 	virtual ~ActionLed();
 	virtual void setPattern(const char* pattern);
 	virtual String getHTMLCfg(String urlprefix);
@@ -23,11 +25,7 @@ public:
 	virtual void setSettings(int status);
 	virtual int loop();
 
-	// Reports just the changed Bit
-	virtual void DCCFunc(int id, int bit, int newvalue, int source);
 private:
-	int locoId;
-	int func;
 	int gpio;
 	int currentStatus = 0;
 	LinkedList<int> pattern = LinkedList<int>();

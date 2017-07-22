@@ -5,16 +5,17 @@
  *      Author: sven
  */
 
-#ifndef ACTIONBASE_H_
-#define ACTIONBASE_H_
+#ifndef INOTIFY_H_
+#define INOTIFY_H_
 #include <Arduino.h>
 #include <LinkedList.h>
-#include "interfaceLoop.h"
 
-class ActionBase: public interfaceLoop {
+#include "ILoop.h"
+
+class INotify {
 public:
-	ActionBase();
-	virtual ~ActionBase();
+	INotify();
+	virtual ~INotify();
 	//virtual int loop();
 	virtual void TurnoutCmd(int id, int direction, int source);
 
@@ -42,4 +43,4 @@ protected:
     LinkedList<requestInfo*> requestList = LinkedList<requestInfo*>();
 };
 
-#endif /* ACTIONBASE_H_ */
+#endif /* INOTIFY_H_ */

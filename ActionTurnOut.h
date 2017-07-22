@@ -10,13 +10,14 @@
 
 #include <LinkedList.h>
 #include "ActionTurnOut.h"
-#include "ActionBase.h"
 
-class ActionTurnOut: public ActionBase {
+#include "ISettings.h"
+#include "ILoop.h"
+
+class ActionTurnOut: public ISettings, public ILoop {
 public:
-	ActionTurnOut(int dir1, int dir2, int enable, int id);
+	ActionTurnOut(int dir1, int dir2, int enable);
 	virtual int loop();
-	virtual void TurnoutCmd(int id, int direction, int source);
 	virtual ~ActionTurnOut();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);

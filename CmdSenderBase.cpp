@@ -16,6 +16,6 @@ CmdSenderBase::~CmdSenderBase() {
 void CmdSenderBase::sendSetTurnout(String id, String status) {
 }
 
-void CmdSenderBase::setRequestList(LinkedList<ActionBase::requestInfo*>* list) {
+void CmdSenderBase::setRequestList(LinkedList<INotify::requestInfo*>* list) {
 	requestList = list;
 }

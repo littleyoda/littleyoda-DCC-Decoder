@@ -9,9 +9,11 @@
 #define ACTIONSERVO_H_
 
 #include <Servo.h>
-#include "ActionBase.h"
 
-class ActionServo: public ActionBase {
+#include "INotify.h"
+#include "ISettings.h"
+
+class ActionServo: public INotify, public ISettings {
 public:
 	ActionServo(int pin, int id);
 	virtual ~ActionServo();

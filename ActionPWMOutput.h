@@ -9,16 +9,15 @@
 #define ACTIONPWMOUTPUT_H_
 
 #include <Arduino.h>
-#include "ActionBase.h"
 
-class ActionPWMOutput: public ActionBase {
+#include "ISettings.h"
+
+class ActionPWMOutput: public ISettings {
 public:
-	ActionPWMOutput(int locoId, uint8_t  pwm, uint8_t forward, uint8_t reverse);
+	ActionPWMOutput(uint8_t  pwm, uint8_t forward, uint8_t reverse);
 	virtual ~ActionPWMOutput();
-	virtual int loop();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 private:
 	virtual void setSettings(String key, String value);
 	virtual void setDirection(int dir);
@@ -26,7 +25,6 @@ private:
 	virtual void setSpeedInProcent(int proc);
 	int direction = 1;
 	int currentSpeed = 0;
-	int locid;
 	int gpioPWM;
 	int gpioForward;
 	int gpioReverse;

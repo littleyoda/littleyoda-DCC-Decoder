@@ -9,10 +9,10 @@
 #define WEBSERVICECOMMANDLOGGER_H_
 
 #include "WebserviceBase.h"
-#include "ActionBase.h"
 #include <LinkedList.h>
+#include "INotify.h"
 
-class WebserviceCommandLogger : public WebserviceBase, public ActionBase {
+class WebserviceCommandLogger : public WebserviceBase, public INotify {
 public:
 	WebserviceCommandLogger();
 	virtual ~WebserviceCommandLogger();

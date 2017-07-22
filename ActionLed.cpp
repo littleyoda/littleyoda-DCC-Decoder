@@ -11,12 +11,10 @@
 #include "Logger.h"
 #include "Utils.h"
 
-ActionLed::ActionLed(int gpio, int locoId, int func) {
-	Logger::getInstance()->addToLog("Starting LED  " + String(gpio) + " " + String(locoId) + " " + String(func));
+ActionLed::ActionLed(int gpio) {
+	Logger::getInstance()->addToLog("Starting LED  " + String(gpio));
 	GPIO.pinMode(gpio, OUTPUT);
 	this->gpio = gpio;
-	this->locoId = locoId;
-	this->func = func;
 }
 
 ActionLed::~ActionLed() {
@@ -58,14 +56,9 @@ void ActionLed::setSettings(int status) {
 	}
 }
 
-void ActionLed::DCCFunc(int id, int bit, int newvalue, int source) {
-	if (id == this->locoId && bit == this->func) {
-		setSettings(newvalue);
-	}
-}
 
 int ActionLed::loop() {
-	return -1;
+	return -1; // TODO Pattern
 }
 
 void ActionLed::setPattern(const char* patternString) {

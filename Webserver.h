@@ -13,20 +13,20 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <FS.h>
-#include "interfaceLoop.h"
 #include "WebserviceBase.h"
 #include <ESP8266mDNS.h>
+#include "ILoop.h"
 
 
 class Controller;
 
-class Webserver: public interfaceLoop {
+class Webserver: public ILoop {
 public:
 	Webserver(Controller* c);
 	virtual int loop();
 	virtual ~Webserver();
 	static ESP8266WebServer* server;
-	void addServices(WebserviceBase* base);
+	void registerWebServices(WebserviceBase* base);
 
 
 private:
@@ -35,6 +35,7 @@ private:
 	void handleRoot();
 	void handleDel();
 	void handleController();
+	void handleVersion();
 	void handleCfg();
 	void handleSet();
 	void handleFilelist();

@@ -9,9 +9,10 @@
 #define ACTIONDFPLAYERMP3_H_
 
 #include <SoftwareSerial.h>
-#include "ActionBase.h"
 
-class ActionDFPlayerMP3: public ActionBase {
+#include "INotify.h"
+
+class ActionDFPlayerMP3: public INotify {
 public:
 	ActionDFPlayerMP3(int addr, int rx, int tx);
 	virtual int loop();

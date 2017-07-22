@@ -27,6 +27,7 @@ Webserver::Webserver(Controller* c) {
 	server = new ESP8266WebServer(80);
 	server->onNotFound(std::bind(&Webserver::handleNotFound, this));
 	server->on("/", std::bind(&Webserver::handleRoot, this));
+	server->on("/version", std::bind(&Webserver::handleVersion, this));
 	server->on("/controll", std::bind(&Webserver::handleController, this));
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
@@ -110,6 +111,13 @@ void Webserver::handleRoot() {
 	message += "</div>";
 	message += Utils::getHTMLFooter();
 	server->send(200, "text/html", message);
+
+}
+
+
+
+void Webserver::handleVersion() {
+	server->send(200, "text", compile_date);
 
 }
 
@@ -214,7 +222,7 @@ void Webserver::handleController() {
 	server->send(200, "text/html", message);
 }
 
-void Webserver::addServices(WebserviceBase* base) {
+void Webserver::registerWebServices(WebserviceBase* base) {
 	services.add(base);
 	base->setServer(server);
 	server->on(base->getUri(), std::bind(&WebserviceBase::run, base));

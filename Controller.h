@@ -15,8 +15,11 @@
 
 #include "CmdReceiverBase.h"
 #include "CmdSenderBase.h"
-#include "ActionBase.h"
-#include "interfaceLoop.h"
+#include "ILoop.h"
+#include "INotify.h"
+#include "ISettings.h"
+#include "WebserviceCommandLogger.h";
+#include "WebserviceDCCSniffer.h";
 
 	struct LocData {
 		int speed;
@@ -35,8 +38,10 @@ public:
 	virtual ~Controller();
 	void registerCmdSender(CmdSenderBase* base);
 	void registerCmdReceiver(CmdReceiverBase* base);
-	void registerAction(ActionBase* base);
-	void registerLoop(interfaceLoop* loop);
+	void registerNotify(INotify* base);
+	void registerLoop(ILoop* loop);
+	void registerSettings(ISettings* loop);
+	LinkedList<ISettings*>* getSettings();
 	void updateRequestList();
 	void doLoops();
 
@@ -56,6 +61,9 @@ public:
 	LocData* getLocData(int id);
 	void emergencyStop(int source);
 
+	WebserviceCommandLogger* cmdlogger;
+	WebserviceDCCSniffer* dccSniffer;
+
 private:
 	typedef std::map<int, LocData*> Items;
 	Items items;
@@ -63,10 +71,11 @@ private:
 	bool EMERGENCYActive;
 	LinkedList<CmdReceiverBase*> receiver = LinkedList<CmdReceiverBase*>();
 	LinkedList<CmdSenderBase*> sender = LinkedList<CmdSenderBase*>();
-	LinkedList<ActionBase*> actions = LinkedList<ActionBase*>();
-	LinkedList<interfaceLoop*> loops = LinkedList<interfaceLoop*>();
+	LinkedList<INotify*> actions = LinkedList<INotify*>();
+	LinkedList<ILoop*> loops = LinkedList<ILoop*>();
+	LinkedList<ISettings*> settings = LinkedList<ISettings*>();
 	LinkedList<unsigned long> nextRun = LinkedList<unsigned long>();
-	LinkedList<ActionBase::requestInfo*> requestList = LinkedList<ActionBase::requestInfo*>();
+	LinkedList<INotify::requestInfo*> requestList = LinkedList<INotify::requestInfo*>();
 	long int lastTurnoutCmd[3];
 	std::unique_ptr<DNSServer> dnsServer;
 };

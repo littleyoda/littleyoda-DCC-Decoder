@@ -17,9 +17,6 @@ public:
 	virtual ~WebserviceDCCSniffer();
 	static WebserviceDCCSniffer* _instance; // Hack for access from NmraDCC
 
-	virtual String getHTMLCfg(String urlprefix);
-	virtual String getHTMLController(String urlprefix);
-
 	virtual char const* getUri();
 	virtual void run();
 	virtual String  getLinkText();

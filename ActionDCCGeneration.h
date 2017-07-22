@@ -9,9 +9,10 @@
 #ifndef ACTIONDCCGENERATION_H_
 #define ACTIONDCCGENERATION_H_
 
-#include "ActionBase.h"
+#include "INotify.h"
+#include "ILoop.h"
 
-class ActionDCCGeneration: public ActionBase {
+class ActionDCCGeneration: public INotify, public ILoop {
 public:
 	ActionDCCGeneration(int gpioenable, int locoaddr, int dccoutput);
 	virtual ~ActionDCCGeneration();
