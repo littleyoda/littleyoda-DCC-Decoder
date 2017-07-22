@@ -10,12 +10,14 @@
 #include <LinkedList.h>
 #include <Arduino.h>
 #include <WiFiUdp.h>
-#include "interfaceLoop.h"
 
-class Logger : public interfaceLoop  {
+#include "ILoop.h"
+
+class Logger : public ILoop  {
 public:
 	struct logdata { boolean send; String msg; };
 	static Logger* getInstance();
+	static void log(String s);
 	void addToLog(String s);
 	LinkedList<logdata*>* getLogs();
 	int startmemory;
