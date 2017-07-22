@@ -45,8 +45,8 @@ void CmdZentraleZ21::sendFirmware() {
 
 	pb[4] = 0xF3;
 	pb[5] = 0x0A;
-	pb[6] = 1;
-	pb[7] = 5; // Firmware Version 1.5
+	pb[6] = 3;
+	pb[7] = 0X44;
 	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7];
 	udp->beginPacket(udp->remoteIP(), udp->remotePort());
 	udp->write(pb, pb[0]);
@@ -146,6 +146,7 @@ void CmdZentraleZ21::handleGetVersion() {
 }
 
 void CmdZentraleZ21::handleBIB() {
+	// Unvollständig
 	int len = pb[4] - 0xe5;
 	int id = ((pb[6] & 0x3F) << 8) + pb[7];
 	Serial.print(String((pb[8]) + 1) + "/" + String(pb[9]) + "Length: " + String(len) + " ID: " + String(id) + " Name :");
@@ -195,8 +196,17 @@ void CmdZentraleZ21::handleTurnInfoRequest(int id) {
 }
 
 void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
-	unsigned int value = (pb[8] >> 6) & 1;
+	unsigned int value = (pb[8] >> 6);
 	unsigned int bit = pb[8] & 63;
+	if (value > 1) {
+		// Modus "umschalten"
+		LocData* ld = controller->getLocData(locoid);
+		if (bit_is_set(ld->status, bit)) {
+			value = 0;
+		} else {
+			value = 1;
+		}
+	}
 	controller->notifyDCCFun(locoid, bit, value, Consts::SOURCE_Z21SERVER);
 }
 
