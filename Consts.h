@@ -11,6 +11,11 @@
 
 #include <Arduino.h>
 
+const char compile_date[] = "Compiledate: "
+							__DATE__
+							" "
+							__TIME__;
+
 
 class Consts {
 public:
@@ -29,7 +34,6 @@ public:
 	const static int SOURCE_Z21SERVER = 3;
 
 	const static uint8_t DISABLE = 255;
-
 };
 
 
