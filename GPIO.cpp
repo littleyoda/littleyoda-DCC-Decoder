@@ -8,7 +8,7 @@
 #include "GPIO.h"
 
 GPIOClass::GPIOClass() {
-	len = 10;
+	len = 11;
 	mcp = NULL;
 }
 
