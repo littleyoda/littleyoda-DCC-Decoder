@@ -88,3 +88,7 @@ void Logger::setIPAddress(IPAddress* ip) {
 }
 
 Logger* Logger::theInstance = NULL;
+
+void Logger::log(String s) {
+	getInstance()->addToLog(s);
+}
