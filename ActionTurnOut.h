@@ -26,7 +26,6 @@ public:
 private:
 	int dirPin[2];
 	int enable;
-	int id;
 	void off();
 
 };

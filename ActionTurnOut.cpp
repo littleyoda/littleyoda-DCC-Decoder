@@ -11,9 +11,7 @@
 #include "GPIO.h"
 
 ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable) {
-	Logger::getInstance()->addToLog(
-			"Starting Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: "
-					+ enable + " ID: " + id);
+	Logger::log("Starting Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: " + enable);
 	dirPin[0] = dir1;
 	dirPin[1] = dir2;
 	this->enable = enable;
@@ -34,7 +32,7 @@ String ActionTurnOut::getHTMLCfg(String urlprefix) {
 String ActionTurnOut::getHTMLController(String urlprefix) {
 	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
 	message += "Turnout-ID ";
-	message += String(id);
+	message += getName();
 	message += "</div>";
 	message += "<div class=\"column column-90\"><a style=\"font-size: 4rem;\" class=\"button\" href=\"";
 	message += urlprefix;

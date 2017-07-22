@@ -18,7 +18,7 @@ public:
 	virtual void setSettings(String key, String value);
 	virtual String getHTMLCfg(String urlprefix) ;
 	virtual String getHTMLController(String urlprefix);
-private:
+protected:
 	String id;
 };
 

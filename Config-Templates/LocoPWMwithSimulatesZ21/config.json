@@ -33,12 +33,6 @@
 			"pwm": "DISABLE",
 			"forward": "D6",
 			"reverse": "D7"
-		},
-
-		{
-			"id": "ledfrontwhite",
-			"m": "led",
-			"gpio": "DA1"
 		}
 	],
 
@@ -51,16 +45,7 @@
 			[
 				"pwm1"
 			]
-		},
-
-		{
-			"m": "funconoff",
-			"addr": "4711",
-			"func": "1",
-			"out": 
-			[
-				"ledfrontwhite"
-			]
 		}
+
 	]
 }
