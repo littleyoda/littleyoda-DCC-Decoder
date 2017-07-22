@@ -12,6 +12,9 @@ Die folgenden Dekoder nutzen diese Software:
  * [ein sehr einfacher Lokdekoder](http://spurg.open4me.de/wordpress/786/Lokdekoder?2)
  * [Ein Lokdekoder, der einen anderen DCC-Lokdekoder ansteuert](http://gartenbahntechnik.de/forum/viewtopic.php?f=22&t=418)
 
+Wer sich das Kompilieren nicht antun möchte, kann bei mir direkt eine binär
+Datei für den ESP8266 anfragen.
+
 ## Beschreibung
 
 Mit diesem Decoder möchte ich eine möglichst flexible Platform nutzen.
