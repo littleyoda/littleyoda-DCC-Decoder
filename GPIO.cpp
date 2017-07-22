@@ -19,7 +19,6 @@ GPIOClass::~GPIOClass() {
 String GPIOClass::gpio2string(int gpio) {
 	for (int i = 0; i < len; i++) {
 		if (portArray[i] == gpio) {
-			Serial.println("pin " + String(gpio) + " to " + portMap[i]);
 			return "" + portMap[i];
 		}
 	}
@@ -29,6 +28,10 @@ String GPIOClass::gpio2string(int gpio) {
 
 
 int GPIOClass::string2gpio(const char* pin) {
+	if (pin == NULL) {
+		Logger::log("PIN fehlt");
+		return Consts::DISABLE;
+	}
 	for (int i = 0; i < len; i++) {
 		if (portMap[i].equals(pin)) {
 			return portArray[i];
