@@ -3,13 +3,13 @@
 	"cfg": 
 	[
 		{
-			"m": "ap",
+			"m": "wlan",
 			"ssid": "Z21_XXXX",
 			"pwd": "XXXX"
 		},
 
 		{
-			"m": "simulateZ21"
+			"m": "z21"
 		},
 
 		{
