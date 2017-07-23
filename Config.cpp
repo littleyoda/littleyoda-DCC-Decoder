@@ -106,7 +106,6 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			l->setName(id);
 			controller->registerSettings(l);
 			controller->registerLoop(l);
-
 		} else if (strcmp(art, "pwm") == 0) {
 			int gpiopwm = GPIO.string2gpio(value["pwm"].as<const char*>());
 			int gpiof = GPIO.string2gpio(value["forward"].as<const char*>());

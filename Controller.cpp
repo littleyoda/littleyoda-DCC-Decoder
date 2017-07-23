@@ -87,8 +87,8 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 
 String Controller::getHTMLController() {
 	String msg = "<div class=\"container\">";
-	for (int idx = 0; idx < actions.size(); idx++) {
-		msg += actions.get(idx)->getHTMLController(
+	for (int idx = 0; idx < settings.size(); idx++) {
+		msg += settings.get(idx)->getHTMLController(
 				"/set?id=" + String(idx) + "&");
 		msg += "\n";
 	}
@@ -98,8 +98,8 @@ String Controller::getHTMLController() {
 
 String Controller::getHTMLCfg() {
 	String msg = "<div class=\"container\">";
-	for (int idx = 0; idx < actions.size(); idx++) {
-		msg += actions.get(idx)->getHTMLCfg(
+	for (int idx = 0; idx < settings.size(); idx++) {
+		msg += settings.get(idx)->getHTMLCfg(
 				"/set?id=" + String(idx) + "&");
 		msg += "\n";
 	}
@@ -108,14 +108,12 @@ String Controller::getHTMLCfg() {
 }
 
 void Controller::setRequest(String id, String key, String value) {
-	Serial.println("setRequest");
 	int idx = id.toInt();
 	Serial.println(idx);
-	if (idx >= actions.size()) {
+	if (idx >= settings.size()) {
 		return;
 	}
-	Serial.println("Actions");
-	actions.get(idx)->setSettings(key, value);
+	settings.get(idx)->setSettings(key, value);
 }
 
 LocData* Controller::getLocData(int id) {

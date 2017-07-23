@@ -14,14 +14,6 @@ INotify::INotify() {
 INotify::~INotify() {
 }
 
-String INotify::getHTMLCfg(String urlprefix) {
-	return "";
-}
-
-String INotify::getHTMLController(String urlprefix) {
-	return "";
-}
-
 
 void INotify::TurnoutCmd(int id, int direction, int source) {
 }
@@ -35,8 +27,6 @@ void INotify::DCCFunc(int id, int bit, int newvalue, int source) {
 void INotify::DCCFunc(int id, unsigned long int newvalue, int source) {
 }
 
-void INotify::setSettings(String key, String value) {
-}
 
 LinkedList<INotify::requestInfo*>* INotify::getRequestList() {
 	return &requestList;
