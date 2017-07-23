@@ -1,28 +1,12 @@
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiUdp.h>
-#include <Wire.h>
-
+#include <Arduino.h>
 
 #include "Controller.h"
-#include "CmdReceiverDCC.h"
-#include "CmdReceiverZ21Wlan.h"
-#include "CmdZentraleZ21.h"
-
-
-#include "Webserver.h"
-#include "WebserviceWifiScanner.h"
-#include "WebserviceLog.h"
-#include "WebserviceCommandLogger.h"
-#include "WebserviceDCCSniffer.h"
 
 #include "Logger.h"
 #include "Utils.h"
 #include "DoubleBootDetection.h"
-#include "Adafruit_MCP23017.h"
 
 #include "Config.h"
-#include "Arduino.h"
 
 Controller* controller;
 
