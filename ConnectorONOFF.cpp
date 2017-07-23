@@ -16,12 +16,10 @@ ConnectorONOFF::ConnectorONOFF(ISettings* a, int locoaddr, int f) {
 	r->art = requestInfo::ART::LOCO;
 	r->id = addr;
 	requestList.add(r);
-	// TODO Auto-generated constructor stub
 
 }
 
 ConnectorONOFF::~ConnectorONOFF() {
-	// TODO Auto-generated destructor stub
 }
 
 void ConnectorONOFF::DCCFunc(int id, int bit, int newvalue, int source) {
