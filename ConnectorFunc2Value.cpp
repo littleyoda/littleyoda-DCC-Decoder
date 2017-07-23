@@ -14,10 +14,15 @@ ConnectorFunc2Value::ConnectorFunc2Value(ISettings* a, int locoaddr, int *array,
 	addr = locoaddr;
 	action = a;
 	arraylength = len;
+
+	requestInfo* r = new requestInfo();
+	r->art = requestInfo::ART::LOCO;
+	r->id = addr;
+	requestList.add(r);
+
 }
 
 ConnectorFunc2Value::~ConnectorFunc2Value() {
-	// TODO Auto-generated destructor stub
 }
 
 void ConnectorFunc2Value::DCCFunc(int id, unsigned long int newvalue, int source) {
