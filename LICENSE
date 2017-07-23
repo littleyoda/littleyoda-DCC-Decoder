@@ -1,3 +1,16 @@
+Für meinen Sourcecode: GPL 3
+
+Ausnahmen:
+1. ActionDCCGeneration.cpp: Die Datei basiert auf einem Prototypen von Julian Zimmermann 
+	GPL 3
+	
+2. milligram.min.ccs: siehe Dateiheader (http://milligram.github.io)
+	Copyright (c) 2016 CJ Patoilo  Licensed under the MIT license)
+	
+3. DCCSPI basiert auf SPI.cpp siehe Dateiheader (https://github.com/esp8266/Arduino/blob/master/libraries/SPI/SPI.cpp)
+	LGPL 2.1
+
+----------------------------------------------------------------------------------------------
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
