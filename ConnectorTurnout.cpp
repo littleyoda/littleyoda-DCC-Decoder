@@ -10,6 +10,10 @@
 ConnectorTurnout::ConnectorTurnout(ISettings* a, int addr) {
 	action = a;
 	id = addr;
+	requestInfo* r = new requestInfo();
+	r->art = requestInfo::ART::TURNOUT;
+	r->id = addr;
+	requestList.add(r);
 }
 
 ConnectorTurnout::~ConnectorTurnout() {
