@@ -23,6 +23,7 @@
 #include "ConnectorONOFF.h"
 #include "ConnectorFunc2Value.h"
 #include "ConnectorTurnout.h"
+#include "ConnectorLights.h"
 #include "Config.h"
 
 #include "CmdReceiverDCC.h";
@@ -253,17 +254,19 @@ void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 		if (strcmp(art, "locospeed") == 0) {
 			int l = value["addr"].as<int>();
 			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+
+
 			c = new ConnectorLocoSpeed(a, l);
 		} else if (strcmp(art, "funconoff") == 0) {
 			int l = value["addr"].as<int>();
 			int f = value["func"].as<int>();
 			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
 			c = new ConnectorONOFF(a, l, f);
+
+
 		} else if (strcmp(art, "func2value") == 0) {
 			int l = value["addr"].as<int>();
-			Serial.println("Addr" + String(l));
 			JsonObject& fv = value["func2value"];
-			Serial.println(fv.size());
 			int *array = new int[2 * fv.size()];
 			int pos = 0;
 			for (auto kv : fv) {
@@ -272,10 +275,31 @@ void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 			}
 			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
 			c = new ConnectorFunc2Value(a, l, array, 2 * fv.size());
+
+
 		} else if (strcmp(art, "turnout") == 0) {
 			int addr = value["addr"].as<int>();
 			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
 			c = new ConnectorTurnout(a, addr);
+
+
+		} else if (strcmp(art, "lights") == 0) {
+			int l = value["addr"].as<int>();
+			int onoff = value["on"].as<int>();
+
+			JsonArray& out = value["out"];
+			if (out.size() != 2) {
+				Logger::log("Keine zwei Ausgabe Led angegeben.");
+				continue;
+			}
+			ISettings *ptr[4];
+			for (int i = 0; i < 2; i++) {
+				ptr[i] = getSettingById(controller, value["out"][i].as<const char*>());
+			}
+			Serial.println("Lights: " + String(onoff) + " " + " Addr: " + String(l));
+			c = new ConnectorLights(ptr[0], ptr[1], l, onoff);
+
+
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
