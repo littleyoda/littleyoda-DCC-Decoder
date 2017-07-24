@@ -96,6 +96,16 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			//Logger::getInstance()->addToLog("Null from json");
 			continue;
 		}
+		if (strcmp(art, "dccout") == 0) {
+			int gpioenable = GPIO.string2gpio(value["enable"].as<const char*>());
+			int locoaddr = value["addr"].as<int>();
+			int dccoutput = value["dccoutputaddr"].as<int>();
+			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
+			controller->registerNotify(a);
+			controller->registerLoop(a);
+			continue;
+		}
+
 		const char* id = (const char*) value["id"];
 		if (id == NULL) {
 			Logger::getInstance()->addToLog("ID is null");
@@ -116,27 +126,20 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 
 
 		} else if (strcmp(art, "servo") == 0) {
-//			controller->registerNotify(
-//				d	new ActionServo(
-//							GPIO.string2gpio(value["gpio"].as<const char*>()),
-//							value["locoid"].as<int>()));
+			//			controller->registerNotify(
+			//				d	new ActionServo(
+			//							GPIO.string2gpio(value["gpio"].as<const char*>()),
+			//							value["locoid"].as<int>()));
 
 		} else if (strcmp(art, "turnout") == 0) {
 			ActionTurnOut* a = new ActionTurnOut(
-										GPIO.string2gpio(value["dir1"].as<const char*>()),
-										GPIO.string2gpio(value["dir2"].as<const char*>()),
-										GPIO.string2gpio(value["enable"].as<const char*>()));
+					GPIO.string2gpio(value["dir1"].as<const char*>()),
+					GPIO.string2gpio(value["dir2"].as<const char*>()),
+					GPIO.string2gpio(value["enable"].as<const char*>()));
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
 
-		} else if (strcmp(art, "dccout") == 0) {
-			int gpioenable = GPIO.string2gpio(value["enable"].as<const char*>());
-			int locoaddr = value["addr"].as<int>();
-			int dccoutput = value["dccoutputaddr"].as<int>();
-			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
-			controller->registerNotify(a);
-			controller->registerLoop(a);
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
@@ -190,11 +193,11 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			web->registerWebServices(new WebserviceLog());
 
 
-//		} else if (strcmp(art, "mp3") == 0) {
-////			int  addr = value["addr"].as<int>();
-////			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
-////			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
-////			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
+			//		} else if (strcmp(art, "mp3") == 0) {
+			////			int  addr = value["addr"].as<int>();
+			////			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
+			////			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
+			////			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
 
 		} else if (strcmp(art, "wlan") == 0) {
 			WiFi.enableSTA(true);

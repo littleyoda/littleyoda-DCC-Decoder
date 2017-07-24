@@ -14,7 +14,7 @@
 
 ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) {
 	DCC_ADRESSE = dccoutput;
-	LOCO_ADR = dccoutput;
+	LOCO_ADR = locoaddr;
 	Logger::getInstance()->addToLog("Starting DCC Generator");
 	Logger::getInstance()->addToLog("DCC-Output:" + GPIO.gpio2string(SPI.getUsedPin())
 									+ " Enabled: " + GPIO.gpio2string(enableGpio)
