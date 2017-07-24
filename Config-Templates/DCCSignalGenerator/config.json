@@ -3,13 +3,13 @@
 	"cfg": 
 	[
 		{
-			"m": "wlan",
+			"m": "ap",
 			"ssid": "Z21_XXXX",
-			"pwd": "XXXX"
+			"pwd": "XXXXXXXX"
 		},
 
 		{
-			"m": "z21"
+			"m": "simulateZ21"
 		},
 
 		{
@@ -30,7 +30,7 @@
 		{
 		"m":"dccout",
 		"enable":"D3",
-		"addr":"4711",
+		"addr":"3",
 		"dccoutputaddr":"3"
 		}
 	]
