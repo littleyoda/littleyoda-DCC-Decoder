@@ -27,9 +27,11 @@
 
 	"out": 
 	[
-		"m",
-		"enable",
-		"addr",
-		"dccoutputaddr"
+		{
+		"m":"dccout",
+		"enable":"D3",
+		"addr":"4711",
+		"dccoutputaddr":"3"
+		}
 	]
 }
