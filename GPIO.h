@@ -10,6 +10,7 @@
 
 
 #include <Wire.h>
+#include <map>
 #include "Consts.h"
 #include "Logger.h"
 #include "Adafruit_MCP23017.h"
@@ -17,16 +18,12 @@
 
 class GPIOClass {
 public:
-	uint8_t portArray[28] = {255, D0,   D1,   D2,   D3,   D4,   D5,   D6,   D7,   D8,   D9,   D10,
-			100,  101,   102,    103, 104,     105, 106,    107,
-			108,  109,   110,    111, 112,     113, 114,    115
+	typedef std::map<int, String> PinToString;
+	PinToString pintostring;
 
-	};
-	String portMap[28]   = {"DISABLE", "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10",
-			"DA0", "DA1", "DA2", "DA3", "DA4", "DA5", "DA6", "DA7",
-			"DB0", "DB1", "DB2", "DB3", "DB4", "DB5", "DB6", "DB7",
+	typedef std::map<String, int> StringToPin;
+	StringToPin stringtopin;
 
-	};
 
 	GPIOClass();
 	~GPIOClass();
@@ -38,10 +35,9 @@ public:
 	void analogWrite(uint8_t pin, int val);
 	void analogWriteFreq(uint32_t freq);
 	void enableMCP23017(uint8_t addr);
+	void add(String s, int pinNumber);
 private:
 	Adafruit_MCP23017 *mcp;
-	int len = 0;
-
 };
 
 extern GPIOClass GPIO;

@@ -8,22 +8,43 @@
 #include "GPIO.h"
 
 GPIOClass::GPIOClass() {
-	len = 11;
 	mcp = NULL;
+
+	add("D0", D0);
+	add("D1", D1);
+	add("D2", D2);
+	add("D3", D3);
+	add("D4", D4);
+	add("D5", D5);
+	add("D6", D6);
+	add("D7", D7);
+	add("D8", D8);
+#ifdef D9
+	add("D9", D9);
+#endif
+#ifdef D10
+	add("D10", D10);
+#endif
+}
+
+/**
+ * "D4" => 14
+ */
+void GPIOClass::add(String s, int pinNumber) {
+	pintostring[pinNumber] = s;
+	stringtopin[s] = pinNumber;
 }
 
 GPIOClass::~GPIOClass() {
-	// TODO Auto-generated destructor stub
 }
 
 String GPIOClass::gpio2string(int gpio) {
-	for (int i = 0; i < len; i++) {
-		if (portArray[i] == gpio) {
-			return "" + portMap[i];
-		}
+	std::map<int, String>::iterator d = pintostring.find(gpio);
+	if (d == pintostring.end()) {
+		Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
+		return "Pin " + String(gpio);
 	}
-	Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
-	return "Pin " + String(gpio);
+	return d->second;
 }
 
 
@@ -32,14 +53,13 @@ int GPIOClass::string2gpio(const char* pin) {
 		Logger::log("PIN fehlt");
 		return Consts::DISABLE;
 	}
-	for (int i = 0; i < len; i++) {
-		if (portMap[i].equals(pin)) {
-			return portArray[i];
-		}
+	String s = String(pin);
+	std::map<String, int>::iterator d = stringtopin.find(pin);
+	if (d == stringtopin.end()) {
+		Logger::getInstance()->addToLog("Unbekannter Pin in Config: " + s);
+		return Consts::DISABLE;
 	}
-	Logger::getInstance()->addToLog(
-			"Unbekannte PIN in Config: " + String(pin));
-	return Consts::DISABLE;
+	return d->second;
 }
 
 void GPIOClass::pinMode(uint8_t pin, uint8_t mode) {
@@ -89,11 +109,18 @@ void GPIOClass::analogWriteFreq(uint32_t freq) {
 	::analogWriteFreq(freq);
 }
 
+/**
+ * Fügt die sprechenden PIN Bezeichner (DA0 bis DB7) für die MCP23017 hinzu
+ */
 
 void GPIOClass::enableMCP23017(uint8_t addr) {
 	mcp = new Adafruit_MCP23017();
 	mcp->begin(addr);
-	len = 28;
+	for (int i=0 ; i < 8; i++) {
+		add("DA" + String(0), 100 + i);
+		add("DB" + String(0), 108 + i);
+	}
 }
 
 GPIOClass GPIO;
+
