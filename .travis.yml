@@ -15,6 +15,9 @@ deploy:
   provider: releases
   api_key:
     secure: J3GLufT0WxCUB1sSYaU38G7yxECT7AJUdnu6LcmXpGNDZHskEbTveT1XpCMoyk4pl/JAXbOVtjxJWQ53QM4lDgbvmDAVom8AaU71t1ocok6NZ6Dm133Um7p2kvQ3M6nXcfIPVDI1mlKoaNYD+m0nKD+knN48E9Ypxjoa6g0pVUc6/5yblKVuWqhAI/GOag0gRylmIkTTp4ZeJ8pzspTQMdhX1SXX1cDyVGVv7SZ0xIT96WVOTo91rRFeKIPAfy68nR1GbBUnirbijMJ4lyGssYB4B4S00kIX3WaBJWnJmJ/ntB5MNh38Knx/kR/nr8aVdLQcnJ1fKoPntmfVuXxOa5+GBYAOpOp7ZlNdpW/V6kI+cjh+8ZI5naSJxDTDVMJiKhZZbF/qVgFipIbftw9W+vdSAbRmZYdUXTwOwlqhX8oKcP0K/wRirK9v7HF0eEiUfdDY8bEW7rgyrNldrRax3jtuHefTu1GAClWODsIIhLFN5jsk3cbKsTpoKNLu7JGbJJdm+e4s/ByAOzDBbvVtE3KlpOLJGAfXfLZbghsCzzjBD7eTtJJjZF3Y9dxtSlB06MmjRCLwi68ED4ch1myGocCjpOWCW+ilwlN3yEDjxTlXosXM1zNkzUPqBq6WG75MnJxucpBCEoz5tTwDwJlykJSWsL8KpyFw4W/xbKG3TAU=
+  file_glob: true
+  file: $HOME/releases/*
+  skip_cleanup: true
   on:
     repo: littleyoda/littleyoda-DCC-Decoder
     tags: true
