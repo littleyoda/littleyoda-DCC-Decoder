@@ -6,6 +6,7 @@ install:
 script:
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino nodemcuv2
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino nodemcu
+- build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino d1_mini
 - ls $HOME/releases
 notifications:
   email:
