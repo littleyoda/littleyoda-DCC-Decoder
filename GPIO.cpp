@@ -25,6 +25,7 @@ GPIOClass::GPIOClass() {
 #ifdef D10
 	add("D10", D10);
 #endif
+	add("DISABLE", 255);
 }
 
 /**
@@ -117,8 +118,8 @@ void GPIOClass::enableMCP23017(uint8_t addr) {
 	mcp = new Adafruit_MCP23017();
 	mcp->begin(addr);
 	for (int i=0 ; i < 8; i++) {
-		add("DA" + String(0), 100 + i);
-		add("DB" + String(0), 108 + i);
+		add("DA" + String(i), 100 + i);
+		add("DB" + String(i), 108 + i);
 	}
 }
 
