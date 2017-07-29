@@ -1,6 +1,8 @@
 language: c
 before_install:
 - source <(curl -SLs https://raw.githubusercontent.com/littleyoda/ESP8266-Environment-for-Travis-CI/master/install.sh)
+- export | grep -i TRAVIS 
+- export | grep -i git
 install:
 - arduino --install-library "Adafruit MCP23017 Arduino Library,LinkedList,ArduinoJson"
 script:
