@@ -28,6 +28,8 @@ private:
 	void handleBIB();
 	void sendStatusChanged();
 	void handleTurnInfoRequest(int id);
+	int handleSetTurnInfoRequest();
+
 
 	WiFiUDP* udp;
 	unsigned int localPort = 21105;

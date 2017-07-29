@@ -187,12 +187,31 @@ void CmdZentraleZ21::handleTurnInfoRequest(int id) {
 	pb[4] = 0x43;
 	pb[5] = id >> 8;
 	pb[6] = id & 255;
-	pb[7] = 0;
+	unsigned char out = 0;
+	TurnOutData* data = controller->getTurnOutData(id);
+	if (data->direction == 0) {
+		out = 1;
+	} else if (data->direction == 1) {
+		out = 2;
+	} else {
+		out = 0;
+	}
+	pb[7] = out;
 	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7];
 
 	udp->beginPacket(udp->remoteIP(), udp->remotePort());
 	udp->write(pb, pb[0]);
 	udp->endPacket();
+}
+
+int CmdZentraleZ21::handleSetTurnInfoRequest() {
+	int id = (pb[5] << 8) + pb[6];
+	boolean status = (bit_is_set(pb[7], 0));
+	boolean actived = (bit_is_set(pb[7], 3));
+	if (actived == 0) {
+		return -1;
+	}
+	controller->notifyTurnout(id, status, Consts::SOURCE_Z21SERVER);
 }
 
 void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
@@ -323,7 +342,7 @@ void CmdZentraleZ21::doReceive(int cb) {
 		return;
 	}
 
-		//0xE5 up to 0xEF.
+	// Lok-Bibliothek 0xE5 up to 0xEF.
 	boolean LOKBIB_RECEIVED = cb >= 0x0c
 			&& pb[0] >= 0x0c && pb[1] == 0x00
 			&& pb[2] == 0x40 && pb[3] == 0x00
@@ -331,6 +350,16 @@ void CmdZentraleZ21::doReceive(int cb) {
 			&& pb[5] == 0xf1;
 	if (LOKBIB_RECEIVED) {
 		handleBIB();
+		return;
+	}
+
+	// Weichenbefehle
+	unsigned char LAN_X_SET_TURNOUT_INFO[5] = {0x09, 0x00, 0x40, 0x00, 0x53};
+	if (cb>= 8 && memcmp(LAN_X_SET_TURNOUT_INFO, pb, 5) == 0) {
+		int id = handleSetTurnInfoRequest();
+		if (id != -1) {
+			handleTurnInfoRequest(id);
+		}
 		return;
 	}
 

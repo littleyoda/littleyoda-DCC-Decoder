@@ -28,6 +28,10 @@
 		unsigned long int status;
 	};
 
+	struct TurnOutData {
+		int direction;
+	};
+
 class CmdReceiverBase;
 // forward declaration
 
@@ -59,6 +63,8 @@ public:
 	String getHostname();
 
 	LocData* getLocData(int id);
+	TurnOutData* getTurnOutData(int id);
+
 	void emergencyStop(int source);
 
 	WebserviceCommandLogger* cmdlogger;
@@ -67,6 +73,9 @@ public:
 private:
 	typedef std::map<int, LocData*> Items;
 	Items items;
+
+	typedef std::map<int, TurnOutData*> LocTurnOuts;
+	LocTurnOuts turnoutinfo;
 
 	bool EMERGENCYActive;
 	LinkedList<CmdReceiverBase*> receiver = LinkedList<CmdReceiverBase*>();

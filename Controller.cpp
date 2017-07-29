@@ -72,6 +72,9 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 		lastTurnoutCmd[2] = millis();
 		return;
 	}
+	TurnOutData* data = getTurnOutData(id);
+	data->direction = direction;
+
 	Logger::getInstance()->addToLog(
 			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
 	lastTurnoutCmd[0] = id;
@@ -129,6 +132,17 @@ LocData* Controller::getLocData(int id) {
 		return data;
 	}
 	return items[id];
+}
+
+TurnOutData* Controller::getTurnOutData(int id) {
+	TurnOutData* data;
+	if (turnoutinfo.find(id) == turnoutinfo.end()) {
+		data = new TurnOutData();
+		data->direction = 0;
+		turnoutinfo[id] = data;
+		return data;
+	}
+	return turnoutinfo[id];
 }
 
 /**
