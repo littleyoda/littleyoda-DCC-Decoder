@@ -212,6 +212,7 @@ int CmdZentraleZ21::handleSetTurnInfoRequest() {
 		return -1;
 	}
 	controller->notifyTurnout(id, status, Consts::SOURCE_Z21SERVER);
+	return id;
 }
 
 void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
