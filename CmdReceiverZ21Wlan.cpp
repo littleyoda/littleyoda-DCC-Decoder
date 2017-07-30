@@ -44,7 +44,9 @@ int CmdReceiverZ21Wlan::loop() {
 	// Scheduler for Requests
 	if (time - lastTime > (emergencyStopTimeout / 4)) {
 		lastTime = time;
-		if (loopStatus == -3) {
+		if (loopStatus == -4) {
+			requestRailcom();
+		} else if (loopStatus == -3) {
 			sendXGetStatus();
 		} else if (loopStatus == -2) {
 			enableBroadcasts();
@@ -66,6 +68,24 @@ int CmdReceiverZ21Wlan::loop() {
 	}
 	return 2;
 
+}
+
+void CmdReceiverZ21Wlan::requestRailcom() {
+	memset(packetBuffer, 0, packetBufferSize);
+
+	packetBuffer[0] = 0x07;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x89;
+	packetBuffer[3] = 0x00;
+
+	packetBuffer[4] = 0x01;
+	packetBuffer[5] = 0;
+	packetBuffer[6] = 0;
+	packetBuffer[7] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6];
+
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, 8);
+	udp->endPacket();
 }
 
 void CmdReceiverZ21Wlan::handleTurnout() {
@@ -113,12 +133,12 @@ void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
 }
 
 void CmdReceiverZ21Wlan::doReceive(int cb) {
-	// TODO Handle Packets with multiple Blocks in one UDP Paket
-	// TODO Read the first two bytes to determine the size a
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
 	}
-	udp->read(packetBuffer, cb);
+	udp->read(packetBuffer, 1);
+	cb = (int) packetBuffer[0];
+	udp->read(&packetBuffer[1], cb - 1);
 	resetTimeout();
 
 	boolean getSerialNumber = cb >= 8 && packetBuffer[0] == 0x08
@@ -236,6 +256,16 @@ void CmdReceiverZ21Wlan::doReceive(int cb) {
 	if (cfg16) {
 		return;
 	}
+
+	boolean railcom = cb >= 0x11 && packetBuffer[0] >= 0x11
+				&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x88
+				&& packetBuffer[3] == 0x00;
+	if (railcom) {
+		handleRailcomdata();
+		return;
+	}
+
+
 	printPacketBuffer(cb);
 }
 
@@ -368,16 +398,6 @@ void CmdReceiverZ21Wlan::sendCfg16Request() {
 }
 
 void CmdReceiverZ21Wlan::printPacketBuffer(int size) {
-	// Print unknown packets:
-//	Serial.println("New Paket:");
-//	for (int i = 0; i < cb; i++) {
-//		Serial.print("&& packetBuffer["+ String(i) + "] == 0x");
-//		if (packetBuffer[i] < 16) {
-//			Serial.print("0");
-//		}
-//		Serial.print(packetBuffer[i], HEX);
-//		Serial.print(" ");
-//	}
 	for (int i = 0; i < size; i++) {
 		Serial.print(Utils::getHex(packetBuffer[i]));
 		Serial.print(" ");
@@ -401,6 +421,14 @@ void CmdReceiverZ21Wlan::sendXGetStatus() {
 	udp->beginPacket(*z21Server, localPort);
 	udp->write(packetBuffer, packetBuffer[0]);
 	udp->endPacket();
+}
+
+void CmdReceiverZ21Wlan::handleRailcomdata() {
+	int lokid = packetBuffer[0 + 4] + (packetBuffer[1 + 4] << 8);
+//	Serial.println("LokID: " + String(lokid));
+//	Serial.println("  Options: " + String(packetBuffer[9 + 4]));
+//	Serial.println("  Speed: " + String(packetBuffer[10 + 4]));
+//	Serial.println("  QoS: " + String(packetBuffer[11 + 4]));
 }
 
 void CmdReceiverZ21Wlan::emergencyStop() {

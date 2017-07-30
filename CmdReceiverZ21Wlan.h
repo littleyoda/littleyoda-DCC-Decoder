@@ -41,13 +41,15 @@ private:
 	void sendCfg12Request();
 	void sendCfg16Request();
 	void sendXGetStatus();
+	void requestRailcom();
+	void handleRailcomdata();
 	void printPacketBuffer(int size);
 
 	void emergencyStop();
 
 	long int lastTime = 0;
 	static const int emergencyStopTimeout = 1000;
-	const int firstLoopStatus = -3;
+	const int firstLoopStatus = -3; // Change to -4 for Railcom Information
 	int loopStatus = firstLoopStatus;
 	int turnoutOffset = -1;
 	unsigned char lastZ21Status = 0;
