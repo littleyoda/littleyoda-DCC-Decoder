@@ -201,6 +201,22 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 
 		} else if (strcmp(art, "wlan") == 0) {
 			WiFi.enableSTA(true);
+			if (value["ip"] != NULL || value["netmask"] != NULL || value["gw"] != NULL) {
+				if (value["ip"] != NULL && value["netmask"] != NULL && value["gw"] != NULL) {
+					IPAddress ip;
+					IPAddress nm;
+					IPAddress gw;
+					ip.fromString(value["ip"].as<const char*>());
+					nm.fromString(value["netmask"].as<const char*>());
+					gw.fromString(value["gw"].as<const char*>());
+					WiFi.config(ip, gw, nm);
+				} else {
+					Logger::log("Netzwerkkonfiguration (ip, netmask, gw) unvollständig");
+					continue;
+				}
+			} else {
+				Logger::log("Netzwerkkonfiguration per DHCP");
+			}
 			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>());
 
 
