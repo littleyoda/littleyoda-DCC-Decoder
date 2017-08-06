@@ -284,10 +284,14 @@ void Controller::enableAPModus() {
 		Logger::getInstance()->addToLog("Access Point bereits aktiv!");
 		return;
 	}
-// TODO Station Modus abhalten
+	int status = WiFi.status();
+	if (status == WL_NO_SSID_AVAIL || status == WL_DISCONNECTED) {
+		Serial.println("Station Modus abgeschalten");
+		WiFi.disconnect();
+	}
 	WiFi.softAP("Hallo World");
 	WiFi.enableAP(true);
-	Serial.println(WiFi.softAPIP().toString());
+	Serial.println("IP für AP: " + WiFi.softAPIP().toString());
 	dnsServer.reset(new DNSServer());
 	dnsServer->start(53, "*", WiFi.softAPIP());
 }
