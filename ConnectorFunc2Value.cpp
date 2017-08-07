@@ -18,8 +18,7 @@ ConnectorFunc2Value::ConnectorFunc2Value(ISettings* a, int locoaddr, int *array,
 	requestInfo* r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = addr;
-	requestList.add(r);
-
+	getRequestList()->add(r);
 }
 
 ConnectorFunc2Value::~ConnectorFunc2Value() {

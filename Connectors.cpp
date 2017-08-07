@@ -31,7 +31,4 @@ void Connectors::DCCFunc(int id, unsigned long int newvalue, int source) {
 }
 
 
-LinkedList<Connectors::requestInfo*>* Connectors::getRequestList() {
-	return &requestList;
-}
 

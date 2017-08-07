@@ -29,13 +29,6 @@ public:
 	// Reports the Status of the all functions (bit 0 => F0, bit 1 => F1, ...)
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
 
-	struct requestInfo {
-		enum ART {TURNOUT, LOCO } art;
-		unsigned int id;
-	};
-	LinkedList<requestInfo*>* getRequestList();
-protected:
-    LinkedList<requestInfo*> requestList = LinkedList<requestInfo*>();
 };
 
 
