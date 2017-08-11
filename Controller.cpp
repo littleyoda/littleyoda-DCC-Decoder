@@ -258,13 +258,18 @@ void Controller::registerCmdSender(CmdSenderBase* base) {
 
 void Controller::updateRequestList() {
 	requestList.clear();
+	// Create Requestlist from all actions-Items
 	for (int idx = 0; idx < actions.size(); idx++) {
 		INotify* b = actions.get(idx);
 		LinkedList<INotify::requestInfo*>*  list = b->getRequestList();
 		for (int i = 0; i < list->size(); i++) {
-			requestList.add(list->get(i));
+			INotify::requestInfo* e = list->get(i);
+			if (!requestListContains(e)) {
+				requestList.add(e);
+			}
 		}
 	}
+	// Set Requestlist for all Senders
 	for (int idx = 0; idx < sender.size(); idx++) {
 		CmdSenderBase* s = sender.get(idx);
 		s->setRequestList(&requestList);
@@ -272,6 +277,15 @@ void Controller::updateRequestList() {
 
 }
 
+boolean Controller::requestListContains(INotify::requestInfo* element) {
+	for (int idx = 0; idx < requestList.size(); idx++) {
+		INotify::requestInfo* ri = requestList.get(idx);
+		if ((ri->art == element->art) && (ri->id == element->id)) {
+			return true;
+		}
+	}
+	return false;
+}
 void Controller::emergencyStop(int source) {
 	notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
 				   Consts::SPEED_FORWARD, 128, source);
