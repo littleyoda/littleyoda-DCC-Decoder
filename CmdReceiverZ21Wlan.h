@@ -32,7 +32,7 @@ private:
 	unsigned char packetcfg16[30];
 	unsigned long timeout = 0;
 	IPAddress* z21Server;
-	void doReceive(int cb);
+	void doReceive();
 	void resetTimeout();
 	void handleTurnout();
 	void handleDCCSpeed(unsigned int locoid);
@@ -41,6 +41,7 @@ private:
 	void sendCfg12Request();
 	void sendCfg16Request();
 	void sendXGetStatus();
+	void sendGetBroadcastFlags();
 	void requestRailcom();
 	void handleRailcomdata();
 	void printPacketBuffer(int size);

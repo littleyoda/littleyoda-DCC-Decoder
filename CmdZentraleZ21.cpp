@@ -22,8 +22,10 @@ CmdZentraleZ21::CmdZentraleZ21(Controller* c) :
 int CmdZentraleZ21::loop() {
 	// Check for UDP
 	int cb = udp->parsePacket();
-	if (cb != 0) {
-		doReceive(cb);
+	if (cb > 0) {
+		while (udp->available() > 0)  {
+			doReceive();
+		}
 	}
 	long int time = millis();
 	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
@@ -230,15 +232,15 @@ void CmdZentraleZ21::handleSetLocoFunc(unsigned int locoid) {
 	controller->notifyDCCFun(locoid, bit, value, Consts::SOURCE_Z21SERVER);
 }
 
-void CmdZentraleZ21::doReceive(int cb) {
-	// TODO Handle Packets with multiple Blocks in one UDP Paket
-	// TODO Read the first two bytes to determine the size
+void CmdZentraleZ21::doReceive() {
+	udp->read(pb, 1);
+	int cb = (int) pb[0];
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
 	}
-	udp->read(pb, cb);
-	resetTimeout();
+	int ret = udp->read(&pb[1], cb - 1);
 //	printPacketBuffer(cb);
+	resetTimeout();
 
 	boolean LAN_X_GET_STATUS = cb >= 7
 			&& pb[0] == 0x07 && pb[1] == 0x00

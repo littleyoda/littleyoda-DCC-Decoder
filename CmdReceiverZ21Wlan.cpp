@@ -31,9 +31,9 @@ CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, const char* ip) :
 int CmdReceiverZ21Wlan::loop() {
 	// Check for UDP
 	int cb = udp->parsePacket();
-	if (cb >= 0) {
+	if (cb > 0) {
 		while (udp->available() > 0)  {
-			doReceive(udp->available());
+			doReceive();
 		}
 	}
 	long int time = millis();
@@ -134,13 +134,15 @@ void CmdReceiverZ21Wlan::handleFunc(unsigned int locoid) {
 	controller->notifyDCCFun(locoid, 0, 29, func, 1);
 }
 
-void CmdReceiverZ21Wlan::doReceive(int cb) {
+void CmdReceiverZ21Wlan::doReceive() {
+
+	udp->read(packetBuffer, 1);
+	int cb = (int) packetBuffer[0];
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
 	}
-	udp->read(packetBuffer, 1);
-	cb = (int) packetBuffer[0];
-	udp->read(&packetBuffer[1], cb - 1);
+	int ret = udp->read(&packetBuffer[1], cb - 1);
+//	printPacketBuffer(cb);
 	resetTimeout();
 
 	boolean getSerialNumber = cb >= 8 && packetBuffer[0] == 0x08
@@ -247,7 +249,7 @@ void CmdReceiverZ21Wlan::doReceive(int cb) {
 			offset = 4;
 		}
 		if (turnoutOffset != offset) {
-			Logger::getInstance()->addToLog("Turnout Offet: " + String(offset));
+			Logger::getInstance()->addToLog("Turnout Offset: " + String(offset));
 			turnoutOffset = offset;
 		}
 		return;
@@ -267,7 +269,7 @@ void CmdReceiverZ21Wlan::doReceive(int cb) {
 		return;
 	}
 
-
+	Serial.print("Unbekannt: ");
 	printPacketBuffer(cb);
 }
 
@@ -310,15 +312,15 @@ void CmdReceiverZ21Wlan::enableBroadcasts() {
 	packetBuffer[2] = 0x50;
 	packetBuffer[3] = 0x00;
 
-	// Flags = 0x00010001 (Little Endian)
-	// 0x01 and 0x010000
+	// Flags = 0x00 01 00 01 (Little Endian)
+	// 0x01 and 0x01 00 00
 	packetBuffer[4] = 0x01;
 	packetBuffer[5] = 0x00;
 	packetBuffer[6] = 0x01;
 	packetBuffer[7] = 0x00;
 
 	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, 8);
+	udp->write(packetBuffer, packetBuffer[0]);
 	udp->endPacket();
 }
 
@@ -356,6 +358,9 @@ CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
 }
 
 void CmdReceiverZ21Wlan::resetTimeout() {
+	if (timeout == 0) {
+		Serial.println("Message from Z21 received!");
+	}
 	timeout = millis();
 }
 
@@ -431,6 +436,21 @@ void CmdReceiverZ21Wlan::handleRailcomdata() {
 //	Serial.println("  Options: " + String(packetBuffer[9 + 4]));
 //	Serial.println("  Speed: " + String(packetBuffer[10 + 4]));
 //	Serial.println("  QoS: " + String(packetBuffer[11 + 4]));
+}
+
+void CmdReceiverZ21Wlan::sendGetBroadcastFlags() {
+	memset(packetBuffer, 0, packetBufferSize);
+
+	// 4.1 LAN_X_GET_LOCO_INFO
+	packetBuffer[0] = 0x04;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x51;
+	packetBuffer[3] = 0x00;
+
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, packetBuffer[0]);
+	udp->endPacket();
+
 }
 
 void CmdReceiverZ21Wlan::emergencyStop() {

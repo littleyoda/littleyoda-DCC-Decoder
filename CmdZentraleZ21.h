@@ -36,7 +36,7 @@ private:
 	const int packetBufferSize = 30;
 	unsigned char pb[30];
 	unsigned long timeout = 0;
-	void doReceive(int cb);
+	void doReceive();
 	void resetTimeout();
 
 	void printPacketBuffer(int size);
