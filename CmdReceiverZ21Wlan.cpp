@@ -47,7 +47,7 @@ int CmdReceiverZ21Wlan::loop() {
 	if (time - lastTime > (emergencyStopTimeout / 4)) {
 		lastTime = time;
 		if (loopStatus == -4) {
-			requestRailcom();
+			sendFrimwareVersionRequest();
 		} else if (loopStatus == -3) {
 			sendXGetStatus();
 		} else if (loopStatus == -2) {
@@ -269,6 +269,15 @@ void CmdReceiverZ21Wlan::doReceive() {
 		return;
 	}
 
+	boolean firmware = cb == 9 && packetBuffer[0] == 9
+			&& packetBuffer[1] == 0x00 && packetBuffer[2] == 0x40
+			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0xF3
+			&& packetBuffer[5] == 0x0A;
+	if (firmware) {
+		printPacketBuffer(cb);
+		handleFirmware();
+		return;
+	}
 	Serial.print("Unbekannt: ");
 	printPacketBuffer(cb);
 }
@@ -451,6 +460,35 @@ void CmdReceiverZ21Wlan::sendGetBroadcastFlags() {
 	udp->write(packetBuffer, packetBuffer[0]);
 	udp->endPacket();
 
+}
+
+void CmdReceiverZ21Wlan::sendFrimwareVersionRequest() {
+	memset(packetBuffer, 0, packetBufferSize);
+
+	// 4.1 LAN_X_GET_LOCO_INFO
+	packetBuffer[0] = 0x07;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x40;
+	packetBuffer[3] = 0x00;
+
+	packetBuffer[4] = 0xF1;
+	packetBuffer[5] = 0x0A;
+	packetBuffer[6] = 0xFB;
+
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, packetBuffer[0]);
+	udp->endPacket();
+}
+
+void CmdReceiverZ21Wlan::handleFirmware() {
+	unsigned int msb = packetBuffer[6];
+	unsigned int v =(unsigned int) packetBuffer[7];
+	unsigned int lsbA = v >> 4;
+	unsigned int lsbB = v & 15;
+	if (firmwareVersion == 0) {
+		firmwareVersion = msb * 100 + lsbA * 10 + lsbB;
+		Logger::getInstance()->addToLog("Fimrware Version: " + String(firmwareVersion));
+	}
 }
 
 void CmdReceiverZ21Wlan::emergencyStop() {
