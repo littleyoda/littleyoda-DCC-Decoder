@@ -13,18 +13,15 @@
 #include "INotify.h"
 #include "ISettings.h"
 
-class ActionServo: public INotify, public ISettings {
+class ActionServo: public ILoop, public ISettings {
 public:
-	ActionServo(int pin, int id);
+	ActionServo(int pin);
 	virtual ~ActionServo();
 
 	virtual int loop();
-	virtual void TurnoutCmd(int id, int direction);
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
 	virtual void setSettings(String key, String value);
-	virtual void setSettings(int status);
 private:
 	int pin;
 	int id;

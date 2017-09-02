@@ -126,10 +126,11 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 
 
 		} else if (strcmp(art, "servo") == 0) {
-			//			controller->registerNotify(
-			//				d	new ActionServo(
-			//							GPIO.string2gpio(value["gpio"].as<const char*>()),
-			//							value["locoid"].as<int>()));
+			int gpioservo = GPIO.string2gpio(value["gpio"].as<const char*>());
+			ActionServo* a = new ActionServo(gpioservo);
+			a->setName(id);
+			controller->registerSettings(a);
+			controller->registerLoop(a);
 
 		} else if (strcmp(art, "turnout") == 0) {
 			ActionTurnOut* a = new ActionTurnOut(

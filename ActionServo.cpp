@@ -8,11 +8,10 @@
 #include "ActionServo.h"
 #include "Logger.h"
 
-ActionServo::ActionServo(int pin, int id) {
+ActionServo::ActionServo(int pin) {
 	Logger::getInstance()->addToLog(
-			"Starting Servo GPIO: " + String(pin) + " Loco: " + String(id));
+			"Starting Servo GPIO: " + String(pin));
 	this->pin = pin;
-	this->id = id;
 }
 
 ActionServo::~ActionServo() {
@@ -63,12 +62,7 @@ String ActionServo::getHTMLController(String urlprefix) {
 }
 
 void ActionServo::setSettings(String key, String value) {
-	setSettings(value.toInt());
-}
-
-void ActionServo::setSettings(int status) {
-	Logger::getInstance()->addToLog(
-			"Servo " + String(pin) + " changed to " + status);
+	int status = value.toInt();
 	if (status == -1) {
 		detach();
 	} else {
@@ -78,8 +72,6 @@ void ActionServo::setSettings(int status) {
 	}
 }
 
-void ActionServo::TurnoutCmd(int id, int status) {
-}
 
 void ActionServo::attach() {
 	if (isAttach) {
@@ -97,14 +89,3 @@ void ActionServo::detach() {
 	isAttach = false;
 }
 
-void ActionServo::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
-	if (id != this->id) {
-		return;
-	}
-	if (direction == -1) {
-		setSettings(-1);
-		return;
-	}
-	int r = speed * 180 / SpeedSteps;
-	setSettings(r);
-}
