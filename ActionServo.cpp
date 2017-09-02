@@ -39,22 +39,18 @@ String ActionServo::getHTMLController(String urlprefix) {
 	message += "Servo ";
 	message += "</div><div class=\"column column-90\">";
 
-	message += " <a class=\"button\" href=\"";
-	message += urlprefix;
-	message += "value=";
-	message += String(-1);
-	message += "\">";
-	message += "disable";
-	message += "</a>";
+	message += "<a href=\"#\" onclick=\"";
+	message += "send('" + urlprefix + "&key=so&value=-1')";
+	message += "\">Off";
+	message += "°</a> \r\n";
 
 	for (int i = 0; i <= 180; i = i + 10) {
-		message += " <a class=\"button\" href=\"";
-		message += urlprefix;
-		message += "value=";
-		message += String(i);
+		String action = "send('" + urlprefix + "&key=so&value=" + i + "')";
+		message += "<a href=\"#\" onclick=\"";
+		message += action;
 		message += "\">";
 		message += String(i);
-		message += "°</a>";
+		message += "°</a> \r\n";
 	}
 	message += "</div>";
 	message += "</div>";
@@ -62,6 +58,8 @@ String ActionServo::getHTMLController(String urlprefix) {
 }
 
 void ActionServo::setSettings(String key, String value) {
+	Logger::getInstance()->addToLog(
+			"Servo Value: " + value);
 	int status = value.toInt();
 	if (status == -1) {
 		detach();
