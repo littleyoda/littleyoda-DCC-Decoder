@@ -29,7 +29,7 @@
 	[
 		{
 		"m":"dccout",
-		"enable":"D3",
+		"enable":"D8",
 		"addr":"3",
 		"dccoutputaddr":"3"
 		}
