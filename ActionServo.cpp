@@ -7,10 +7,12 @@
 
 #include "ActionServo.h"
 #include "Logger.h"
+#include "GPIO.h"
 
 ActionServo::ActionServo(int pin) {
 	Logger::getInstance()->addToLog(
 			"Starting Servo GPIO: " + String(pin));
+	GPIO.pinMode(pin, OUTPUT, "Servo");
 	this->pin = pin;
 }
 

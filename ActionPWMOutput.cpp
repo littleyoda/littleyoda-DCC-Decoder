@@ -22,11 +22,13 @@ ActionPWMOutput::ActionPWMOutput(uint8_t pwm, uint8_t forward, uint8_t reverse) 
 	  gpioPWM = pwm;
 	  gpioForward = forward;
 	  gpioReverse = reverse;
+	  String fctname = " PWM Signal";
 	  if (gpioPWM != Consts::DISABLE) {
-		  GPIO.pinMode(gpioPWM, OUTPUT); GPIO.digitalWrite(gpioPWM, LOW); // PWM Signal
+		  GPIO.pinMode(gpioPWM, OUTPUT, "PWM: PWM Signal"); GPIO.digitalWrite(gpioPWM, LOW); // PWM Signal
+		  fctname = "";
 	  }
-	  GPIO.pinMode(gpioForward, OUTPUT); GPIO.digitalWrite(gpioForward, LOW); // Forward
-	  GPIO.pinMode(gpioReverse, OUTPUT); GPIO.digitalWrite(gpioReverse, LOW); // Reverse
+	  GPIO.pinMode(gpioForward, OUTPUT, "PWM: Forward" + fctname); GPIO.digitalWrite(gpioForward, LOW); // Forward
+	  GPIO.pinMode(gpioReverse, OUTPUT, "PWM: Reverse" + fctname); GPIO.digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);
 }
 
@@ -48,7 +50,6 @@ String ActionPWMOutput::getHTMLCfg(String urlprefix) {
 
 String ActionPWMOutput::getHTMLController(String urlprefix) {
 	String action = "document.getElementById('pwmValue').textContent=this.value; send('" + urlprefix + "&key=sd&value='+this.value)";
-	Serial.println(action);
 	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
 	message += "PWM ";
 	message += "</div>";

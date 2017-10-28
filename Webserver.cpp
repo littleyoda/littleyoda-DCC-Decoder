@@ -129,6 +129,7 @@ int Webserver::loop() {
 				"Wifi status changed: " + Utils::wifi2String(lastWifiStatus)
 		+ " => " + Utils::wifi2String(WiFi.status()) + " IP:"
 		+ WiFi.localIP().toString());
+		Serial.printf("Connection to: %s (Q:%d)\r\n", WiFi.BSSIDstr().c_str(), WiFi.RSSI());
 		lastWifiStatus = WiFi.status();
 		if (WiFi.status() == WL_CONNECTED) {
 			MDNS.begin(controll->getHostname().c_str());

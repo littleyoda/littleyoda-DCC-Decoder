@@ -256,7 +256,6 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 					"Config: Unbekannter Eintrag " + String(art));
 		}
 		loop();
-
 	}
 }
 

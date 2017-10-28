@@ -13,7 +13,7 @@
 
 ActionLed::ActionLed(int gpio) {
 	Logger::getInstance()->addToLog("Starting LED  " + String(gpio));
-	GPIO.pinMode(gpio, OUTPUT);
+	GPIO.pinMode(gpio, OUTPUT, "LED");
 	this->gpio = gpio;
 }
 

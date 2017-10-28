@@ -44,7 +44,7 @@ DCCSPIClass::DCCSPIClass() {
 
 
 void DCCSPIClass::begin() {
-	GPIO.pinMode(MOSI, SPECIAL); ///< GPIO13
+	GPIO.pinMode(MOSI, SPECIAL, "DCC SPI"); ///< GPIO13
 
 	SPI1C = 0;
 	setFrequency(1000000); ///< 1MHz
@@ -54,7 +54,7 @@ void DCCSPIClass::begin() {
 }
 
 void DCCSPIClass::end() {
-	GPIO.pinMode(MOSI, OUTPUT);
+	GPIO.pinMode(MOSI, OUTPUT, "SPI");
 }
 
 

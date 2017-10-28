@@ -17,10 +17,10 @@ ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable) {
 	this->enable = enable;
 	int i;
 	for (i = 0; i < 2; i++) {
-		GPIO.pinMode(dirPin[i], OUTPUT);
+		GPIO.pinMode(dirPin[i], OUTPUT, "Weiche Richtung " + String(0));
 		GPIO.digitalWrite(dirPin[i], 0);
 	}
-	GPIO.pinMode(enable, OUTPUT);
+	GPIO.pinMode(enable, OUTPUT, "Weiche Enable");
 	off();
 
 }

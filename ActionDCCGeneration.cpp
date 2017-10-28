@@ -26,7 +26,7 @@ ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) 
 
 	enableGpio = gpio;
 	if (enableGpio != Consts::DISABLE) {
-		GPIO.pinMode(enableGpio, OUTPUT);
+		GPIO.pinMode(enableGpio, OUTPUT, "DCC Generation");
 		GPIO.digitalWrite(enableGpio, 0);
 	}
 

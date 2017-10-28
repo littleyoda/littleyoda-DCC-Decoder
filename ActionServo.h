@@ -26,7 +26,8 @@ private:
 	int pin;
 	int id;
 	unsigned long lastcommand = 0;
-	Servo myservo;bool isAttach = false;
+	Servo myservo;
+	bool isAttach = false;
 	void attach();
 	void detach();
 

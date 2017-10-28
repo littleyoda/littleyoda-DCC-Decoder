@@ -36,6 +36,7 @@ WebserviceDCCSniffer *WebserviceDCCSniffer::_instance = NULL;
 
 WebserviceDCCSniffer::WebserviceDCCSniffer() {
 	WebserviceDCCSniffer::_instance = this;
+	addToLog("Start");
 }
 
 WebserviceDCCSniffer::~WebserviceDCCSniffer() {
@@ -60,7 +61,7 @@ void WebserviceDCCSniffer::run() {
 	message += "Die letzten " + String(logger.size()) + " empfangenen DCC-Pakete:<br><table>"
 			"<thead>"
 			"<tr><th>Zeitpunkt</th><th>Wert</th><th>Wert</th>"
-		    "</thead><tbody>";
+			"</thead><tbody>";
 	send(message);
 	for (int i = 0; i < logger.size(); i++) {
 		send("<tr><td>" + String(logger.get(i)) + "</td></tr>\n");

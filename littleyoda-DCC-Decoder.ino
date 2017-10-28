@@ -68,7 +68,7 @@ void handleSerial() {
 			Serial.println("==================");
 			Serial.println("Logger: " + String(Logger::getInstance()->getMemUsage()));
 			if (controller->dccSniffer != NULL) {
-				Serial.println("Sniffer: " + String(controller->dccSniffer->getMemUsage()));
+				//Serial.println("Sniffer: " + String(controller->dccSniffer->getMemUsage()));
 			}
 			if (controller->cmdlogger != NULL) {
 				Serial.println("Commandlogger: " + String(controller->cmdlogger->getMemUsage()));
@@ -96,6 +96,9 @@ void handleSerial() {
 			FlashMode_t ideMode = ESP.getFlashChipMode();
 			Serial.printf("Speed/Mode: %u %s", ESP.getFlashChipSpeed(), (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 			Serial.println();
+			Serial.println("\n==================");
+			Serial.println("Pin-Nutzung:\n");
+			Serial.println(GPIO.getUsage("\n"));
 		} else if (chr == 'R') {
 			ESP.restart();
 		} else if (chr == 'D') {

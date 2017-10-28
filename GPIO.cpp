@@ -63,7 +63,7 @@ int GPIOClass::string2gpio(const char* pin) {
 	return d->second;
 }
 
-void GPIOClass::pinMode(uint8_t pin, uint8_t mode) {
+void GPIOClass::pinMode(uint8_t pin, uint8_t mode, String usage) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(
 				"Accessing Disabled Pin (pinMode): " + String(pin));
@@ -78,7 +78,9 @@ void GPIOClass::pinMode(uint8_t pin, uint8_t mode) {
 	} else {
 		::pinMode(pin, mode);
 	}
+	addUsage(pin, usage);
 }
+
 void GPIOClass::digitalWrite(uint8_t pin, uint8_t val) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(
@@ -124,4 +126,26 @@ void GPIOClass::enableMCP23017(uint8_t addr) {
 }
 
 GPIOClass GPIO;
+
+void GPIOClass::addUsage(uint8_t pin, String usage) {
+	Serial.println("Adding " + usage + " to " + String(pin));
+	std::map<int, String>::iterator d = pinusage.find(pin);
+	String value = usage;
+	if (!(d == pintostring.end() || d->second == NULL || d->second.length() == 0)) {
+		value = d->second + "; " + value;
+	}
+	pinusage[pin] = value;
+}
+
+String GPIOClass::getUsage(String sep) {
+	String out = "";
+	for (std::map<int, String>::iterator i = pinusage.begin (); i != pinusage.end (); i++) {
+		out +=
+		String((*i).first) + "/" + gpio2string((*i).first) + ": "
+		+ (*i).second
+		+ sep;
+	}
+	return out;
+}
+
 
