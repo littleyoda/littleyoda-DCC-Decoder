@@ -242,7 +242,11 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			if (d != NULL && strcmp(d, "MCP23017") == 0) {
 				Wire.beginTransmission(0x20);
 				int ret = Wire.endTransmission();
-				Logger::getInstance()->addToLog("Test MCP23017 auf I2c/0x20: " + String(ret));
+				String tret = "Failed (" + String(ret) + ")";
+				if (ret == 0) {
+					tret = "OK";
+				}
+				Logger::getInstance()->addToLog("Test MCP23017 auf I2c/0x20: " + tret);
 				if (ret == 0) {
 					GPIO.enableMCP23017(0);
 				}
@@ -272,9 +276,8 @@ void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 		if (strcmp(art, "locospeed") == 0) {
 			int l = value["addr"].as<int>();
 			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
-
-
 			c = new ConnectorLocoSpeed(a, l);
+
 		} else if (strcmp(art, "funconoff") == 0) {
 			int l = value["addr"].as<int>();
 			int f = value["func"].as<int>();

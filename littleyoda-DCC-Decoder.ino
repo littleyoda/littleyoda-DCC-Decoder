@@ -97,8 +97,8 @@ void handleSerial() {
 			Serial.printf("Speed/Mode: %u %s", ESP.getFlashChipSpeed(), (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 			Serial.println();
 			Serial.println("\n==================");
-			Serial.println("Pin-Nutzung:\n");
-			Serial.println(GPIO.getUsage("\n"));
+			Serial.println("Pin-Nutzung:");
+			Serial.println(GPIO.getUsage("\r\n"));
 		} else if (chr == 'R') {
 			ESP.restart();
 		} else if (chr == 'D') {
@@ -180,6 +180,7 @@ void setup() {
 	Webserver* web = new Webserver(controller);
 	handleSerial();
 	loadCFG(web);
+	Serial.println(GPIO.getUsage("\r\n"));
 	Logger::getInstance()->addToLog("Setup finish!");
 
 }
