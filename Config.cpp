@@ -218,14 +218,22 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			} else {
 				Logger::log("Netzwerkkonfiguration per DHCP");
 			}
-			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>());
+			int ch = 1;
+			if (value["kanal"] != NULL) {
+				ch = value["kanal"].as<int>();
+			}
+			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch);
 
 
 		} else if (strcmp(art, "ap") == 0) {
 			IPAddress Ip(192, 168, 0, 111);
 			IPAddress NMask(255, 255, 255, 0);
+			int ch = 1;
+			if (value["kanal"] != NULL) {
+				ch = value["kanal"].as<int>();
+			}
 			WiFi.softAPConfig(Ip, Ip, NMask);
-			WiFi.softAP(value["ssid"].as<const char*>(), value["pwd"].as<const char*>());
+			WiFi.softAP(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch);
 			WiFi.enableAP(true);
 			Serial.println(WiFi.softAPIP().toString());
 			// TODO DNS -Server
