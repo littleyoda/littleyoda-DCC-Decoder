@@ -43,9 +43,11 @@ DCCSPIClass::DCCSPIClass() {
 }
 
 
-void DCCSPIClass::begin() {
+void DCCSPIClass::begin(SPISettings settings) {
 	GPIO.pinMode(MOSI, SPECIAL, "DCC SPI"); ///< GPIO13
-
+	if (settings._SCK) {
+		GPIO.pinMode(SCK, SPECIAL, "DCC SPI/CLOCK"); ///< GPIO14
+	}
 	SPI1C = 0;
 	setFrequency(1000000); ///< 1MHz
 	SPI1U = SPIUMOSI | SPIUDUPLEX | SPIUSSE;
@@ -269,3 +271,8 @@ bool DCCSPIClass::busy() {
 int DCCSPIClass::getUsedPin() {
 	return MOSI;
 }
+
+int DCCSPIClass::getSCKPin() {
+	return SCK;
+}
+

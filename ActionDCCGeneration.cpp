@@ -22,8 +22,9 @@ ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) 
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 									+ " genutzte DCC Adresse: " + String(DCC_ADRESSE)
 	);
-	SPI.begin();
-	SPI.beginTransaction(SPISettings(17241, LSBFIRST, SPI_MODE3));
+	SPISettings spi = SPISettings(17241, LSBFIRST, SPI_MODE3, false) ;
+	SPI.begin(spi);
+	SPI.beginTransaction(spi);
 
 	if (enableGpio != Consts::DISABLE) {
 		GPIO.pinMode(enableGpio, OUTPUT, "DCC Generation");

@@ -17,6 +17,7 @@
 #include "ActionPWMOutput.h"
 #include "ActionDFPlayerMP3.h"
 #include "ActionDCCGeneration.h"
+#include "ActionSUSIGeneration.h"
 
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
@@ -101,6 +102,14 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			int locoaddr = value["addr"].as<int>();
 			int dccoutput = value["dccoutputaddr"].as<int>();
 			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
+			controller->registerNotify(a);
+			controller->registerLoop(a);
+			continue;
+		}
+
+		if (strcmp(art, "susiout") == 0) {
+			int locoaddr = value["addr"].as<int>();
+			ActionSUSIGeneration* a = new ActionSUSIGeneration(locoaddr);
 			controller->registerNotify(a);
 			controller->registerLoop(a);
 			continue;
