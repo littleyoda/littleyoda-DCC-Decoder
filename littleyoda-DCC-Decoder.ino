@@ -32,8 +32,8 @@ void loadCFG(Webserver* web) {
 		return;
 	}
 	size_t size = configFile.size();
-	if (size > 2024) {
-		Logger::getInstance()->addToLog("Konfig-File ist größer als 2024 bytes");
+	if (size > 5024) {
+		Logger::getInstance()->addToLog("Konfig-File ist größer als 5024 bytes");
 		controller->registerLoop(web);
 		controller->registerLoop(Logger::getInstance());
 		controller->updateRequestList();
