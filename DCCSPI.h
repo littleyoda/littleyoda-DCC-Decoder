@@ -59,7 +59,7 @@ class DCCSPIClass {
 public:
 	DCCSPIClass();
 	  void beginTransaction(SPISettings settings);
-  void begin(SPISettings settings);
+  void begin(SPISettings settings, String funktion);
   void end();
   void send(uint8_t * data, uint8_t size);
   bool busy();

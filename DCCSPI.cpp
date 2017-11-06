@@ -43,10 +43,10 @@ DCCSPIClass::DCCSPIClass() {
 }
 
 
-void DCCSPIClass::begin(SPISettings settings) {
-	GPIO.pinMode(MOSI, SPECIAL, "DCC SPI"); ///< GPIO13
+void DCCSPIClass::begin(SPISettings settings, String funktion) {
+	GPIO.pinMode(MOSI, SPECIAL, funktion + " SPI"); ///< GPIO13
 	if (settings._SCK) {
-		GPIO.pinMode(SCK, SPECIAL, "DCC SPI/CLOCK"); ///< GPIO14
+		GPIO.pinMode(SCK, SPECIAL, funktion + " SPI/CLOCK"); ///< GPIO14
 	}
 	SPI1C = 0;
 	setFrequency(1000000); ///< 1MHz

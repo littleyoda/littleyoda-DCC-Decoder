@@ -23,7 +23,7 @@ ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) 
 									+ " genutzte DCC Adresse: " + String(DCC_ADRESSE)
 	);
 	SPISettings spi = SPISettings(17241, LSBFIRST, SPI_MODE3, false) ;
-	SPI.begin(spi);
+	SPI.begin(spi, "DCC");
 	SPI.beginTransaction(spi);
 
 	if (enableGpio != Consts::DISABLE) {
