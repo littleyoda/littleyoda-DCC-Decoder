@@ -42,6 +42,9 @@ ActionSUSIGeneration::~ActionSUSIGeneration() {
 void ActionSUSIGeneration::fillSpiBuffer() {
 	unsigned char speed = 0;
 	speed = SPEED_STATE & 127;
+	if (SPEED_STATE = Consts::SPEED_EMERGENCY || SPEED_STATE = Consts::SPEED_STOP) {
+		speed = 0;
+	}
 	if (DIR_STATE == Consts::SPEED_FORWARD) {
 		speed += 128;
 	}
@@ -56,19 +59,19 @@ void ActionSUSIGeneration::fillSpiBuffer() {
 	SPIBuf[SPIBufUsed++] = speed;
 
 	// FG1 --   00 00 00 F0 --  F4 F3 F2 F1
-	SPIBuf[SPIBufUsed++] = B0110000;
-	SPIBuf[SPIBufUsed++] = ((FUNC_STATE >> 1) & 15) | ((FUNC_STATE & 1) < 4);
+	SPIBuf[SPIBufUsed++] = B01100000;
+	SPIBuf[SPIBufUsed++] = ((FUNC_STATE >> 1) & 15) | ((FUNC_STATE & 1) << 4);
 
 	// FG2  F5 bis F12
-	SPIBuf[SPIBufUsed++] = B0110001;
+	SPIBuf[SPIBufUsed++] = B01100001;
 	SPIBuf[SPIBufUsed++] = ((FUNC_STATE >> 5) & 0xFF);
 
 	// FG2  F13 bis F20
-	SPIBuf[SPIBufUsed++] = B0110010;
+	SPIBuf[SPIBufUsed++] = B01100010;
 	SPIBuf[SPIBufUsed++] = ((FUNC_STATE >> 13) & 0xFF);
 
 	// FG2  F21 bis F28
-	SPIBuf[SPIBufUsed++] = B0110011;
+	SPIBuf[SPIBufUsed++] = B01100011;
 	SPIBuf[SPIBufUsed++] = ((FUNC_STATE >> 21) & 0xFF);
 }
 
