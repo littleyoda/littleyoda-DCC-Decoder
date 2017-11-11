@@ -42,7 +42,7 @@ ActionSUSIGeneration::~ActionSUSIGeneration() {
 void ActionSUSIGeneration::fillSpiBuffer() {
 	unsigned char speed = 0;
 	speed = SPEED_STATE & 127;
-	if (SPEED_STATE = Consts::SPEED_EMERGENCY || SPEED_STATE = Consts::SPEED_STOP) {
+	if (SPEED_STATE == Consts::SPEED_EMERGENCY || SPEED_STATE == Consts::SPEED_STOP) {
 		speed = 0;
 	}
 	if (DIR_STATE == Consts::SPEED_FORWARD) {
