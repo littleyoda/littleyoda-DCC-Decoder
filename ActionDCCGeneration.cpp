@@ -4,13 +4,13 @@
  * Based on the work of Juian Zimmermann
  * http://www.spassbahn.de/forum/index.php?thread/11462-spa%C3%9Flan-topfschlagen-im-minenfeld/&postID=119804&highlight=julian%2Bdcc#post119804
  */
-#include "DCCSPI.h"
 #include <Arduino.h>
 #include "Consts.h"
 #include "ActionDCCGeneration.h"
 #include "Logger.h"
 #include "Utils.h"
 #include "GPIO.h"
+#include "SPINonBlocking.h"
 
 ActionDCCGeneration::ActionDCCGeneration(int gpio, int locoaddr, int dccoutput) {
 	DCC_ADRESSE = dccoutput;

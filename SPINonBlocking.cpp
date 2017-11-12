@@ -1,5 +1,6 @@
 /*
  based on the SPI.cpp - SPI library for esp8266
+ Modifiered for non blocking.
 
 
  original Licence:
@@ -22,7 +23,8 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "DCCSPI.h"
+#include "SPINonBlocking.h"
+
 #include "HardwareSerial.h"
 #include "GPIO.h"
 
@@ -37,13 +39,13 @@ typedef union {
 	};
 } spiClk_t;
 
-DCCSPIClass SPI;
+SPINonClockingClass SPI;
 
-DCCSPIClass::DCCSPIClass() {
+SPINonClockingClass::SPINonClockingClass() {
 }
 
 
-void DCCSPIClass::begin(SPISettings settings, String funktion) {
+void SPINonClockingClass::begin(SPISettings settings, String funktion) {
 	GPIO.pinMode(MOSI, SPECIAL, funktion + " SPI"); ///< GPIO13
 	if (settings._SCK) {
 		GPIO.pinMode(SCK, SPECIAL, funktion + " SPI/CLOCK"); ///< GPIO14
@@ -55,23 +57,23 @@ void DCCSPIClass::begin(SPISettings settings, String funktion) {
 	SPI1C1 = 0;
 }
 
-void DCCSPIClass::end() {
+void SPINonClockingClass::end() {
 	GPIO.pinMode(MOSI, OUTPUT, "SPI");
 }
 
 
-void DCCSPIClass::beginTransaction(SPISettings settings) {
+void SPINonClockingClass::beginTransaction(SPISettings settings) {
 	while(SPI1CMD & SPIBUSY) {}
 	setFrequency(settings._clock);
 	setBitOrder(settings._bitOrder);
 	setDataMode(settings._dataMode);
 }
 
-void DCCSPIClass::endTransaction() {
+void SPINonClockingClass::endTransaction() {
 	SPI1U = SPIUMOSI | SPIUDUPLEX | SPIUSSE;
 }
 
-void DCCSPIClass::setDataMode(uint8_t dataMode) {
+void SPINonClockingClass::setDataMode(uint8_t dataMode) {
 
 	/**
      SPI_MODE0 0x00 - CPOL: 0  CPHA: 0
@@ -98,7 +100,7 @@ void DCCSPIClass::setDataMode(uint8_t dataMode) {
 
 }
 
-void DCCSPIClass::setBitOrder(uint8_t bitOrder) {
+void SPINonClockingClass::setBitOrder(uint8_t bitOrder) {
 	if(bitOrder == MSBFIRST) {
 		SPI1C &= ~(SPICWBO | SPICRBO);
 	} else {
@@ -115,7 +117,7 @@ static uint32_t ClkRegToFreq(spiClk_t * reg) {
 	return (ESP8266_CLOCK / ((reg->regPre + 1) * (reg->regN + 1)));
 }
 
-void DCCSPIClass::setFrequency(uint32_t freq) {
+void SPINonClockingClass::setFrequency(uint32_t freq) {
 	static uint32_t lastSetFrequency = 0;
 	static uint32_t lastSetRegister = 0;
 
@@ -198,7 +200,7 @@ void DCCSPIClass::setFrequency(uint32_t freq) {
 
 }
 
-void DCCSPIClass::setClockDivider(uint32_t clockDiv) {
+void SPINonClockingClass::setClockDivider(uint32_t clockDiv) {
 	if(clockDiv == 0x80000000) {
 		GPMUX |= (1 << 9); // Set bit 9 if sysclock required
 	} else {
@@ -207,7 +209,7 @@ void DCCSPIClass::setClockDivider(uint32_t clockDiv) {
 	SPI1CLK = clockDiv;
 }
 
-inline void DCCSPIClass::setDataBits(uint16_t bits) {
+inline void SPINonClockingClass::setDataBits(uint16_t bits) {
 	const uint32_t mask = ~((SPIMMOSI << SPILMOSI) | (SPIMMISO << SPILMISO));
 	bits--;
 	SPI1U1 = ((SPI1U1 & mask) | ((bits << SPILMOSI) | (bits << SPILMISO)));
@@ -221,7 +223,7 @@ inline void DCCSPIClass::setDataBits(uint16_t bits) {
  * @param size uint8_t  max for size is 64Byte
  * @param repeat uint32_t
  */
-void DCCSPIClass::send(uint8_t * data, uint8_t size) {
+void SPINonClockingClass::send(uint8_t * data, uint8_t size) {
 	if(size > 64) return; //max Hardware FIFO
 
 	while(SPI1CMD & SPIBUSY) {}
@@ -264,15 +266,15 @@ void DCCSPIClass::send(uint8_t * data, uint8_t size) {
 }
 
 
-bool DCCSPIClass::busy() {
+bool SPINonClockingClass::busy() {
 	return SPI1CMD & SPIBUSY;
 }
 
-int DCCSPIClass::getUsedPin() {
+int SPINonClockingClass::getUsedPin() {
 	return MOSI;
 }
 
-int DCCSPIClass::getSCKPin() {
+int SPINonClockingClass::getSCKPin() {
 	return SCK;
 }
 

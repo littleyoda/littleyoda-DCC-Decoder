@@ -1,20 +1,21 @@
 /*
  * Spezifikation http://normen.railcommunity.de/RCN-600.pdf
- * Bitte bachten, dass der ESP8266 nur 3.3V verträgt.
- * Schaltung gemäß Anhang E.
- * Die Schaltung ist zumindest in der Version vom 28.08.2017
- * der Spezifikation falsch!
  *
- * UNTESTED!
+ * Bitte beachten, dass der ESP8266 nur 3.3V verträgt.
+ * Das klassische SUSI arbeitet aber mit 5V.
+ *
+ * Deshalb ist eine Schaltung gemäß Anhang E der Spezifikation notwendig.
+ * Die Schaltung ist zumindest in der Spezifikations-Version vom 28.08.2017
+ * falsch!
  *
  */
-#include "DCCSPI.h"
 #include <Arduino.h>
 #include "Consts.h"
 #include "ActionSUSIGeneration.h"
 #include "Logger.h"
 #include "Utils.h"
 #include "GPIO.h"
+#include "SPINonBlocking.h"
 
 ActionSUSIGeneration::ActionSUSIGeneration(int locoaddr) {
 	LOCO_ADR = locoaddr;

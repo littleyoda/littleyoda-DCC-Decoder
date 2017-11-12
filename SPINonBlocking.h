@@ -22,8 +22,8 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef DCCSPI_H_
-#define DCCSPI_H_
+#ifndef SPINONBLOCKING_H_
+#define SPINONBLOCKING_H_
 
 #include <Arduino.h>
 #include <stdlib.h>
@@ -55,9 +55,9 @@ public:
   bool _SCK;
 };
 
-class DCCSPIClass {
+class SPINonClockingClass {
 public:
-	DCCSPIClass();
+	SPINonClockingClass();
 	  void beginTransaction(SPISettings settings);
   void begin(SPISettings settings, String funktion);
   void end();
@@ -75,7 +75,7 @@ private:
   void setClockDivider(uint32_t clockDiv);
 };
 
-extern DCCSPIClass SPI;
+extern SPINonClockingClass SPI;
 
 
-#endif /* DCCSPI_H_ */
+#endif /* SPINONBLOCKING_H_ */
