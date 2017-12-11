@@ -10,47 +10,36 @@
 GPIOClass::GPIOClass() {
 	mcp = NULL;
 
-// Hack for ESP8285
 #ifdef ARDUINO_ESP8266_ESP01
-	static const uint8_t D3   = 0;
-	static const uint8_t D4   = 2;
-	static const uint8_t D2   = 4;
-	static const uint8_t D7   = 13;
-	static const uint8_t D5   = 14;
-	static const uint8_t D0   = 16;
+	add("D0", 16);
+	add("D2", 4);
+	add("D3", 0);
+	add("D4", 2);
+	add("D5", 14);
+	add("D7", 13);
 #endif
-
-#ifdef D0
+#ifdef ARDUINO_ESP8266_WEMOS_D1MINI
 	add("D0", D0);
-#endif
-#ifdef D1
 	add("D1", D1);
-#endif
-#ifdef D2
 	add("D2", D2);
-#endif
-#ifdef D3
 	add("D3", D3);
-#endif
-#ifdef D4
 	add("D4", D4);
-#endif
-#ifdef D5
 	add("D5", D5);
-#endif
-#ifdef D6
 	add("D6", D6);
-#endif
-#ifdef D7
 	add("D7", D7);
-#endif
-#ifdef D8
 	add("D8", D8);
 #endif
-#ifdef D9
+#ifdef ARDUINO_ESP 8266_NODEMCU
+	add("D0", D0);
+	add("D1", D1);
+	add("D2", D2);
+	add("D3", D3);
+	add("D4", D4);
+	add("D5", D5);
+	add("D6", D6);
+	add("D7", D7);
+	add("D8", D8);
 	add("D9", D9);
-#endif
-#ifdef D10
 	add("D10", D10);
 #endif
 	add("DISABLE", 255);

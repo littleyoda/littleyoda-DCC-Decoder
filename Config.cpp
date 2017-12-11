@@ -242,7 +242,9 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 				ch = value["kanal"].as<int>();
 			}
 			WiFi.softAPConfig(Ip, Ip, NMask);
-			WiFi.softAP(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch);
+			if (!WiFi.softAP(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch)) {
+				Logger::log("softAP fehlgeschlagen!");
+			}
 			WiFi.enableAP(true);
 			Serial.println(WiFi.softAPIP().toString());
 			// TODO DNS -Server
