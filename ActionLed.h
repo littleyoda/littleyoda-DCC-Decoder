@@ -13,10 +13,11 @@
 
 #include "ILoop.h"
 #include "ISettings.h"
+#include "Pin.h"
 
 class ActionLed: public ILoop, public ISettings {
 public:
-	ActionLed(int gpio);
+	ActionLed(Pin* gpio);
 	virtual ~ActionLed();
 	virtual void setPattern(const char* pattern);
 	virtual String getHTMLCfg(String urlprefix);
@@ -26,7 +27,7 @@ public:
 	virtual int loop();
 
 private:
-	int gpio;
+	Pin* gpio;
 	int currentStatus = 0;
 	LinkedList<int> pattern = LinkedList<int>();
 	int patternPos = 0;

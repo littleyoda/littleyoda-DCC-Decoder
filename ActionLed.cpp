@@ -11,10 +11,10 @@
 #include "Logger.h"
 #include "Utils.h"
 
-ActionLed::ActionLed(int gpio) {
-	Logger::getInstance()->addToLog("Starting LED  " + String(gpio));
+ActionLed::ActionLed(Pin* g) {
+	gpio = g;
+	Logger::getInstance()->addToLog("Starting LED  " + g->toString());
 	GPIO.pinMode(gpio, OUTPUT, "LED");
-	this->gpio = gpio;
 }
 
 ActionLed::~ActionLed() {

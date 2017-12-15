@@ -80,6 +80,10 @@ int GPIOClass::string2gpio(const char* pin) {
 	return d->second;
 }
 
+void GPIOClass::pinMode(Pin* pin, uint8_t mode, String usage) {
+	pinMode(pin->getPin(), mode, usage);
+}
+
 void GPIOClass::pinMode(uint8_t pin, uint8_t mode, String usage) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(
@@ -96,6 +100,17 @@ void GPIOClass::pinMode(uint8_t pin, uint8_t mode, String usage) {
 		::pinMode(pin, mode);
 	}
 	addUsage(pin, usage);
+}
+
+void GPIOClass::digitalWrite(Pin* pin, uint8_t val) {
+	if (pin->isInvert()) {
+		if (val == 0) {
+			val = 1;
+		} else if (val == 1) {
+			val = 0;
+		}
+	}
+	digitalWrite(pin->getPin(), val);
 }
 
 void GPIOClass::digitalWrite(uint8_t pin, uint8_t val) {

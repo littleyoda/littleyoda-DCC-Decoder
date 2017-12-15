@@ -14,6 +14,8 @@
 #include "Consts.h"
 #include "Logger.h"
 #include "Adafruit_MCP23017.h"
+#include "Pin.h"
+
 
 
 class GPIOClass {
@@ -34,7 +36,11 @@ public:
 	String gpio2string(int gpio);
 	int string2gpio(const char* pin);
 	void pinMode(uint8_t pin, uint8_t mode, String usage);
+	void pinMode(Pin* pin, uint8_t mode, String usage);
+
 	void digitalWrite(uint8_t pin, uint8_t val);
+	void digitalWrite(Pin* pin, uint8_t val);
+
 	void analogWrite(uint8_t pin, int val);
 	void analogWriteFreq(uint32_t freq);
 	void enableMCP23017(uint8_t addr);

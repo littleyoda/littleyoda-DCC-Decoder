@@ -98,7 +98,7 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			continue;
 		}
 		if (strcmp(art, "dccout") == 0) {
-			int gpioenable = GPIO.string2gpio(value["enable"].as<const char*>());
+			Pin* gpioenable = new Pin(value["enable"].as<const char*>());
 			int locoaddr = value["addr"].as<int>();
 			int dccoutput = value["dccoutputaddr"].as<int>();
 			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
@@ -121,7 +121,8 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			continue;
 		}
 		if (strcmp(art, "led") == 0) {
-			ActionLed* l = new ActionLed(GPIO.string2gpio(value["gpio"].as<const char*>()));
+			Pin* ledgpio = new Pin(value["gpio"].as<const char*>());
+			ActionLed* l = new ActionLed(ledgpio);
 			l->setName(id);
 			controller->registerSettings(l);
 			controller->registerLoop(l);

@@ -11,10 +11,11 @@
 
 #include "INotify.h"
 #include "ILoop.h"
+#include "Pin.h"
 
 class ActionDCCGeneration: public INotify, public ILoop {
 public:
-	ActionDCCGeneration(int gpioenable, int locoaddr, int dccoutput);
+	ActionDCCGeneration(Pin* gpioenable, int locoaddr, int dccoutput);
 	virtual ~ActionDCCGeneration();
 	virtual int loop();
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
@@ -55,7 +56,7 @@ private:
 	boolean DIR_STATE = false;
 	uint8_t SPEED_STATE = 0;
 
-	int enableGpio;
+	Pin* enableGpio;
 };
 
 #endif /* ACTIONDCCGENERATION_H_ */
