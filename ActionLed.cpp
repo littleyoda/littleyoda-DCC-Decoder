@@ -46,7 +46,7 @@ void ActionLed::setSettings(String key, String value) {
 }
 
 void ActionLed::setSettings(int status) {
-	Logger::getInstance()->addToLog("Led " + String(gpio) + " changed to " + String(status));
+	Logger::getInstance()->addToLog("Led " + gpio->toString() + " changed to " + String(status));
 	if (status == 0) {
 		GPIO.digitalWrite(gpio, 0);
 		currentStatus = 0;
