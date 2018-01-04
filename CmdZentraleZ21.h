@@ -18,17 +18,18 @@ public:
 
 private:
 	void handleLocoMode();
-	void sendLocoInfoToClient(int locid);
 	void handleSetLoco(int locoid);
 	void handleGetSerial();
 	void handleGetVersion();
 	void handleGetStatus();
-	void sendFirmware();
-	void sendHwinfo();
 	void handleBIB();
-	void sendStatusChanged();
 	void handleTurnInfoRequest(int id);
 	int handleSetTurnInfoRequest();
+
+	void sendFirmware();
+	void sendLocoInfoToClient(int locid);
+	void sendHwinfo();
+	void sendStatusChanged();
 
 
 	WiFiUDP* udp;
