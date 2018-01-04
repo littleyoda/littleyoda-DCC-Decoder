@@ -27,6 +27,8 @@ void INotify::DCCFunc(int id, int bit, int newvalue, int source) {
 void INotify::DCCFunc(int id, unsigned long int newvalue, int source) {
 }
 
+void INotify::GPIOChange(int pin, int newValue) {
+}
 
 LinkedList<INotify::requestInfo*>* INotify::getRequestList() {
 	return &requestList;

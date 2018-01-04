@@ -28,6 +28,9 @@ public:
 	// Reports the Status of the all functions (bit 0 => F0, bit 1 => F1, ...)
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
 
+	// Reports the Status of the all functions (bit 0 => F0, bit 1 => F1, ...)
+	virtual void GPIOChange(int pin, int newValue);
+
 	struct requestInfo {
 		enum ART {TURNOUT, LOCO } art;
 		unsigned int id;

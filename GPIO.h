@@ -15,10 +15,13 @@
 #include "Logger.h"
 #include "Adafruit_MCP23017.h"
 #include "Pin.h"
+#include "ILoop.h"
+#include "ISettings.h"
+#include "Controller.h"
 
 
 
-class GPIOClass {
+class GPIOClass : public ILoop {
 public:
 	typedef std::map<int, String> PinToString;
 	PinToString pintostring;
@@ -28,6 +31,9 @@ public:
 
 	typedef std::map<int, String> PinUsage;
 	PinUsage pinusage;
+
+	typedef std::map<int, int> ValueInputPins;
+	ValueInputPins valueinputpins;
 
 
 	GPIOClass();
@@ -41,14 +47,22 @@ public:
 	void digitalWrite(uint8_t pin, uint8_t val);
 	void digitalWrite(Pin* pin, uint8_t val);
 
+	int digitalRead(uint8_t pin);
+	int digitalRead(Pin* pin);
+
+	void setController(Controller* c);
 	void analogWrite(uint8_t pin, int val);
 	void analogWriteFreq(uint32_t freq);
 	void enableMCP23017(uint8_t addr);
 	void add(String s, int pinNumber);
 	String getUsage(String sep);
+	virtual int loop();
+
+
 private:
 	Adafruit_MCP23017 *mcp;
 	void addUsage(uint8_t pin, String usage);
+	Controller* controller;
 };
 
 extern GPIOClass GPIO;

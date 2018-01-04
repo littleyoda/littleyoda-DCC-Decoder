@@ -66,9 +66,10 @@ void Controller::registerLoop(ILoop* loop) {
 }
 
 void Controller::notifyTurnout(int id, int direction, int source) {
+	// TODO Wie bei den anderen Notify-Funktion Zustand speichern und nur tatsächliche Änderungen weiterleiten
 	// ignore the same command within 50 msec
 	if (lastTurnoutCmd[0] == id && lastTurnoutCmd[1] == direction
-			&& (millis() - lastTurnoutCmd[2]) < 50) {
+			&& (millis() - lastTurnoutCmd[2]) < 2000) {
 		lastTurnoutCmd[2] = millis();
 		return;
 	}
@@ -143,6 +144,14 @@ TurnOutData* Controller::getTurnOutData(int id) {
 		return data;
 	}
 	return turnoutinfo[id];
+}
+
+
+void Controller::notifyGPIOChange(int pin, int newvalue) {
+	Serial.println("Pin changed " + String(pin) + "/" + String(newvalue));
+	for (int idx = 0; idx < actions.size(); idx++) {
+		actions.get(idx)->GPIOChange(pin, newvalue);
+	}
 }
 
 /**
@@ -325,3 +334,4 @@ void Controller::registerSettings(ISettings* loop) {
 	}
 	settings.add(loop);
 }
+

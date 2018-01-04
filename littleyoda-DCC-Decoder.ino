@@ -49,6 +49,7 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
+	controller->registerLoop(&GPIO);
 	controller->registerLoop(web);
 	controller->registerLoop(Logger::getInstance());
 	controller->updateRequestList();
@@ -176,6 +177,7 @@ void setup() {
 	Logger::getInstance()->addToLog(compile_date);
 	controller = new Controller();
 	controller->registerLoop(new DoubleBootDetection(controller));
+	GPIO.setController(controller);
 	initWifi();
 	Webserver* web = new Webserver(controller);
 	handleSerial();

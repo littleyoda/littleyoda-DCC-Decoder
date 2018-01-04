@@ -29,7 +29,7 @@ GPIOClass::GPIOClass() {
 	add("D7", D7);
 	add("D8", D8);
 #endif
-#ifdef ARDUINO_ESP 8266_NODEMCU
+#ifdef ARDUINO_ESP8266_NODEMCU
 	add("D0", D0);
 	add("D1", D1);
 	add("D2", D2);
@@ -46,7 +46,7 @@ GPIOClass::GPIOClass() {
 }
 
 /**
- * "D4" => 14
+ * "D4", 14
  */
 void GPIOClass::add(String s, int pinNumber) {
 	pintostring[pinNumber] = s;
@@ -56,6 +56,9 @@ void GPIOClass::add(String s, int pinNumber) {
 GPIOClass::~GPIOClass() {
 }
 
+/**
+ * 14 => "D4"
+ */
 String GPIOClass::gpio2string(int gpio) {
 	std::map<int, String>::iterator d = pintostring.find(gpio);
 	if (d == pintostring.end()) {
@@ -66,6 +69,9 @@ String GPIOClass::gpio2string(int gpio) {
 }
 
 
+/**
+ * "D4" => 14
+ */
 int GPIOClass::string2gpio(const char* pin) {
 	if (pin == NULL) {
 		Logger::log("PIN fehlt");
@@ -91,13 +97,22 @@ void GPIOClass::pinMode(uint8_t pin, uint8_t mode, String usage) {
 		return;
 	}
 	if (pin >= 100) {
-		if (mode != INPUT && mode != OUTPUT) {
+		if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP ) {
 			Logger::getInstance()->addToLog("Unsupported PinMode: " + String(mode) + " for pin " + String(pin));
 			return;
 		}
-		mcp->pinMode(pin - 100, mode);
+		if (mode == INPUT_PULLUP) {
+			mcp->pinMode(pin - 100, INPUT);
+			mcp->pullUp(pin - 100, HIGH);
+		} else {
+			mcp->pinMode(pin - 100, mode);
+		}
 	} else {
 		::pinMode(pin, mode);
+	}
+	if (mode == INPUT || mode == INPUT_PULLUP ) {
+		int v = digitalRead(pin);
+		valueinputpins[pin] = v;
 	}
 	addUsage(pin, usage);
 }
@@ -159,11 +174,35 @@ void GPIOClass::enableMCP23017(uint8_t addr) {
 
 GPIOClass GPIO;
 
+int GPIOClass::digitalRead(uint8_t pin) {
+	if (pin >= 100) {
+		return mcp->digitalRead(pin - 100);
+	} else {
+		return ::digitalRead(pin);
+	}
+}
+
+int GPIOClass::digitalRead(Pin* pin) {
+	int v = digitalRead(pin->getPin());
+	if (pin->isInvert()) {
+		if (v == 0) {
+			v = 1;
+		} else if (v == 1) {
+			v = 0;
+		}
+	}
+	return v;
+}
+
+void GPIOClass::setController(Controller* c) {
+	controller = c;
+}
+
 void GPIOClass::addUsage(uint8_t pin, String usage) {
 	Serial.println("Adding " + usage + " to " + String(pin));
 	std::map<int, String>::iterator d = pinusage.find(pin);
 	String value = usage;
-	if (!(d == pintostring.end() || d->second == NULL || d->second.length() == 0)) {
+	if (!(d == pinusage.end() || d->second == NULL || d->second.length() == 0)) {
 		value = d->second + "; " + value;
 	}
 	pinusage[pin] = value;
@@ -181,3 +220,17 @@ String GPIOClass::getUsage(String sep) {
 }
 
 
+
+int GPIOClass::loop() {
+	for (std::map<int, int>::iterator i = valueinputpins.begin (); i != valueinputpins.end (); i++) {
+		int pin = (*i).first;
+		int oldval = (*i).second;
+		int val = digitalRead((*i).first);
+		if (val != oldval) {
+//			Serial.println("Pin changed");
+			controller->notifyGPIOChange(pin, val);
+			valueinputpins[pin] = val;
+		}
+	}
+	return 30;
+}
