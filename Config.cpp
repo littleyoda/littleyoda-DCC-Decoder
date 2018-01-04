@@ -18,6 +18,7 @@
 #include "ActionDFPlayerMP3.h"
 #include "ActionDCCGeneration.h"
 #include "ActionSUSIGeneration.h"
+#include "ActionSendTurnoutCommand.h"
 
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
@@ -25,6 +26,7 @@
 #include "ConnectorFunc2Value.h"
 #include "ConnectorTurnout.h"
 #include "ConnectorLights.h"
+#include "ConnectorGPIO.h"
 #include "Config.h"
 
 #include "CmdReceiverDCC.h";
@@ -50,6 +52,7 @@ boolean Config::parse(Controller* controller, Webserver* web) {
 	Serial.println("Starting Parsing");
 	std::unique_ptr<char[]> buf(new char[size]);
 	configFile.readBytes(buf.get(), size);
+	Serial.println("Size: " + String(size));
 
 
 	// Replace ' to ""
@@ -67,6 +70,7 @@ boolean Config::parse(Controller* controller, Webserver* web) {
 	JsonObject& root = jsonBuffer.parseObject(buf.get());
 
 	if (!root.success()) {
+		Serial.println("Parsing failed!");
 		return false;
 	}
 	int version = root["version"].as<int>();
@@ -150,7 +154,12 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
-
+		} else if (strcmp(art, "sendturnout") == 0) {
+				int addr = value["addr"].as<int>();
+				ActionSendTurnoutCommand* a = new ActionSendTurnoutCommand(controller, addr);
+				a->setName(id);
+				controller->registerSettings(a);
+				controller->registerNotify(a);
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
@@ -233,8 +242,6 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 				ch = value["kanal"].as<int>();
 			}
 			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch);
-
-
 		} else if (strcmp(art, "ap") == 0) {
 			IPAddress Ip(192, 168, 0, 111);
 			IPAddress NMask(255, 255, 255, 0);
@@ -339,8 +346,10 @@ void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 			}
 			Serial.println("Lights: " + String(onoff) + " " + " Addr: " + String(l));
 			c = new ConnectorLights(ptr[0], ptr[1], l, onoff);
-
-
+		} else if (strcmp(art, "gpio") == 0) {
+				Pin* g = new Pin(value["gpio"].as<const char*>());
+				ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+				c = new ConnectorGPIO(a, g);
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
