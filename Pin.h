@@ -16,12 +16,12 @@ public:
 	virtual ~Pin();
 	String toString();
 
-	int getPin() const;
+	uint16_t getPin() const;
 	bool isInvert() const;
 	const String& getPindef() const;
 
 private:
-	int pin;
+	uint16_t pin;
 	String pindef;
 	bool invert;
 };

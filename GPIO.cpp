@@ -8,8 +8,7 @@
 #include "GPIO.h"
 
 GPIOClass::GPIOClass() {
-	mcp = NULL;
-
+	mcps = new LinkedList<Adafruit_MCP23017*>();
 #ifdef ARDUINO_ESP8266_ESP01
 	add("D0", 16);
 	add("D2", 4);
@@ -42,7 +41,7 @@ GPIOClass::GPIOClass() {
 	add("D9", D9);
 	add("D10", D10);
 #endif
-	add("DISABLE", 255);
+	add("DISABLE", Consts::DISABLE);
 }
 
 /**
@@ -90,7 +89,7 @@ void GPIOClass::pinMode(Pin* pin, uint8_t mode, String usage) {
 	pinMode(pin->getPin(), mode, usage);
 }
 
-void GPIOClass::pinMode(uint8_t pin, uint8_t mode, String usage) {
+void GPIOClass::pinMode(uint16_t pin, uint8_t mode, String usage) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(
 				"Accessing Disabled Pin (pinMode): " + String(pin));
@@ -101,11 +100,14 @@ void GPIOClass::pinMode(uint8_t pin, uint8_t mode, String usage) {
 			Logger::getInstance()->addToLog("Unsupported PinMode: " + String(mode) + " for pin " + String(pin));
 			return;
 		}
+		int mcpIdx = pin / 100;
+		int realPin = pin % 100;
+		Adafruit_MCP23017* mcp = mcps->get(mcpIdx);
 		if (mode == INPUT_PULLUP) {
-			mcp->pinMode(pin - 100, INPUT);
-			mcp->pullUp(pin - 100, HIGH);
+			mcp->pinMode(realPin, INPUT);
+			mcp->pullUp(realPin, HIGH);
 		} else {
-			mcp->pinMode(pin - 100, mode);
+			mcp->pinMode(realPin, mode);
 		}
 	} else {
 		::pinMode(pin, mode);
@@ -128,20 +130,22 @@ void GPIOClass::digitalWrite(Pin* pin, uint8_t val) {
 	digitalWrite(pin->getPin(), val);
 }
 
-void GPIOClass::digitalWrite(uint8_t pin, uint8_t val) {
+void GPIOClass::digitalWrite(uint16_t pin, uint8_t val) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(
 				"Accessing Disabled Pin (pinMode): " + String(pin));
 		return;
 	}
 	if (pin >= 100) {
-		mcp->digitalWrite(pin - 100, val);
+		int mcpIdx = pin / 100;
+		int realPin = pin % 100;
+		return mcps->get(mcpIdx)->digitalWrite(realPin, val);
 	} else {
 		::digitalWrite(pin, val);
 	}
 }
 
-void GPIOClass::analogWrite(uint8_t pin, int val) {
+void GPIOClass::analogWrite(uint16_t pin, int val) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(
 				"Accessing Disabled Pin (pinMode): " + String(pin));
@@ -160,23 +164,28 @@ void GPIOClass::analogWriteFreq(uint32_t freq) {
 }
 
 /**
- * Fügt die sprechenden PIN Bezeichner (DA0 bis DB7) für die MCP23017 hinzu
+ * Fügt die sprechenden PIN Bezeichner (DAX0 bis DBX7) für die MCP23017 hinzu
  */
 
-void GPIOClass::enableMCP23017(uint8_t addr) {
-	mcp = new Adafruit_MCP23017();
-	mcp->begin(addr);
+void GPIOClass::addMCP23017(uint8_t addr) {
+	Adafruit_MCP23017* m = new Adafruit_MCP23017();
+	int idx = mcps->size();
+	int offset = (idx + 1) * 100;
+	m->begin(addr);
 	for (int i=0 ; i < 8; i++) {
-		add("DA" + String(i), 100 + i);
-		add("DB" + String(i), 108 + i);
+		add("E" + String(idx) + "A" + String(i), offset + i);
+		add("E" + String(idx) + "B" + String(i), offset + 8 + i);
 	}
+	mcps->add(m);
 }
 
 GPIOClass GPIO;
 
-int GPIOClass::digitalRead(uint8_t pin) {
+int GPIOClass::digitalRead(uint16_t pin) {
 	if (pin >= 100) {
-		return mcp->digitalRead(pin - 100);
+		int mcpIdx = pin / 100;
+		int realPin = pin % 100;
+		return mcps->get(mcpIdx)->digitalRead(realPin);
 	} else {
 		return ::digitalRead(pin);
 	}
@@ -198,7 +207,7 @@ void GPIOClass::setController(Controller* c) {
 	controller = c;
 }
 
-void GPIOClass::addUsage(uint8_t pin, String usage) {
+void GPIOClass::addUsage(uint16_t pin, String usage) {
 	Serial.println("Adding " + usage + " to " + String(pin));
 	std::map<int, String>::iterator d = pinusage.find(pin);
 	String value = usage;
@@ -210,6 +219,12 @@ void GPIOClass::addUsage(uint8_t pin, String usage) {
 
 String GPIOClass::getUsage(String sep) {
 	String out = "";
+
+	for (std::map<String, int>::iterator i = stringtopin.begin (); i != stringtopin.end (); i++) {
+		out +=
+		(*i).first + "/" + String((*i).second)
+		+ sep;
+	}
 	for (std::map<int, String>::iterator i = pinusage.begin (); i != pinusage.end (); i++) {
 		out +=
 		String((*i).first) + "/" + gpio2string((*i).first) + ": "

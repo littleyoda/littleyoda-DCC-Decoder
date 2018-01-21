@@ -33,7 +33,7 @@ public:
 	const static int SOURCE_INTERNAL = 2;
 	const static int SOURCE_Z21SERVER = 3;
 
-	const static uint8_t DISABLE = 255;
+	const static uint16_t DISABLE = 9999;
 };
 
 

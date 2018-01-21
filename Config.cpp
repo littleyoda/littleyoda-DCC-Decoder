@@ -32,6 +32,7 @@
 #include "CmdReceiverDCC.h";
 #include "CmdZentraleZ21.h";
 #include "CmdReceiverZ21Wlan.h"
+#include "CmdReceiverESPNOW.h"
 
 #include "WebserviceCommandLogger.h"
 #include "WebserviceLog.h";
@@ -65,7 +66,7 @@ boolean Config::parse(Controller* controller, Webserver* web) {
 	}
 
 
-	Logger::getInstance()->addToLog("Config-File: " + String(buf.get()));
+//	Logger::getInstance()->addToLog("Config-File: " + String(buf.get()));
 	DynamicJsonBuffer jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(buf.get());
 
@@ -73,6 +74,7 @@ boolean Config::parse(Controller* controller, Webserver* web) {
 		Serial.println("Parsing failed!");
 		return false;
 	}
+	Serial.println("Parsing ok!");
 	int version = root["version"].as<int>();
 	if (version != 3) {
 		Logger::getInstance()->addToLog("Ungültige Version: " + String(version));
@@ -205,6 +207,13 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			controller->registerCmdReceiver(rec);
 
 
+//		} else if (strcmp(art, "espnow") == 0) {
+//			String rolle = String(value["rolle"].as<const char*>());
+//			Serial.println("Rolle: " + rolle);
+//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
+//			controller->registerCmdReceiver(rec);
+
+
 		} else if (strcmp(art, "webservicewifiscanner") == 0) {
 			web->registerWebServices(new WebserviceWifiScanner());
 
@@ -266,16 +275,20 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 
 		} else if (strcmp(art, "i2cslave") == 0) {
 			const char* d = (const char*) value["d"];
-			if (d != NULL && strcmp(d, "MCP23017") == 0) {
-				Wire.beginTransmission(0x20);
-				int ret = Wire.endTransmission();
-				String tret = "Failed (" + String(ret) + ")";
-				if (ret == 0) {
-					tret = "OK";
-				}
-				Logger::getInstance()->addToLog("Test MCP23017 auf I2c/0x20: " + tret);
-				if (ret == 0) {
-					GPIO.enableMCP23017(0);
+			if (d != NULL && (strcmp(d, "MCP23017") == 0 || strcmp(d, "mcp23017") == 0)) {
+				JsonArray& cfg = value["addr"];
+				for (auto value : cfg) {
+					int idx = value.as<int>();
+					Wire.beginTransmission(idx + 0x20);
+					int ret = Wire.endTransmission();
+					String tret = "Failed (" + String(ret) + ")";
+					if (ret == 0) {
+							tret = "OK";
+					}
+					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(idx + 0x20) + ": " + tret);
+					if (ret == 0) {
+							GPIO.addMCP23017(idx);
+					}
 				}
 			} else {
 				Logger::getInstance()->addToLog("Unbekanntes Gerät: " + String(d));

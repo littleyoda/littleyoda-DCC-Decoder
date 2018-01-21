@@ -35,7 +35,7 @@ bool Pin::isInvert() const {
 	return invert;
 }
 
-int Pin::getPin() const {
+uint16_t Pin::getPin() const {
 	return pin;
 }
 
