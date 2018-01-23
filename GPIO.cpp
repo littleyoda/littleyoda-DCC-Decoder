@@ -100,7 +100,7 @@ void GPIOClass::pinMode(uint16_t pin, uint8_t mode, String usage) {
 			Logger::getInstance()->addToLog("Unsupported PinMode: " + String(mode) + " for pin " + String(pin));
 			return;
 		}
-		int mcpIdx = pin / 100;
+		int mcpIdx = (pin / 100) - 1;
 		int realPin = pin % 100;
 		Adafruit_MCP23017* mcp = mcps->get(mcpIdx);
 		if (mode == INPUT_PULLUP) {
@@ -137,7 +137,7 @@ void GPIOClass::digitalWrite(uint16_t pin, uint8_t val) {
 		return;
 	}
 	if (pin >= 100) {
-		int mcpIdx = pin / 100;
+		int mcpIdx = (pin / 100) - 1;
 		int realPin = pin % 100;
 		return mcps->get(mcpIdx)->digitalWrite(realPin, val);
 	} else {
@@ -183,7 +183,7 @@ GPIOClass GPIO;
 
 int GPIOClass::digitalRead(uint16_t pin) {
 	if (pin >= 100) {
-		int mcpIdx = pin / 100;
+		int mcpIdx = (pin / 100) - 1;
 		int realPin = pin % 100;
 		return mcps->get(mcpIdx)->digitalRead(realPin);
 	} else {
