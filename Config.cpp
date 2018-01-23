@@ -90,6 +90,9 @@ boolean Config::parse(Controller* controller, Webserver* web) {
 	JsonArray& in = root["in"];
 	parseIn(controller, web, in);
 
+	JsonArray& connector = root["connector"];
+	parseConnector(controller, web, connector);
+
 	Logger::getInstance()->addToLog("JSON Parsing finish");
 
 	return true;
@@ -300,6 +303,52 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 					"Config: Unbekannter Eintrag " + String(art));
 		}
 		loop();
+	}
+}
+
+void Config::parseConnector(Controller* controller, Webserver* web, JsonArray& r1) {
+	int idx = 0;
+	for (auto value : r1) {
+		idx++;
+		const char* in = (const char*) value["in"];
+		const char* out = (const char*) value["out"];
+		Connectors* cin;
+		String connectString = "conn" + String(idx) + "io";
+		if (strcmp(in, "turnout") == 0 && strcmp(out, "led") == 0) {
+
+			Pin* ledgpio = new Pin(value["gpio"].as<const char*>());
+			ActionLed* l = new ActionLed(ledgpio);
+			l->setName(connectString);
+			controller->registerSettings(l);
+			controller->registerLoop(l);
+
+
+			int addr = value["addr"].as<int>();
+			ISettings* a = getSettingById(controller, connectString.c_str());
+			cin = new ConnectorTurnout(a, addr);
+
+		} else if (strcmp(in, "gpio") == 0 && strcmp(out, "sendturnout") == 0) {
+			int addr = value["addr"].as<int>();
+			ActionSendTurnoutCommand* atc = new ActionSendTurnoutCommand(controller, addr);
+			atc->setName(connectString);
+			controller->registerSettings(atc);
+			controller->registerNotify(atc);
+
+			Pin* g = new Pin(value["gpio"].as<const char*>());
+			ISettings* a = getSettingById(controller, connectString.c_str());
+			cin = new ConnectorGPIO(a, g);
+
+		} else {
+			Logger::getInstance()->addToLog(
+					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
+
+		}
+		if (cin != NULL) {
+			controller->registerNotify(cin);
+		} else {
+			Logger::getInstance()->addToLog(
+					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
+		}
 	}
 }
 
