@@ -46,8 +46,10 @@ private:
 
 	long int lastTime = 0;
 	static const int emergencyStopTimeout = 1000;
-	const int firstLoopStatus = -4;
+	static const int cmdSendTime = 100;
+	const int firstLoopStatus = -1;
 	int loopStatus = firstLoopStatus;
+	int subloopstatus = 0;
 };
 
 #endif /* CMDRECEIVERZ21WLAN_H_ */

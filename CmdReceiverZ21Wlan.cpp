@@ -13,7 +13,7 @@
 #include "Utils.h"
 
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, const char* ip) :
-		z21PaketParser(c) {
+z21PaketParser(c) {
 	Logger::getInstance()->addToLog("Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {
 		z21Server = new IPAddress(192, 168, 0, 111);
@@ -44,16 +44,19 @@ int CmdReceiverZ21Wlan::loop() {
 	}
 
 	// Scheduler for Requests
-	if (time - lastTime > (emergencyStopTimeout / 4)) {
+	if (time - lastTime > (cmdSendTime)) {
 		lastTime = time;
-		if (loopStatus == -4) {
-			sendFrimwareVersionRequest();
-		} else if (loopStatus == -3) {
-			sendXGetStatus();
-		} else if (loopStatus == -2) {
-			enableBroadcasts();
-		} else if (loopStatus == -1) {
-			sendCfg12Request();
+		if (loopStatus == -1) {
+			switch (subloopstatus) {
+				case 0: sendFrimwareVersionRequest(); break;
+				case 1: sendXGetStatus(); break;
+				case 2: enableBroadcasts(); break;
+				case 3: sendCfg12Request(); break;
+			}
+			subloopstatus++;
+			if (subloopstatus > 3) {
+				subloopstatus = 0;
+			}
 		} else {
 			INotify::requestInfo* ri = requestList->get(loopStatus);
 			if (ri->art == INotify::requestInfo::LOCO) {
@@ -178,7 +181,7 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
 	packetBuffer[6] = id.toInt();
 	packetBuffer[7] = 0xA8 | statuscode;
 	packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
-			^ packetBuffer[7];
+																	   ^ packetBuffer[7];
 
 	udp->beginPacket(*z21Server, localPort);
 	udp->write(packetBuffer, packetBuffer[0]);
@@ -305,7 +308,7 @@ void CmdReceiverZ21Wlan::requestLocoInfo(int addr) {
 
 	packetBuffer[7] = addr & 0xFF;
 	packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
-			^ packetBuffer[7];
+																	   ^ packetBuffer[7];
 
 	udp->beginPacket(*z21Server, localPort);
 	udp->write(packetBuffer, packetBuffer[0]);
