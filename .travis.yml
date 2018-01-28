@@ -3,7 +3,6 @@ before_install:
 - source <(curl -SLs https://raw.githubusercontent.com/littleyoda/ESP8266-Environment-for-Travis-CI/master/install.sh)
 install:
 - arduino --install-library "Adafruit MCP23017 Arduino Library,LinkedList,ArduinoJson"
-- arduino --install-boards esp8266:esp8266:2.4.0-rc2 --save-prefs
 script:
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino nodemcuv2
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino nodemcu
