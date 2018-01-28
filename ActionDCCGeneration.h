@@ -54,6 +54,7 @@ private:
 
 	unsigned long int  FUNC_STATE = 0;
 	boolean DIR_STATE = false;
+	boolean trackenabled = false;
 	uint8_t SPEED_STATE = 0;
 
 	Pin* enableGpio;

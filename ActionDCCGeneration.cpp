@@ -30,6 +30,9 @@ ActionDCCGeneration::ActionDCCGeneration(Pin* gpio, int locoaddr, int dccoutput)
 	if (enableGpio->getPin() != Consts::DISABLE) {
 		GPIO.pinMode(enableGpio, OUTPUT, "DCC Generation");
 		GPIO.digitalWrite(enableGpio, 0);
+	} else {
+		// Keine Enable-Pin => also immer aktiv
+		trackenabled = true;
 	}
 
 	requestInfo* r = new requestInfo();
@@ -50,9 +53,17 @@ int ActionDCCGeneration::loop() {
 	if (SPI.busy()) {
 		return 0;
 	}
-	// Sate => DCC => SPI-Buffer
-	uint8_t len = STATEtoDCC();
-	DCCtoSPI(len);
+	if (trackenabled) {
+		// State => DCC => SPI-Buffer
+		uint8_t len = STATEtoDCC();
+		DCCtoSPI(len);
+	} else {
+		// SPI auf LOW halten
+		SPIBufUsed = 16;
+		for (int i = 0; i < SPIBufUsed; i++) {
+			SPIBuf[i] = 0;
+		}
+	}
 
 	// Übertragungszeit berechnen
 	int waiting = (int)((1.0 / 17241.0) * SPIBufUsed * 8.0 * 1000) - 1;
@@ -76,10 +87,14 @@ void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSt
 		if (enableGpio->getPin() != Consts::DISABLE) {
 			Serial.println("Emergency? " + String(speed == Consts::SPEED_EMERGENCY));
 			if (speed == Consts::SPEED_EMERGENCY) {
+				trackenabled = false;
 				GPIO.digitalWrite(enableGpio, 0); // disable Track
 			} else {
+				trackenabled = true;
 				GPIO.digitalWrite(enableGpio, 1); // Enable Track
 			}
+		} else {
+			trackenabled = true; // Always tre
 		}
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
