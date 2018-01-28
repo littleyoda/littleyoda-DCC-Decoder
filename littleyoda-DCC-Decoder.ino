@@ -16,6 +16,7 @@ void initWifi() {
 	WiFi.persistent(false);
 	WiFi.hostname(controller->getHostname());
 	WiFi.mode(WIFI_OFF);
+	WiFi.disconnect();
 }
 
 /**
@@ -61,10 +62,11 @@ void handleSerial() {
 	if (Serial.available() > 0) {
 		int chr = Serial.read();
 		if (chr == 'd') {
-			Serial.println("Memory:");
+			Serial.println("MemoryX:");
 			Serial.println("==================");
 			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
 			Serial.println("Free memory: " + String(ESP.getFreeHeap()));
+			Serial.println("Free Sketch Space: " + String(ESP.getFreeSketchSpace()));
 			Serial.println("\r\nLogger:");
 			Serial.println("==================");
 			Serial.println("Logger: " + String(Logger::getInstance()->getMemUsage()));
