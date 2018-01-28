@@ -29,14 +29,14 @@
 #include "ConnectorGPIO.h"
 #include "Config.h"
 
-#include "CmdReceiverDCC.h";
-#include "CmdZentraleZ21.h";
+#include "CmdReceiverDCC.h"
+#include "CmdZentraleZ21.h"
 #include "CmdReceiverZ21Wlan.h"
 //#include "CmdReceiverESPNOW.h"
 
 #include "WebserviceCommandLogger.h"
-#include "WebserviceLog.h";
-#include "WebserviceWifiScanner.h";
+#include "WebserviceLog.h"
+#include "WebserviceWifiScanner.h"
 
 #include "ISettings.h"
 

@@ -18,8 +18,8 @@
 #include "ILoop.h"
 #include "INotify.h"
 #include "ISettings.h"
-#include "WebserviceCommandLogger.h";
-#include "WebserviceDCCSniffer.h";
+#include "WebserviceCommandLogger.h"
+#include "WebserviceDCCSniffer.h"
 
 	struct LocData {
 		int speed;
