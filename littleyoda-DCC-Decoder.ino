@@ -62,7 +62,7 @@ void handleSerial() {
 	if (Serial.available() > 0) {
 		int chr = Serial.read();
 		if (chr == 'd') {
-			Serial.println("MemoryX:");
+			Serial.println("Memory:");
 			Serial.println("==================");
 			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
 			Serial.println("Free memory: " + String(ESP.getFreeHeap()));
