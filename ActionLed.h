@@ -29,9 +29,8 @@ public:
 private:
 	Pin* gpio;
 	int currentStatus = 0;
-	LinkedList<int> pattern = LinkedList<int>();
-	int patternPos = 0;
-
+//	LinkedList<int> pattern = LinkedList<int>();
+//	int patternPos = 0;
 };
 
 #endif /* ACTIONLED_H_ */

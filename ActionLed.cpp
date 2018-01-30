@@ -25,16 +25,16 @@ String ActionLed::getHTMLCfg(String urlprefix) {
 }
 
 String ActionLed::getHTMLController(String urlprefix) {
-	String message =  "<div class=\"row\">";
-	message += " <div class=\"column column-10\">LED</div>";
-	message += "<div class=\"column column-90\"><a class=\"button button-black\" href=\"";
+	String message =  F("<div class=\"row\">");
+	message += F(" <div class=\"column column-10\">LED</div>");
+	message += F("<div class=\"column column-90\"><a class=\"button button-black\" href=\"");
 	message += urlprefix;
-	message += "value=0";
-	message += "\">&#x1f4a1;Aus</a>";
-	message += " <a class=\"button button-white\" href=\"";
+	message += F("value=0");
+	message += F("\">&#x1f4a1;Aus</a>");
+	message += F(" <a class=\"button button-white\" href=\"");
 	message += urlprefix;
-	message += "value=1";
-	message += "\">An</a></div>";
+	message += F("value=1");
+	message += F("\">An</a></div>");
 	message += "</div>";
 	return message;
 
@@ -62,7 +62,7 @@ int ActionLed::loop() {
 }
 
 void ActionLed::setPattern(const char* patternString) {
-	for (int i = 0; patternString[i] != 0; i++) {
-		Logger::getInstance()->addToLog("GPIO " + String(patternString[i]) + " " + String(Utils::hextoint(patternString[i])));
-	}
+//	for (int i = 0; patternString[i] != 0; i++) {
+//		Logger::getInstance()->addToLog("GPIO " + String(patternString[i]) + " " + String(Utils::hextoint(patternString[i])));
+//	}
 }
