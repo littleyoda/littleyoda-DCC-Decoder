@@ -9,6 +9,7 @@
 
 GPIOClass::GPIOClass() {
 	mcps = new LinkedList<Adafruit_MCP23017*>();
+	data = new DataContainer<String, int>("", -1);
 #ifdef ARDUINO_ESP8266_ESP01
 	add("D0", 16);
 	add("D2", 4);
@@ -48,8 +49,7 @@ GPIOClass::GPIOClass() {
  * "D4", 14
  */
 void GPIOClass::add(String s, int pinNumber) {
-	pintostring[pinNumber] = s;
-	stringtopin[s] = pinNumber;
+	data->put(s, pinNumber);
 }
 
 GPIOClass::~GPIOClass() {
@@ -59,12 +59,11 @@ GPIOClass::~GPIOClass() {
  * 14 => "D4"
  */
 String GPIOClass::gpio2string(int gpio) {
-	std::map<int, String>::iterator d = pintostring.find(gpio);
-	if (d == pintostring.end()) {
+	if (!data->containsValue(gpio)) {
 		Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
 		return "Pin " + String(gpio);
 	}
-	return d->second;
+	return data->getKeyByValue(gpio);
 }
 
 
@@ -77,12 +76,11 @@ int GPIOClass::string2gpio(const char* pin) {
 		return Consts::DISABLE;
 	}
 	String s = String(pin);
-	std::map<String, int>::iterator d = stringtopin.find(pin);
-	if (d == stringtopin.end()) {
+	if (!data->containsKey(s)) {
 		Logger::getInstance()->addToLog("Unbekannter Pin in Config: " + s);
 		return Consts::DISABLE;
 	}
-	return d->second;
+	return data->getValueByKey(s);
 }
 
 void GPIOClass::pinMode(Pin* pin, uint8_t mode, String usage) {
@@ -164,7 +162,7 @@ void GPIOClass::analogWriteFreq(uint32_t freq) {
 }
 
 /**
- * Fügt die sprechenden PIN Bezeichner (DAX0 bis DBX7) für die MCP23017 hinzu
+ * Fügt die sprechenden PIN Bezeichner (ExA0 bis ExB7) für die MCP23017 hinzu
  */
 
 void GPIOClass::addMCP23017(uint8_t addr) {
@@ -218,13 +216,7 @@ void GPIOClass::addUsage(uint16_t pin, String usage) {
 }
 
 String GPIOClass::getUsage(String sep) {
-	String out = "";
-
-	for (std::map<String, int>::iterator i = stringtopin.begin (); i != stringtopin.end (); i++) {
-		out +=
-		(*i).first + "/" + String((*i).second)
-		+ sep;
-	}
+	String out = data->toString(sep);
 	for (std::map<int, String>::iterator i = pinusage.begin (); i != pinusage.end (); i++) {
 		out +=
 		String((*i).first) + "/" + gpio2string((*i).first) + ": "
