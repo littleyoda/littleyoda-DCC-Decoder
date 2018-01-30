@@ -18,7 +18,7 @@ class Config {
 public:
 	Config();
 	virtual ~Config();
-	static boolean parse(Controller* c, Webserver* web);
+	static boolean parse(Controller* c, Webserver* web, String filename, boolean dryrun);
 private:
 	static void parseCfg(Controller* c, Webserver* web, JsonArray& r1);
 	static void parseOut(Controller* c, Webserver* web, JsonArray& r1);

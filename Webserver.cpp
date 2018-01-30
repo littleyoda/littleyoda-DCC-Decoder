@@ -16,6 +16,7 @@
 #include "Logger.h"
 #include "WebserviceLog.h"
 #include "Utils.h"
+#include "Config.h"
 
 ESP8266WebServer* Webserver::server = 0;
 ESP8266HTTPUpdateServer* Webserver::httpUpdater = 0;
@@ -32,7 +33,9 @@ Webserver::Webserver(Controller* c) {
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
-	server->on("/upload", HTTP_POST, []() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); }, std::bind(&Webserver::handleUpload, this));
+	server->on("/upload", HTTP_POST,
+			[]() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); },
+			std::bind(&Webserver::handleUpload, this));
 	server->on("/del", std::bind(&Webserver::handleDel, this));
 	server->begin();
 	httpUpdater = new ESP8266HTTPUpdateServer();
@@ -43,20 +46,38 @@ Webserver::Webserver(Controller* c) {
 
 void Webserver::handleUpload() {
 	HTTPUpload& upload = server->upload();
+	String configfile = "/config.json";
+	String filename = upload.filename;
+	if(!filename.startsWith("/")) {
+		filename = "/" + filename;
+	}
 	if(upload.status == UPLOAD_FILE_START){
-		String filename = upload.filename;
-		if(!filename.startsWith("/")) {
-			filename = "/"+filename;
+		Serial.println("File_Start");
+		// Backup old config.json
+		if (filename.equals(configfile)) {
+			SPIFFS.remove(filename + ".old");
+			SPIFFS.rename(filename, filename + ".old");
 		}
 		fsUploadFile = SPIFFS.open(filename, "w");
 		filename = String();
 	} else if(upload.status == UPLOAD_FILE_WRITE) {
+		Serial.println("File_Write");
 		if(fsUploadFile) {
 			fsUploadFile.write(upload.buf, upload.currentSize);
 		}
 	} else if(upload.status == UPLOAD_FILE_END){
+		Serial.println("File_END");
 		if(fsUploadFile) {
 			fsUploadFile.close();
+			if (configfile.equals(filename)) {
+				if (!Config::parse(NULL, NULL, configfile, false)) {
+					SPIFFS.remove("/config.fehlerhaft");
+					SPIFFS.rename(configfile, "/config.fehlerhaft");
+					Serial.println("Config-Check failed");
+				} else {
+					Serial.println("Config-Check ok");
+				}
+			}
 		}
 	}
 	yield();

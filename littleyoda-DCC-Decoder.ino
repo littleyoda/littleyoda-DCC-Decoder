@@ -41,7 +41,7 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
-	if (!Config::parse(controller, web)) {
+	if (!Config::parse(controller, web, "/config.json", false)) {
 		Logger::getInstance()->addToLog(
 				"Config-File konnte nicht geparst werden. Fehlerhafter Syntax? Nicht genug Memory?");
 		controller->registerLoop(web);
@@ -65,7 +65,7 @@ void handleSerial() {
 			Serial.println("Memory:");
 			Serial.println("==================");
 			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
-			Serial.println("Free memory: " + String(ESP.getFreeHeap()));
+			Serial.println("Free (Heap)memory: " + String(ESP.getFreeHeap()));
 			Serial.println("Free Sketch Space: " + String(ESP.getFreeSketchSpace()));
 			Serial.println("\r\nLogger:");
 			Serial.println("==================");
@@ -115,6 +115,16 @@ void handleSerial() {
 			Serial.println("Scan Started");
 			WiFi.scanNetworks(true, true);
 			scanRunning = true;
+		} else if (chr == 'c') {
+			File f = SPIFFS.open("/config.json", "r");
+			if (f) {
+				while (f.available() > 0) {
+					Serial.println(f.readStringUntil('\n'));
+				}
+			} else {
+			      Serial.println("file open failed");
+			}
+
 		} else {
 			Serial.println("Key: " + String(chr));
 		}

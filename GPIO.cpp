@@ -223,6 +223,11 @@ String GPIOClass::getUsage(String sep) {
 		+ (*i).second
 		+ sep;
 	}
+	for (std::map<int, int>::iterator i = valueinputpins.begin (); i != valueinputpins.end (); i++) {
+		int pin = (*i).first;
+		int oldval = (*i).second;
+		out += "Pin: " + String(pin) + " Status: " + String(oldval) + sep;
+	}
 	return out;
 }
 

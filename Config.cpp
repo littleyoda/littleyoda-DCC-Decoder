@@ -46,8 +46,9 @@ Config::Config() {
 Config::~Config() {
 }
 
-boolean Config::parse(Controller* controller, Webserver* web) {
-	File configFile = SPIFFS.open("/config.json", "r");
+
+boolean Config::parse(Controller* controller, Webserver* web, String filename, boolean dryrun) {
+	File configFile = SPIFFS.open(filename, "r");
 	size_t size = configFile.size();
 
 	Serial.println("Starting Parsing");
@@ -80,6 +81,9 @@ boolean Config::parse(Controller* controller, Webserver* web) {
 		Logger::getInstance()->addToLog("Ungültige Version: " + String(version));
 		return false;
 	}
+	if (dryrun) {
+		return true;
+	}
 
 	JsonArray& cfg = root["cfg"];
 	parseCfg(controller, web, cfg);
@@ -106,6 +110,7 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			//Logger::getInstance()->addToLog("Null from json");
 			continue;
 		}
+		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / " + String(art));
 		if (strcmp(art, "dccout") == 0) {
 			Pin* gpioenable = new Pin(value["enable"].as<const char*>());
 			int locoaddr = value["addr"].as<int>();
@@ -183,6 +188,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			//Logger::getInstance()->addToLog("Null from json");
 			continue;
 		}
+		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / " + String(art));
 		if ((strcmp(art, "dcclogger") == 0) || (strcmp(art, "cmdlogger") == 0)) {
 			controller->cmdlogger = new WebserviceCommandLogger();
 			controller->registerNotify(controller->cmdlogger);
@@ -281,6 +287,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			if (d != NULL && (strcmp(d, "MCP23017") == 0 || strcmp(d, "mcp23017") == 0)) {
 				JsonArray& cfg = value["addr"];
 				for (auto value : cfg) {
+					Serial.println("MEM "  + String(ESP.getFreeHeap()) + " MCP23017");
 					int idx = value.as<int>();
 					Wire.beginTransmission(idx + 0x20);
 					int ret = Wire.endTransmission();
@@ -313,6 +320,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, JsonArray& r
 		const char* in = (const char*) value["in"];
 		const char* out = (const char*) value["out"];
 		Connectors* cin;
+		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / " + String(in) + "/" + String(out));
 		String connectString = "conn" + String(idx) + "io";
 		if (strcmp(in, "turnout") == 0 && strcmp(out, "led") == 0) {
 
