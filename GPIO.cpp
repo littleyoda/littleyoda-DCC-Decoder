@@ -10,6 +10,7 @@
 GPIOClass::GPIOClass() {
 	mcps = new LinkedList<Adafruit_MCP23017*>();
 	data = new DataContainer<String, int>("", -1);
+	pinusage = new DataContainer<int, String>(-1, "");
 #ifdef ARDUINO_ESP8266_ESP01
 	add("D0", 16);
 	add("D2", 4);
@@ -207,22 +208,17 @@ void GPIOClass::setController(Controller* c) {
 
 void GPIOClass::addUsage(uint16_t pin, String usage) {
 	Serial.println("Adding " + usage + " to " + String(pin));
-	std::map<int, String>::iterator d = pinusage.find(pin);
 	String value = usage;
-	if (!(d == pinusage.end() || d->second == NULL || d->second.length() == 0)) {
-		value = d->second + "; " + value;
+	if (pinusage->containsKey(pin)) {
+		String oldvalue = pinusage->getValueByKey(pin);
+		value = oldvalue + "; " + value;
+		pinusage->removeByKey(pin);
 	}
-	pinusage[pin] = value;
+	pinusage->put(pin, value);
 }
 
 String GPIOClass::getUsage(String sep) {
-	String out = data->toString(sep);
-	for (std::map<int, String>::iterator i = pinusage.begin (); i != pinusage.end (); i++) {
-		out +=
-		String((*i).first) + "/" + gpio2string((*i).first) + ": "
-		+ (*i).second
-		+ sep;
-	}
+	String out = data->toString(sep) + sep + pinusage->toString(sep) + sep;
 	for (std::map<int, int>::iterator i = valueinputpins.begin (); i != valueinputpins.end (); i++) {
 		int pin = (*i).first;
 		int oldval = (*i).second;

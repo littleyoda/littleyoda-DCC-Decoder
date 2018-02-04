@@ -41,6 +41,15 @@ public:
 		return false;
 	}
 
+	void removeByKey(T1 t1) {
+		for (int i = 0; i < mapping->size(); i++) {
+			container* pm = mapping->get(i);
+			if (pm->key == t1) {
+				last = NULL;
+				mapping->remove(i);
+			}
+		}
+	}
 	boolean containsValue(T2 t2) {
 		for (int i = 0; i < mapping->size(); i++) {
 			container* pm = mapping->get(i);

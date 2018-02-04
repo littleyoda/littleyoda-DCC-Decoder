@@ -24,8 +24,7 @@
 
 class GPIOClass : public ILoop {
 public:
-	typedef std::map<int, String> PinUsage;
-	PinUsage pinusage;
+	DataContainer<int, String>* pinusage;
 
 	// All GPIO in Modus INPUT or INPUT_PULLUP (will update every 30 ms)
 	typedef std::map<int, int> ValueInputPins;
