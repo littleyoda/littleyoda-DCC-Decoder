@@ -69,15 +69,15 @@ void Webserver::handleUpload() {
 		Serial.println("File_END");
 		if(fsUploadFile) {
 			fsUploadFile.close();
-			if (configfile.equals(filename)) {
-				if (!Config::parse(NULL, NULL, configfile, false)) {
-					SPIFFS.remove("/config.fehlerhaft");
-					SPIFFS.rename(configfile, "/config.fehlerhaft");
-					Serial.println("Config-Check failed");
-				} else {
-					Serial.println("Config-Check ok");
-				}
-			}
+//			if (configfile.equals(filename)) {
+//				if (!Config::parse(NULL, NULL, configfile, false)) {
+//					SPIFFS.remove("/config.fehlerhaft");
+//					SPIFFS.rename(configfile, "/config.fehlerhaft");
+//					Serial.println("Config-Check failed");
+//				} else {
+//					Serial.println("Config-Check ok");
+//				}
+//			}
 		}
 	}
 	yield();
