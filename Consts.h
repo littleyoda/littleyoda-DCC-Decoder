@@ -14,7 +14,8 @@
 const char compile_date[] = "Compiledate: "
 							__DATE__
 							" "
-							__TIME__;
+							__TIME__
+							"{NONGITVERSION}";
 
 
 class Consts {

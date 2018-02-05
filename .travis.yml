@@ -4,6 +4,7 @@ before_install:
 install:
 - arduino --install-library "Adafruit MCP23017 Arduino Library,LinkedList,ArduinoJson"
 script:
+- replaceStringWithGitHubTag $HOME/build/littleyoda/littleyoda-DCC-Decoder/Consts.h "{NONGITVERSION}" $HOME/build/littleyoda/littleyoda-DCC-Decoder/
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino nodemcuv2
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino nodemcu
 - build $HOME/build/littleyoda/littleyoda-DCC-Decoder/littleyoda-DCC-Decoder.ino d1_mini
