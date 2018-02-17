@@ -9,7 +9,8 @@
 
 GPIOClass::GPIOClass() {
 	mcps = new LinkedList<Adafruit_MCP23017*>();
-	data = new DataContainer<String, int>("", -1);
+	data = new DataContainerSimpleList<String, int>(16* 6 + 12, "", -1);
+	valueinputpins = new DataContainerSimpleList<int, int>(16* 6 + 12, -1, -1);
 	pinusage = new DataContainer<int, String>(-1, "");
 #ifdef ARDUINO_ESP8266_ESP01
 	add("D0", 16);
@@ -113,7 +114,7 @@ void GPIOClass::pinMode(uint16_t pin, uint8_t mode, String usage) {
 	}
 	if (mode == INPUT || mode == INPUT_PULLUP ) {
 		int v = digitalRead(pin);
-		valueinputpins[pin] = v;
+		valueinputpins->put(pin, v);
 	}
 	addUsage(pin, usage);
 }
@@ -207,6 +208,7 @@ void GPIOClass::setController(Controller* c) {
 }
 
 void GPIOClass::addUsage(uint16_t pin, String usage) {
+	return;
 	Serial.println("Adding " + usage + " to " + String(pin));
 	String value = usage;
 	if (pinusage->containsKey(pin)) {
@@ -218,26 +220,27 @@ void GPIOClass::addUsage(uint16_t pin, String usage) {
 }
 
 String GPIOClass::getUsage(String sep) {
-	String out = data->toString(sep) + sep + pinusage->toString(sep) + sep;
-	for (std::map<int, int>::iterator i = valueinputpins.begin (); i != valueinputpins.end (); i++) {
-		int pin = (*i).first;
-		int oldval = (*i).second;
-		out += "Pin: " + String(pin) + " Status: " + String(oldval) + sep;
-	}
+//TODO	String out = data->toString(sep) + sep + pinusage->toString(sep) + sep;
+	String out = "";
+
+//	TODO for (std::map<int, int>::iterator i = valueinputpins.begin (); i != valueinputpins.end (); i++) {
+//		int pin = (*i).first;
+//		int oldval = (*i).second;
+//		out += "Pin: " + String(pin) + " Status: " + String(oldval) + sep;
+//	}
 	return out;
 }
 
 
 
 int GPIOClass::loop() {
-	for (std::map<int, int>::iterator i = valueinputpins.begin (); i != valueinputpins.end (); i++) {
-		int pin = (*i).first;
-		int oldval = (*i).second;
-		int val = digitalRead((*i).first);
+	for (int i = 0; i < valueinputpins->used(); i++) {
+		int pin = valueinputpins->getKey(i);
+		int oldval = valueinputpins->getValue(i);
+		int val = digitalRead(pin);
 		if (val != oldval) {
-//			Serial.println("Pin changed");
 			controller->notifyGPIOChange(pin, val);
-			valueinputpins[pin] = val;
+			valueinputpins->put(pin, val);
 		}
 	}
 	return 30;

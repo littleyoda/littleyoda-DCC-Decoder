@@ -19,16 +19,16 @@
 #include "ISettings.h"
 #include "Controller.h"
 #include "DataContainer.h"
+#include "DataContainerSimpleList.h"
 
 
 
 class GPIOClass : public ILoop {
 public:
 	DataContainer<int, String>* pinusage;
-
 	// All GPIO in Modus INPUT or INPUT_PULLUP (will update every 30 ms)
-	typedef std::map<int, int> ValueInputPins;
-	ValueInputPins valueinputpins;
+	DataContainerSimpleList<int, int>* valueinputpins;
+
 
 
 	GPIOClass();
@@ -55,7 +55,7 @@ public:
 
 
 private:
-	DataContainer<String, int>* data;
+	DataContainerSimpleList<String, int>* data;
 	void addUsage(uint16_t pin, String usage);
 	Controller* controller;
 	LinkedList<Adafruit_MCP23017*>* mcps;

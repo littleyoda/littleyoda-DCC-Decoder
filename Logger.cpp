@@ -34,6 +34,11 @@ void Logger::addToLog(String s) {
 		logdata* l = logger.shift();
 		delete(l);
 	}
+	// Remove Log-Messages if free memory is low
+	while ((logger.size() > 0) && (ESP.getFreeHeap() < 4000)) {
+		logdata* l = logger.shift();
+		delete(l);
+	}
 }
 
 int Logger::findLastUnsend() {

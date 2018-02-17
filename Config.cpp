@@ -48,34 +48,20 @@ Config::~Config() {
 
 
 boolean Config::parse(Controller* controller, Webserver* web, String filename, boolean dryrun) {
+	lowmemory = false;
 	File configFile = SPIFFS.open(filename, "r");
 	size_t size = configFile.size();
-
 	Serial.println("Starting Parsing");
-	std::unique_ptr<char[]> buf(new char[size]);
-	configFile.readBytes(buf.get(), size);
-	Serial.println("Size: " + String(size));
 
-
-	// Replace ' to ""
-	int counter = 0;
-	while (buf.get()[counter] != '\0') {
-		if(buf.get()[counter] == '\'') {
-			buf.get()[counter] = '"';
-		}
-		counter++;
-	}
-
-
-//	Logger::getInstance()->addToLog("Config-File: " + String(buf.get()));
 	DynamicJsonBuffer jsonBuffer;
-	JsonObject& root = jsonBuffer.parseObject(buf.get());
+	JsonObject& root = jsonBuffer.parseObject(configFile);
 
 	if (!root.success()) {
 		Serial.println("Parsing failed!");
 		return false;
 	}
 	Serial.println("Parsing ok!");
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Setup");
 	int version = root["version"].as<int>();
 	if (version != 3) {
 		Logger::getInstance()->addToLog("Ungültige Version: " + String(version));
@@ -96,21 +82,31 @@ boolean Config::parse(Controller* controller, Webserver* web, String filename, b
 
 	JsonArray& connector = root["connector"];
 	parseConnector(controller, web, connector);
+	configFile.close();
 
-	Logger::getInstance()->addToLog("JSON Parsing finish");
-
+	Logger::getInstance()->addToLog("JSON Parsing finish!");
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Clear");
+	jsonBuffer.clear();
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-End");
+	if (lowmemory) {
+		Logger::getInstance()->addToLog("Nicht genügend Speicher für das JSON-File!");
+		return false;
+	}
 	return true;
 }
 
 void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
+		if (ESP.getFreeHeap() < 1200) {
+			lowmemory = true;
+			break;
+		}
 		JsonObject& value = *it;
 		const char* art = (const char*) value["m"];
 		if (art == NULL) {
 			//Logger::getInstance()->addToLog("Null from json");
 			continue;
 		}
-		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / " + String(art));
 		if (strcmp(art, "dccout") == 0) {
 			Pin* gpioenable = new Pin(value["enable"].as<const char*>());
 			int locoaddr = value["addr"].as<int>();
@@ -165,11 +161,11 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 			controller->registerSettings(a);
 			controller->registerLoop(a);
 		} else if (strcmp(art, "sendturnout") == 0) {
-				int addr = value["addr"].as<int>();
-				ActionSendTurnoutCommand* a = new ActionSendTurnoutCommand(controller, addr);
-				a->setName(id);
-				controller->registerSettings(a);
-				controller->registerNotify(a);
+			int addr = value["addr"].as<int>();
+			ActionSendTurnoutCommand* a = new ActionSendTurnoutCommand(controller, addr);
+			a->setName(id);
+			controller->registerSettings(a);
+			controller->registerNotify(a);
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
@@ -183,12 +179,15 @@ void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
 
 void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 	for (auto value : r1) {
+		if (ESP.getFreeHeap() < 1200) {
+			lowmemory = true;
+			break;
+		}
 		const char* art = (const char*) value["m"];
 		if (art == NULL) {
 			//Logger::getInstance()->addToLog("Null from json");
 			continue;
 		}
-		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / " + String(art));
 		if ((strcmp(art, "dcclogger") == 0) || (strcmp(art, "cmdlogger") == 0)) {
 			controller->cmdlogger = new WebserviceCommandLogger();
 			controller->registerNotify(controller->cmdlogger);
@@ -216,11 +215,11 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			controller->registerCmdReceiver(rec);
 
 
-//		} else if (strcmp(art, "espnow") == 0) {
-//			String rolle = String(value["rolle"].as<const char*>());
-//			Serial.println("Rolle: " + rolle);
-//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
-//			controller->registerCmdReceiver(rec);
+			//		} else if (strcmp(art, "espnow") == 0) {
+			//			String rolle = String(value["rolle"].as<const char*>());
+			//			Serial.println("Rolle: " + rolle);
+			//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
+			//			controller->registerCmdReceiver(rec);
 
 
 		} else if (strcmp(art, "webservicewifiscanner") == 0) {
@@ -287,17 +286,16 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 			if (d != NULL && (strcmp(d, "MCP23017") == 0 || strcmp(d, "mcp23017") == 0)) {
 				JsonArray& cfg = value["addr"];
 				for (auto value : cfg) {
-					Serial.println("MEM "  + String(ESP.getFreeHeap()) + " MCP23017");
 					int idx = value.as<int>();
 					Wire.beginTransmission(idx + 0x20);
 					int ret = Wire.endTransmission();
 					String tret = "Failed (" + String(ret) + ")";
 					if (ret == 0) {
-							tret = "OK";
+						tret = "OK";
 					}
 					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(idx + 0x20) + ": " + tret);
 					if (ret == 0) {
-							GPIO.addMCP23017(idx);
+						GPIO.addMCP23017(idx);
 					}
 				}
 			} else {
@@ -316,43 +314,65 @@ void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
 void Config::parseConnector(Controller* controller, Webserver* web, JsonArray& r1) {
 	int idx = 0;
 	for (auto value : r1) {
+		if (ESP.getFreeHeap() < 1200) {
+			lowmemory = true;
+			break;
+		}
 		idx++;
 		const char* in = (const char*) value["in"];
 		const char* out = (const char*) value["out"];
-		Connectors* cin;
-		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / " + String(in) + "/" + String(out));
 		String connectString = "conn" + String(idx) + "io";
 		if (strcmp(in, "turnout") == 0 && strcmp(out, "led") == 0) {
+			Connectors* cin;
+			JsonArray& r1 = value["values"];
+			for (auto value : r1) {
+				String connectString = "conn" + String(idx) + "io"; idx++;
+				if (ESP.getFreeHeap() < 1200) {
+					lowmemory = true;
+					break;
+				}
+				int addr = value[0].as<int>();
+				const char* pin = value[1].as<const char*>();
+				Logger::getInstance()->addToLog("Turnout/Led" + String(addr) + "/" + String(pin));
 
-			Pin* ledgpio = new Pin(value["gpio"].as<const char*>());
-			ActionLed* l = new ActionLed(ledgpio);
-			l->setName(connectString);
-			controller->registerSettings(l);
-			controller->registerLoop(l);
+
+				Pin* ledgpio = new Pin(pin);
+				ActionLed* l = new ActionLed(ledgpio);
+				l->setName(connectString);
+				controller->registerSettings(l);
+				controller->registerLoop(l);
 
 
-			int addr = value["addr"].as<int>();
-			ISettings* a = getSettingById(controller, connectString.c_str());
-			cin = new ConnectorTurnout(a, addr);
+				ISettings* a = getSettingById(controller, connectString.c_str());
+				cin = new ConnectorTurnout(a, addr);
+				controller->registerNotify(cin);
+			}
+
 
 		} else if (strcmp(in, "gpio") == 0 && strcmp(out, "sendturnout") == 0) {
-			int addr = value["addr"].as<int>();
-			ActionSendTurnoutCommand* atc = new ActionSendTurnoutCommand(controller, addr);
-			atc->setName(connectString);
-			controller->registerSettings(atc);
-			controller->registerNotify(atc);
+			Connectors* cin;
+			JsonArray& r1 = value["values"];
+			for (auto value : r1) {
+				String connectString = "conn" + String(idx) + "io"; idx++;
+				if (ESP.getFreeHeap() < 1200) {
+					lowmemory = true;
+					break;
+				}
+				const char* pin = value[0].as<const char*>();
+				int addr = value[1].as<int>();
+				Logger::getInstance()->addToLog("GPIO/Sendturnout " + String(pin) + "/" + String(addr));
 
-			Pin* g = new Pin(value["gpio"].as<const char*>());
-			ISettings* a = getSettingById(controller, connectString.c_str());
-			cin = new ConnectorGPIO(a, g);
+				ActionSendTurnoutCommand* atc = new ActionSendTurnoutCommand(controller, addr);
+				atc->setName(connectString);
+				controller->registerSettings(atc);
+				controller->registerNotify(atc);
 
-		} else {
-			Logger::getInstance()->addToLog(
-					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
+				Pin* g = new Pin(pin);
+				ISettings* a = getSettingById(controller, connectString.c_str());
+				cin = new ConnectorGPIO(a, g);
+				controller->registerNotify(cin);
+			}
 
-		}
-		if (cin != NULL) {
-			controller->registerNotify(cin);
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
@@ -363,6 +383,10 @@ void Config::parseConnector(Controller* controller, Webserver* web, JsonArray& r
 
 void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
+		if (ESP.getFreeHeap() < 1200) {
+			lowmemory = true;
+f			break;
+		}
 		JsonObject& value = *it;
 		const char* art = (const char*) value["m"];
 		if (art == NULL) {
@@ -417,9 +441,9 @@ void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 			Serial.println("Lights: " + String(onoff) + " " + " Addr: " + String(l));
 			c = new ConnectorLights(ptr[0], ptr[1], l, onoff);
 		} else if (strcmp(art, "gpio") == 0) {
-				Pin* g = new Pin(value["gpio"].as<const char*>());
-				ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
-				c = new ConnectorGPIO(a, g);
+			Pin* g = new Pin(value["gpio"].as<const char*>());
+			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+			c = new ConnectorGPIO(a, g);
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + String(art));
@@ -442,3 +466,5 @@ ISettings* Config::getSettingById(Controller* c, const char* id) {
 	Logger::getInstance()->addToLog("Config: Unbekannte ID " + String(id));
 	return NULL;
 }
+
+boolean Config::lowmemory = false;

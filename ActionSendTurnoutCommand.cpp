@@ -46,7 +46,6 @@ void ActionSendTurnoutCommand::setSettings(int status) {
 		richtung = 1;
 	}
 	String s = String(richtung);
-
 	// TODO Move to Controller
 	LinkedList<CmdSenderBase*>* list = controller->getSender();
     for (int i = 0; i < list->size(); i++) {

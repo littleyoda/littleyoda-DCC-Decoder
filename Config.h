@@ -25,5 +25,6 @@ private:
 	static void parseIn(Controller* c, Webserver* web, JsonArray& r1);
 	static void parseConnector(Controller* c, Webserver* web, JsonArray& r1);
 	static ISettings* getSettingById(Controller* c, const char* id);
+	static boolean lowmemory;
 };
 #endif /* CONFIG_H_ */

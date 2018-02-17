@@ -18,11 +18,9 @@ public:
 
 	uint16_t getPin() const;
 	bool isInvert() const;
-	const String& getPindef() const;
 
 private:
 	uint16_t pin;
-	String pindef;
 	bool invert;
 };
 

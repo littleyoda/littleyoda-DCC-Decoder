@@ -1,5 +1,7 @@
+// Defines to save heap space
+#define NO_GLOBAL_SERIAL1
 #include <Arduino.h>
-
+#include "lwip/init.h"
 #include "Controller.h"
 
 #include "Logger.h"
@@ -58,50 +60,75 @@ void loadCFG(Webserver* web) {
 
 
 bool scanRunning = false;
+char* debugmodus="debug";
+int debugmodusPos = 0;
 void handleSerial() {
 	if (Serial.available() > 0) {
 		int chr = Serial.read();
-		if (chr == 'd') {
-			Serial.println("Memory:");
-			Serial.println("==================");
-			Serial.println("Free start memory: " + String(Logger::getInstance()->startmemory));
-			Serial.println("Free (Heap)memory: " + String(ESP.getFreeHeap()));
-			Serial.println("Free Sketch Space: " + String(ESP.getFreeSketchSpace()));
-			Serial.println("\r\nLogger:");
-			Serial.println("==================");
-			Serial.println("Logger: " + String(Logger::getInstance()->getMemUsage()));
-			if (controller->dccSniffer != NULL) {
-				//Serial.println("Sniffer: " + String(controller->dccSniffer->getMemUsage()));
+		if (debugmodusPos < 5) {
+			if (debugmodus[debugmodusPos] == (char) chr) {
+				debugmodusPos++;
+				if (debugmodusPos == 5) {
+					Serial.println("Debugmodus aktiviert");
+				}
+			} else {
+				debugmodusPos = 0;
 			}
-			if (controller->cmdlogger != NULL) {
-				Serial.println("Commandlogger: " + String(controller->cmdlogger->getMemUsage()));
-			}
-			Serial.println("\r\nWifi:");
-			Serial.println("==================");
-			Serial.println("IP: " + Utils::wifi2String(WiFi.status()) + "  / " + WiFi.localIP().toString());
-			WiFi.printDiag(Serial);
-			Serial.println(WiFi.softAPIP().toString());
-			Serial.println("Qualität (RSSI): " + String(WiFi.RSSI()));
-			Serial.printf("Verbunden mit: %s\r\n", WiFi.BSSIDstr().c_str());
-
-			Serial.println("\r\nFlash:");
-			Serial.println("==================");
-
+		} else if (chr == 'd') {
 			// Taken from https://github.com/esp8266/Arduino/blob/master/libraries/esp8266/examples/CheckFlashConfig/CheckFlashConfig.ino
 			uint32_t realSize = ESP.getFlashChipRealSize();
 			uint32_t ideSize = ESP.getFlashChipSize();
-
-			Serial.printf("Size (real/config): %u %u", realSize, ideSize);
-			Serial.println();
-			if(ideSize != realSize) {
-				Serial.println("Flash Chip configuration wrong!\n");
-			}
 			FlashMode_t ideMode = ESP.getFlashChipMode();
-			Serial.printf("Speed/Mode: %u %s", ESP.getFlashChipSpeed(), (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
-			Serial.println();
-			Serial.println("\n==================");
-			Serial.println("Pin-Nutzung:");
-			Serial.println(GPIO.getUsage("\r\n"));
+
+			Serial.printf_P(
+					PSTR("Version:\r\n"
+							"==================\r\n"
+							"%s\r\n"
+							"LWIP %d.%d.%d.%d\r\n"
+							"\r\n"
+							"Memory:\r\n"
+							"==================\r\n"
+							"Free start memory: %d \r\n"
+							"Free (Heap)memory: %d \r\n"
+							"Free Sketch Space: %d \r\n"
+							"\r\n"
+							"Logger:\r\n"
+							"==================\r\n"
+							"Logger-Memory: %d \r\n"
+							"\r\n"
+							"Wifi:\r\n"
+							"==================\r\n"
+							"IP: %s/%s\r\n"
+					),
+					compile_date,
+					LWIP_VERSION_MAJOR, LWIP_VERSION_MINOR, LWIP_VERSION_REVISION, LWIP_VERSION_RC,
+					Logger::getInstance()->startmemory,
+					ESP.getFreeHeap(),
+					ESP.getFreeSketchSpace(),
+					Logger::getInstance()->getMemUsage(),
+					Utils::wifi2String(WiFi.status()).c_str(),
+					WiFi.localIP().toString().c_str()
+			);
+			//			if (controller->cmdlogger != NULL) {
+			//				Serial.println("Commandlogger: " + String(controller->cmdlogger->getMemUsage()));
+			//			}
+			WiFi.printDiag(Serial);
+			Serial.printf_P(
+					PSTR("%s\r\n"
+							"Qualität (RSSI) %d\r\n"
+							"Verbunden mit: %s\r\n"
+							"\r\n"
+							"Flash:\r\n"
+							"==================\r\n"
+							"Size (real/config): %u %u\r\n"
+							"Speed/Mode: %u %s\r\n"
+					)
+					,WiFi.softAPIP().toString().c_str()
+					,WiFi.RSSI()
+					,WiFi.BSSIDstr().c_str()
+					,realSize, ideSize
+					,ESP.getFlashChipSpeed() ,(ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN")
+			);
 		} else if (chr == 'R') {
 			ESP.restart();
 		} else if (chr == 'D') {
@@ -122,9 +149,12 @@ void handleSerial() {
 					Serial.println(f.readStringUntil('\n'));
 				}
 			} else {
-			      Serial.println("file open failed");
+				Serial.println("file open failed");
 			}
 
+		} else if (chr == 'x') {
+			Serial.println("Debugmodus deaktiviert");
+			debugmodusPos = 0;
 		} else {
 			Serial.println("Key: " + String(chr));
 		}
@@ -185,15 +215,23 @@ void handleSerial() {
 
 void setup() {
 	Serial.begin(115200);
+	delay(3000);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup");
 	Logger::getInstance()->addToLog("Started!");
 	Logger::getInstance()->addToLog(compile_date);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Controller");
 	controller = new Controller();
 	controller->registerLoop(new DoubleBootDetection(controller));
 	GPIO.setController(controller);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Wifi");
 	initWifi();
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Webserver");
 	Webserver* web = new Webserver(controller);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Serial");
 	handleSerial();
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg");
 	loadCFG(web);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup Finish");
 	Serial.println(GPIO.getUsage("\r\n"));
 	Logger::getInstance()->addToLog("Setup finish!");
 

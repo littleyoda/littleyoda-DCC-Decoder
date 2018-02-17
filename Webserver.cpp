@@ -112,11 +112,11 @@ void Webserver::handleFilelist() {
 
 void Webserver::handleRoot() {
 	String message = Utils::getHTMLHeader();
-	message += "<div class=\"row\">"
+	message += F("<div class=\"row\">"
 
 			"<div class=\"column\">"
 			"<a style=\"font-size: 4rem;\" class=\"button\" href=\"/list\">&#128194;</a>"
-			"</div>";
+			"</div>");
 
 	for (int i = 0; i < services.size(); i++) {
 		WebserviceBase* s = services.get(i);
@@ -124,7 +124,7 @@ void Webserver::handleRoot() {
 		if (linktext.equals("")) {
 			continue;
 		}
-		message += "<div class=\"column\">";
+		message += F("<div class=\"column\">");
 		message += "<a style=\"font-size: 4rem;\" class=\"button\" href=\"" + String(s->getUri()) + "\">" + linktext + "</a>";
 		message += "</div>";
 	}
@@ -231,8 +231,8 @@ void Webserver::handleNotFound() {
 	} else {
 		Serial.println(server->hostHeader());
 		server->sendHeader("Location", String("http://") + server->client().localIP().toString(), true);
-		server->send ( 302, "text/plain", ""); // Empty content inhibits Content-length header so we have to close the socket ourselves.
-		server->client().stop(); // Stop
+		server->send ( 302, "text/plain", "");
+		server->client().stop();
 	}
 }
 
@@ -252,12 +252,12 @@ void Webserver::registerWebServices(WebserviceBase* base) {
 
 void Webserver::handleDel() {
 	SPIFFS.remove(server->arg("file"));
-	server->send(200, "text/html", "<html><head><META http-equiv=\"refresh\" content=\"1;URL=/list\"></head><body>Deleting...</body></html>");
+	server->send(200, "text/html", F("<html><head><META http-equiv=\"refresh\" content=\"1;URL=/list\"></head><body>Deleting...</body></html>"));
 }
 void Webserver::handleSet() {
 	Serial.println("Webserver");
 	controll->setRequest(server->arg("id"), server->arg("key"), server->arg("value"));
-	server->send(200, "text/html", "<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>");
+	server->send(200, "text/html", F("<html><head><META http-equiv=\"refresh\" content=\"1;URL=/controll\"></head><body>Sending...</body></html>"));
 }
 
 void Webserver::handleCfg() {

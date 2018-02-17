@@ -15,7 +15,6 @@ ConnectorGPIO::ConnectorGPIO(ISettings* a, Pin* gpio) {
 }
 
 ConnectorGPIO::~ConnectorGPIO() {
-	// TODO Auto-generated destructor stub
 }
 
 

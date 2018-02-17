@@ -10,7 +10,7 @@
 
 Pin::Pin(const char* pindefinition) {
 	invert = false;
-	pindef = String(pindefinition);
+	String pindef = String(pindefinition);
 	if (pindef.startsWith("!")) {
 		invert = true;
 		pindef = pindef.substring(1);
@@ -27,7 +27,7 @@ String Pin::toString() {
 	if (invert) {
 		s = "!";
 	}
-	s += pindef + "/" + String(pin);
+	s += GPIO.gpio2string(pin) + "/" + String(pin);
 	return s;
 }
 
@@ -39,6 +39,3 @@ uint16_t Pin::getPin() const {
 	return pin;
 }
 
-const String& Pin::getPindef() const {
-	return pindef;
-}
