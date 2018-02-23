@@ -385,7 +385,7 @@ void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
 	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
 		if (ESP.getFreeHeap() < 1200) {
 			lowmemory = true;
-f			break;
+			break;
 		}
 		JsonObject& value = *it;
 		const char* art = (const char*) value["m"];
