@@ -52,6 +52,8 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
+	Serial.println("OKOK");
+	return;
 	controller->registerLoop(&GPIO);
 	controller->registerLoop(web);
 	controller->registerLoop(Logger::getInstance());

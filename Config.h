@@ -14,6 +14,9 @@
 #include "ArduinoJson.h"
 #include "Webserver.h"
 
+#define JSMN_STRICT
+#include "jsmn.h"
+
 class Config {
 public:
 	Config();
@@ -26,5 +29,6 @@ private:
 	static void parseConnector(Controller* c, Webserver* web, JsonArray& r1);
 	static ISettings* getSettingById(Controller* c, const char* id);
 	static boolean lowmemory;
+	static int jsoneq(const char *json, jsmntok_t *tok, const char *s);
 };
 #endif /* CONFIG_H_ */

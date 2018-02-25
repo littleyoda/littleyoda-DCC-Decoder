@@ -40,6 +40,7 @@
 
 #include "ISettings.h"
 
+
 Config::Config() {
 }
 
@@ -52,47 +53,109 @@ boolean Config::parse(Controller* controller, Webserver* web, String filename, b
 	File configFile = SPIFFS.open(filename, "r");
 	size_t size = configFile.size();
 	Serial.println("Starting Parsing");
-
-	DynamicJsonBuffer jsonBuffer;
-	JsonObject& root = jsonBuffer.parseObject(configFile);
-
-	if (!root.success()) {
-		Serial.println("Parsing failed!");
+	char* buf = new char[size];
+	configFile.readBytes(buf, size);
+	jsmn_parser p;
+	jsmn_init(&p);
+	int r = jsmn_parse(&p, buf, size, NULL, 0);
+	if (r < 0) {
+		printf("Failed to parse JSON (Token): %d\r\n", r);
 		return false;
 	}
-	Serial.println("Parsing ok!");
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Setup");
-	int version = root["version"].as<int>();
-	if (version != 3) {
-		Logger::getInstance()->addToLog("Ungültige Version: " + String(version));
+	jsmntok_t* t = new jsmntok_t[r];
+	jsmn_init(&p);
+	r = jsmn_parse(&p, buf, size, t, r);
+	if (r < 0) {
+		Serial.printf("Failed to parse JSON: %d\r\n", r);
 		return false;
 	}
-	if (dryrun) {
-		return true;
+	Serial.println("Ok2");
+	Serial.flush();
+	/* Assume the top-level element is an object */
+	if (r < 1 || t[0].type != JSMN_OBJECT) {
+		printf("Object expected\r\n");
+		return 1;
 	}
 
-	JsonArray& cfg = root["cfg"];
-	parseCfg(controller, web, cfg);
-
-	JsonArray& out = root["out"];
-	parseOut(controller, web, out);
-
-	JsonArray& in = root["in"];
-	parseIn(controller, web, in);
-
-	JsonArray& connector = root["connector"];
-	parseConnector(controller, web, connector);
-	configFile.close();
-
-	Logger::getInstance()->addToLog("JSON Parsing finish!");
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Clear");
-	jsonBuffer.clear();
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-End");
-	if (lowmemory) {
-		Logger::getInstance()->addToLog("Nicht genügend Speicher für das JSON-File!");
-		return false;
+	for (int i = 1; i < r; i++) {
+		Serial.println("Pos: " + String(i));
+		printf("- User: %.*s\r\n", t[i].end-t[i].start,
+				buf + t[i].start);
+		//Serial.println("Start: " + String(t[i].start) + " " + String(t[i].end));
+//		Serial.printf("Key: %.*s\r\n", t[i].end-t[i].start, buf.get() + t[i].start);
+//		printf("  * %.*s\r\n", g->end - g->start, buf.get() + g->start);
+//		if (jsoneq(buf.get(), &t[i], "user") == 0) {
+//			/* We may use strndup() to fetch string value */
+//			printf("- User: %.*s\r\n", t[i+1].end-t[i+1].start,
+//					buf.get() + t[i+1].start);
+//			i++;
+//		} else if (jsoneq(buf.get(), &t[i], "admin") == 0) {
+//			/* We may additionally check if the value is either "true" or "false" */
+//			printf("- Admin: %.*s\r\n", t[i+1].end-t[i+1].start,
+//					buf.get() + t[i+1].start);
+//			i++;
+//		} else if (jsoneq(buf.get(), &t[i], "uid") == 0) {
+//			/* We may want to do strtol() here to get numeric value */
+//			printf("- UID: %.*s\r\n", t[i+1].end-t[i+1].start,
+//					buf.get() + t[i+1].start);
+//			i++;
+//		} else if (jsoneq(buf.get(), &t[i], "groups") == 0) {
+//			int j;
+//			printf("- Groups:\r\n");
+//			if (t[i+1].type != JSMN_ARRAY) {
+//				continue; /* We expect groups to be an array of strings */
+//			}
+//			for (j = 0; j < t[i+1].size; j++) {
+//				jsmntok_t *g = &t[i+j+2];
+//				printf("  * %.*s\r\n", g->end - g->start, buf.get() + g->start);
+//			}
+//			i += t[i+1].size + 1;
+//		} else {
+//			printf("Unexpected key: %.*s\r\n", t[i].end-t[i].start,
+//					buf.get() + t[i].start);
+//		}
 	}
-	return true;
+
+	//	DynamicJsonBuffer jsonBuffer;
+	//	JsonObject& root = jsonBuffer.parseObject(configFile);
+	//
+	//	if (!root.success()) {
+	//		Serial.println("Parsing failed!");
+	//		return false;
+	//	}
+	//	Serial.println("Parsing ok!");
+	//	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Setup");
+	//	int version = root["version"].as<int>();
+	//	if (version != 3) {
+	//		Logger::getInstance()->addToLog("Ungültige Version: " + String(version));
+	//		return false;
+	//	}
+	//	if (dryrun) {
+	//		return true;
+	//	}
+	//
+	//	JsonArray& cfg = root["cfg"];
+	//	parseCfg(controller, web, cfg);
+	//
+	//	JsonArray& out = root["out"];
+	//	parseOut(controller, web, out);
+	//
+	//	JsonArray& in = root["in"];
+	//	parseIn(controller, web, in);
+	//
+	//	JsonArray& connector = root["connector"];
+	//	parseConnector(controller, web, connector);
+	//	configFile.close();
+	//
+	//	Logger::getInstance()->addToLog("JSON Parsing finish!");
+	//	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Clear");
+	//	jsonBuffer.clear();
+	//	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-End");
+	//	if (lowmemory) {
+	//		Logger::getInstance()->addToLog("Nicht genügend Speicher für das JSON-File!");
+	//		return false;
+	//	}
+	return false;
 }
 
 void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
@@ -467,4 +530,11 @@ ISettings* Config::getSettingById(Controller* c, const char* id) {
 	return NULL;
 }
 
+int Config::jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
+			strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
+	return -1;
+}
 boolean Config::lowmemory = false;
