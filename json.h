@@ -1,0 +1,37 @@
+/*
+ * json.h
+ *
+ *  Created on: 01.03.2018
+ *      Author: sven
+ */
+
+#ifndef JSON_H_
+#define JSON_H_
+
+#include "Arduino.h"
+#include "FS.h"
+#include "jsmn.h"
+
+class json {
+public:
+	json(File f);
+	virtual ~json();
+	void dump();
+	String getValueByKey(int parentID, String key);
+	bool jsoneq(int pos, const char *s);
+	String getString(int pos);
+	int getIdxByKey(int parentID, String key);
+	int getFirstChild(int parentID);
+	int getNextSiblings(int childID);
+	void printElement(int id);
+	int getFirstChildOfArrayByKey(int parentID, String key);
+	bool isArray(int id);
+
+private:
+	char* buf;
+	jsmn_parser* p;
+	int elementCount;
+	jsmntok_t* elements;
+};
+
+#endif /* JSON_H_ */

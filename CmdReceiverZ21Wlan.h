@@ -15,7 +15,7 @@
 
 class CmdReceiverZ21Wlan: public CmdSenderBase, public z21PaketParser {
 public:
-	CmdReceiverZ21Wlan(Controller* c, const char* ip);
+	CmdReceiverZ21Wlan(Controller* c, String ip);
 	virtual int loop();
 	virtual ~CmdReceiverZ21Wlan();
 	void requestTurnoutInfo(int addr);

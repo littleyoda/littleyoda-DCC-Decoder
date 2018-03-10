@@ -22,14 +22,14 @@
 #include "WebserviceDCCSniffer.h"
 
 	struct LocData {
-		int speed;
-		int direction;
-		int speedsteps;
+		sint16 speed;
+		int8 direction;
+		int8 speedsteps;
 		unsigned long int status;
-	};
+	} __attribute__ ((packed));
 
 	struct TurnOutData {
-		int direction;
+		int8 direction;
 	};
 
 class CmdReceiverBase;
@@ -74,6 +74,7 @@ public:
 
 	WebserviceCommandLogger* cmdlogger;
 	WebserviceDCCSniffer* dccSniffer;
+	unsigned long longestLoop;
 
 private:
 	typedef std::map<int, LocData*> Items;
@@ -92,6 +93,9 @@ private:
 	LinkedList<INotify::requestInfo*> requestList = LinkedList<INotify::requestInfo*>();
 	long int lastTurnoutCmd[3];
 	std::unique_ptr<DNSServer> dnsServer;
+	void logLoop(unsigned long d);
+//	unsigned int l[100];
+//	unsigned long next;
 };
 
 #endif /* CONTROLLER_H_ */

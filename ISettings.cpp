@@ -8,6 +8,7 @@
 #include "ISettings.h"
 
 ISettings::ISettings() {
+	id = NULL;
 }
 
 ISettings::~ISettings() {
@@ -23,9 +24,12 @@ String ISettings::getHTMLController(String urlprefix) {
 }
 
 void ISettings::setName(String s) {
-	id = s;
+	id = new String(s);
 }
 
 String ISettings::getName() {
-	return id;
+	if (id == NULL) {
+		return "";
+	}
+	return "" + (*id);
 }

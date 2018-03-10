@@ -16,6 +16,7 @@ Ausnahmen / Externe Bibliotheken / Sourcecode:
 	Quelle: https://github.com/esp8266/Arduino/blob/master/libraries/SPI/SPI.cpp
 	Anmerkungen: basiert auf SPI.cpp, stark verändert
 	Lizenz: LGPL 2.1, https://github.com/arduino/Arduino/blob/master/license.txt
+	        Meine Änderungen auch unter GPL 3
 	
 4. Arduino
 	Quelle: https://github.com/arduino/Arduino
@@ -45,7 +46,12 @@ Ausnahmen / Externe Bibliotheken / Sourcecode:
   				  BSD license, all text above must be included in any redistribution
 	Lizenz: BSD, https://github.com/adafruit/Adafruit-MCP23017-Arduino-Library/blob/master/license.txt
 
-
+9. Jjsmn (jsmn.c & jsmn.h)
+	Quelle: https://github.com/zserge/jsmn
+	Patches from: https://github.com/zserge/jsmn/pull/68
+	Anmerkungen: Copyright (c) 2010 Serge A. Zaitsev 
+	Lizenz: MIT License,https://github.com/zserge/jsmn/blob/master/LICENSE
+	
 
 ----------------------------------------------------------------------------------------------
                     GNU GENERAL PUBLIC LICENSE

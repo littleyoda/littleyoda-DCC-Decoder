@@ -19,6 +19,16 @@ Pin::Pin(const char* pindefinition) {
 
 }
 
+Pin::Pin(String pindef) {
+	invert = false;
+	if (pindef.startsWith("!")) {
+		invert = true;
+		pindef = pindef.substring(1);
+	}
+	pin = GPIO.string2gpio(pindef.c_str());
+
+}
+
 Pin::~Pin() {
 }
 

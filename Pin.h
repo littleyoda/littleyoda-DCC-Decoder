@@ -13,6 +13,7 @@
 class Pin {
 public:
 	Pin(const char* pindefinition);
+	Pin(String pindefinition);
 	virtual ~Pin();
 	String toString();
 

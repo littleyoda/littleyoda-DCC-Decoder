@@ -19,7 +19,7 @@ public:
 	virtual String getHTMLCfg(String urlprefix) ;
 	virtual String getHTMLController(String urlprefix);
 protected:
-	String id;
+	String* id;
 };
 
 #endif /* ISETTINGS_H_ */

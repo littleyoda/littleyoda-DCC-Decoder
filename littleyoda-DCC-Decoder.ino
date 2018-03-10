@@ -12,6 +12,16 @@
 
 Controller* controller;
 
+#include "ActionLed.h"
+#include "ActionSendTurnoutCommand.h"
+#include "ConnectorFunc2Value.h"
+#include "ConnectorGPIO.h"
+#include "ConnectorLights.h"
+#include "ConnectorLocoSpeed.h"
+#include "ConnectorONOFF.h"
+#include "Connectors.h"
+#include "ConnectorTurnout.h"
+
 
 void initWifi() {
 	Serial.println("Starting Wifi...");
@@ -43,7 +53,11 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
-	if (!Config::parse(controller, web, "/config.json", false)) {
+	Config* c = new Config();
+	bool b = c->parse(controller, web, "/config.json", false);
+	delete(c);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " Post Config");
+	if (!b) {
 		Logger::getInstance()->addToLog(
 				"Config-File konnte nicht geparst werden. Fehlerhafter Syntax? Nicht genug Memory?");
 		controller->registerLoop(web);
@@ -52,8 +66,6 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
-	Serial.println("OKOK");
-	return;
 	controller->registerLoop(&GPIO);
 	controller->registerLoop(web);
 	controller->registerLoop(Logger::getInstance());
@@ -131,19 +143,25 @@ void handleSerial() {
 					,realSize, ideSize
 					,ESP.getFlashChipSpeed() ,(ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN")
 			);
+
 		} else if (chr == 'R') {
 			ESP.restart();
+
 		} else if (chr == 'D') {
 			Serial.println("Configfile deleted");
 			SPIFFS.remove("/config.json");
+
 		} else if (chr == 'a') {
 			controller->enableAPModus();
+
 		} else if (chr == 'r') {
 			WiFi.reconnect();
+
 		} else if (chr == 'w') {
 			Serial.println("Scan Started");
 			WiFi.scanNetworks(true, true);
 			scanRunning = true;
+
 		} else if (chr == 'c') {
 			File f = SPIFFS.open("/config.json", "r");
 			if (f) {
@@ -157,8 +175,34 @@ void handleSerial() {
 		} else if (chr == 'x') {
 			Serial.println("Debugmodus deaktiviert");
 			debugmodusPos = 0;
+
+		} else if (chr == 'm') {
+			Serial.printf("Pointer %d\r\n", sizeof(String*));
+			Serial.printf("String (without Buffer) %d\r\n", sizeof(String));
+			Serial.printf("int %d\r\n", sizeof(int));
+			Serial.printf("sint16 %d\r\n", sizeof(sint16));
+			Serial.printf("bool %d\r\n", sizeof(bool));
+			Serial.println();
+			Serial.printf("RequestInfo %d\r\n", sizeof(INotify::requestInfo));
+			Serial.printf("ActionLed %d\r\n", sizeof(ActionLed));
+			Serial.printf("ActionSendTurnoutCommand (incl. Inotify, Iloop) %d\r\n", sizeof(ActionSendTurnoutCommand));
+			Serial.printf("PIN %d\r\n", sizeof(Pin));
+			Serial.printf("ISettings %d\r\n", sizeof(ISettings));
+			Serial.printf("INotify %d\r\n", sizeof(INotify));
+			Serial.printf("ILoop %d\r\n", sizeof(ILoop));
+			Serial.println();
+			Serial.printf("ConnectorFunc2Value %d\r\n", sizeof(ConnectorFunc2Value));
+			Serial.printf("ConnectorGPIO %d\r\n", sizeof(ConnectorGPIO));
+			Serial.printf("ConnectorLights %d\r\n", sizeof(ConnectorLights));
+			Serial.printf("ConnectorLocoSpeed %d\r\n", sizeof(ConnectorLocoSpeed));
+			Serial.printf("ConnectorONOFF %d\r\n", sizeof(ConnectorONOFF));
+			Serial.printf("Connectors %d\r\n", sizeof(Connectors));
+			Serial.printf("ConnectorTurnout %d\r\n", sizeof(ConnectorTurnout));
+			Serial.println();
+
 		} else {
 			Serial.println("Key: " + String(chr));
+
 		}
 	}
 	if (scanRunning) {
@@ -236,6 +280,7 @@ void setup() {
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup Finish");
 	Serial.println(GPIO.getUsage("\r\n"));
 	Logger::getInstance()->addToLog("Setup finish!");
+	controller->longestLoop = 0;
 
 }
 

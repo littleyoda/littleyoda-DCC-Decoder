@@ -10,25 +10,24 @@
 
 #include "Controller.h"
 #include "ISettings.h"
-#include "Connectors.h"
+#include "Connectors.h";
 #include "ArduinoJson.h"
 #include "Webserver.h"
-
-#define JSMN_STRICT
-#include "jsmn.h"
+#include "json.h"
 
 class Config {
 public:
 	Config();
 	virtual ~Config();
-	static boolean parse(Controller* c, Webserver* web, String filename, boolean dryrun);
+	bool parse(Controller* c, Webserver* web, String filename, boolean dryrun);
 private:
-	static void parseCfg(Controller* c, Webserver* web, JsonArray& r1);
-	static void parseOut(Controller* c, Webserver* web, JsonArray& r1);
-	static void parseIn(Controller* c, Webserver* web, JsonArray& r1);
-	static void parseConnector(Controller* c, Webserver* web, JsonArray& r1);
-	static ISettings* getSettingById(Controller* c, const char* id);
-	static boolean lowmemory;
-	static int jsoneq(const char *json, jsmntok_t *tok, const char *s);
+	void parseCfg(Controller* c, Webserver* web, String n);
+	void parseOut(Controller* c, Webserver* web, String n);
+	void parseIn(Controller* c, Webserver* web, String n);
+	void parseConnector(Controller* c, Webserver* web, String n);
+	ISettings* getSettingById(Controller* c, String id);
+	bool lowmemory;
+	json* parser;
 };
+
 #endif /* CONFIG_H_ */

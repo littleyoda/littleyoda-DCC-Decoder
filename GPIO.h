@@ -25,9 +25,9 @@
 
 class GPIOClass : public ILoop {
 public:
-	DataContainer<int, String>* pinusage;
+	DataContainer<sint16, String>* pinusage;
 	// All GPIO in Modus INPUT or INPUT_PULLUP (will update every 30 ms)
-	DataContainerSimpleList<int, int>* valueinputpins;
+	DataContainerSimpleList<sint16, sint16>* valueinputpins;
 
 
 
@@ -36,6 +36,7 @@ public:
 
 	String gpio2string(int gpio);
 	int string2gpio(const char* pin);
+	int string2gpio(String pin);
 	void pinMode(uint16_t pin, uint8_t mode, String usage);
 	void pinMode(Pin* pin, uint8_t mode, String usage);
 
@@ -50,15 +51,18 @@ public:
 	void analogWriteFreq(uint32_t freq);
 	void addMCP23017(uint8_t addr);
 	void add(String s, int pinNumber);
+	void cache(bool b);
 	String getUsage(String sep);
 	virtual int loop();
 
 
 private:
-	DataContainerSimpleList<String, int>* data;
+	DataContainerSimpleList<String, sint16>* data;
 	void addUsage(uint16_t pin, String usage);
 	Controller* controller;
 	LinkedList<Adafruit_MCP23017*>* mcps;
+	bool cacheEnabled;
+	uint16_t* cachedValue;
 };
 
 extern GPIOClass GPIO;

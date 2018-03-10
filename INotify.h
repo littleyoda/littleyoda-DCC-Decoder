@@ -32,9 +32,9 @@ public:
 	virtual void GPIOChange(int pin, int newValue);
 
 	struct requestInfo {
-		enum ART {TURNOUT, LOCO } art;
-		unsigned int id;
-	};
+		enum ART {TURNOUT, LOCO } __attribute__ ((packed)) art;
+		uint16 id;
+	} __attribute__ ((packed));
 	virtual void getRequestList(LinkedList<requestInfo*>* list);
 protected:
 	boolean requestListContains(LinkedList<requestInfo*>* list, requestInfo* element);

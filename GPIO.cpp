@@ -9,9 +9,11 @@
 
 GPIOClass::GPIOClass() {
 	mcps = new LinkedList<Adafruit_MCP23017*>();
-	data = new DataContainerSimpleList<String, int>(16* 6 + 12, "", -1);
-	valueinputpins = new DataContainerSimpleList<int, int>(16* 6 + 12, -1, -1);
-	pinusage = new DataContainer<int, String>(-1, "");
+	data = new DataContainerSimpleList<String, sint16>(16* 6 + 12, "", -1);
+	valueinputpins = new DataContainerSimpleList<sint16, sint16>(16* 6 + 12, -1, -1);
+	pinusage = new DataContainer<sint16, String>(-1, "");
+	cacheEnabled = false;
+	cachedValue = NULL;
 #ifdef ARDUINO_ESP8266_ESP01
 	add("D0", 16);
 	add("D2", 4);
@@ -74,7 +76,7 @@ String GPIOClass::gpio2string(int gpio) {
  */
 int GPIOClass::string2gpio(const char* pin) {
 	if (pin == NULL) {
-		Logger::log("PIN fehlt");
+		Logger::log("PIN fehlt (null in string2gpio)");
 		return Consts::DISABLE;
 	}
 	String s = String(pin);
@@ -83,6 +85,18 @@ int GPIOClass::string2gpio(const char* pin) {
 		return Consts::DISABLE;
 	}
 	return data->getValueByKey(s);
+}
+
+int GPIOClass::string2gpio(String pin) {
+	if (pin == NULL) {
+		Logger::log("PIN fehlt (null in string2gpio)");
+		return Consts::DISABLE;
+	}
+	if (!data->containsKey(pin)) {
+		Logger::getInstance()->addToLog("Unbekannter Pin in Config: " + pin);
+		return Consts::DISABLE;
+	}
+	return data->getValueByKey(pin);
 }
 
 void GPIOClass::pinMode(Pin* pin, uint8_t mode, String usage) {
@@ -185,7 +199,13 @@ int GPIOClass::digitalRead(uint16_t pin) {
 	if (pin >= 100) {
 		int mcpIdx = (pin / 100) - 1;
 		int realPin = pin % 100;
-		return mcps->get(mcpIdx)->digitalRead(realPin);
+		if (cacheEnabled) {
+			uint16_t t = cachedValue[mcpIdx];
+			t = (t >> realPin) & 1;
+			return (int) t;
+		} else {
+			return mcps->get(mcpIdx)->digitalRead(realPin);
+		}
 	} else {
 		return ::digitalRead(pin);
 	}
@@ -205,6 +225,20 @@ int GPIOClass::digitalRead(Pin* pin) {
 
 void GPIOClass::setController(Controller* c) {
 	controller = c;
+}
+
+void GPIOClass::cache(bool b) {
+	cacheEnabled = b;
+	if (b) {
+		int size = mcps->size();
+		if (cachedValue == NULL) {
+			cachedValue = new uint16_t[size];
+		}
+		for (int i = 0; i < size; i++) {
+			cachedValue[i] = mcps->get(i)->readGPIOAB();
+		}
+	}
+
 }
 
 void GPIOClass::addUsage(uint16_t pin, String usage) {
@@ -234,6 +268,7 @@ String GPIOClass::getUsage(String sep) {
 
 
 int GPIOClass::loop() {
+	cache(true);
 	for (int i = 0; i < valueinputpins->used(); i++) {
 		int pin = valueinputpins->getKey(i);
 		int oldval = valueinputpins->getValue(i);
@@ -243,5 +278,6 @@ int GPIOClass::loop() {
 			valueinputpins->put(pin, val);
 		}
 	}
+	cache(false);
 	return 30;
 }

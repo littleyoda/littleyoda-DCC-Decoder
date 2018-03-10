@@ -1,16 +1,42 @@
+/*
+ *
+
+from https://github.com/zserge/jsmn
+
+Copyright (c) 2010 Serge A. Zaitsev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+ *
+ */
 #include "jsmn.h"
 
 #define PARENT tokens[parser->toksuper]
 
 // The first child node is always next sequentially.
 #define JSMN_DESCEND { \
-    tokens[parser->toknext-1].skip = -parser->toksuper-1; \
-    parser->toksuper = parser->toknext-1; \
+		tokens[parser->toknext-1].skip = -parser->toksuper-1; \
+		parser->toksuper = parser->toknext-1; \
 }
 #define JSMN_ASCEND { \
-    int last_child = parser->toksuper; \
-    parser->toksuper = -tokens[last_child].skip-1; \
-    tokens[last_child].skip = parser->toknext - last_child; \
+		int last_child = parser->toksuper; \
+		parser->toksuper = -tokens[last_child].skip-1; \
+		tokens[last_child].skip = parser->toknext - last_child; \
 }
 
 /**
@@ -22,13 +48,11 @@ static jsmntok_t *jsmn_alloc_token(jsmn_parser *parser,
 	if (parser->toknext >= num_tokens) {
 		return NULL;
 	}
-        //tok->type = JSMN_UNKNOWN;
+	//tok->type = JSMN_UNKNOWN;
 	tok = &tokens[parser->toknext++];
 	tok->start = tok->end = -1;
-        tok->skip = 1;
-#ifdef USE_PARENT_LINKS
-        tok->parent = parser->toksuper;
-#endif
+	tok->skip = 1;
+	tok->parent = parser->toksuper;
 
 	return tok;
 }
@@ -37,7 +61,7 @@ static jsmntok_t *jsmn_alloc_token(jsmn_parser *parser,
  * Fills token type and boundaries.
  */
 static void jsmn_fill_token(jsmntok_t *token, jsmntype_t type,
-                            int start, int end) {
+		int start, int end) {
 	token->type = type;
 	token->start = start;
 	token->end = end;
@@ -56,12 +80,12 @@ static int jsmn_parse_primitive(jsmn_parser *parser, const char *js,
 	for (; parser->pos < len && js[parser->pos] != '\0'; parser->pos++) {
 		switch (js[parser->pos]) {
 #ifndef JSMN_STRICT
-			/* In strict mode primitive must be followed by "," or "}" or "]" */
-			case ':':
+		/* In strict mode primitive must be followed by "," or "}" or "]" */
+		case ':':
 #endif
-			case '\t' : case '\r' : case '\n' : case ' ' :
-			case ','  : case ']'  : case '}' :
-				goto found;
+		case '\t' : case '\r' : case '\n' : case ' ' :
+		case ','  : case ']'  : case '}' :
+			goto found;
 		}
 		if (js[parser->pos] < 32 || js[parser->pos] >= 127) {
 			parser->pos = start;
@@ -74,7 +98,7 @@ static int jsmn_parse_primitive(jsmn_parser *parser, const char *js,
 	return JSMN_ERROR_PART;
 #endif
 
-found:
+	found:
 	if (tokens == NULL) {
 		parser->pos--;
 		return 0;
@@ -123,29 +147,29 @@ static int jsmn_parse_string(jsmn_parser *parser, const char *js,
 			int i;
 			parser->pos++;
 			switch (js[parser->pos]) {
-				/* Allowed escaped symbols */
-				case '\"': case '/' : case '\\' : case 'b' :
-				case 'f' : case 'r' : case 'n'  : case 't' :
-					break;
+			/* Allowed escaped symbols */
+			case '\"': case '/' : case '\\' : case 'b' :
+			case 'f' : case 'r' : case 'n'  : case 't' :
+				break;
 				/* Allows escaped symbol \uXXXX */
-				case 'u':
-					parser->pos++;
-					for(i = 0; i < 4 && parser->pos < len && js[parser->pos] != '\0'; i++) {
-						/* If it isn't a hex character we have an error */
-						if(!((js[parser->pos] >= 48 && js[parser->pos] <= 57) || /* 0-9 */
-									(js[parser->pos] >= 65 && js[parser->pos] <= 70) || /* A-F */
-									(js[parser->pos] >= 97 && js[parser->pos] <= 102))) { /* a-f */
-							parser->pos = start;
-							return JSMN_ERROR_INVAL;
-						}
-						parser->pos++;
+			case 'u':
+				parser->pos++;
+				for(i = 0; i < 4 && parser->pos < len && js[parser->pos] != '\0'; i++) {
+					/* If it isn't a hex character we have an error */
+					if(!((js[parser->pos] >= 48 && js[parser->pos] <= 57) || /* 0-9 */
+							(js[parser->pos] >= 65 && js[parser->pos] <= 70) || /* A-F */
+							(js[parser->pos] >= 97 && js[parser->pos] <= 102))) { /* a-f */
+						parser->pos = start;
+						return JSMN_ERROR_INVAL;
 					}
-					parser->pos--;
-					break;
+					parser->pos++;
+				}
+				parser->pos--;
+				break;
 				/* Unexpected symbol */
-				default:
-					parser->pos = start;
-					return JSMN_ERROR_INVAL;
+			default:
+				parser->pos = start;
+				return JSMN_ERROR_INVAL;
 			}
 		}
 	}
@@ -169,103 +193,106 @@ int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
 		jsmntype_t type;
 
 		c = js[parser->pos];
+//		printf("Working on %c %d\r\n", c, parser->pos);
 		switch (c) {
-			case '{': case '[':
-				count++;
-				if (tokens == NULL) {
-					break;
-				}
-                                // Definitely can't use these as keys
-                                // (would not be able to ascend).
-				if(parser->toksuper != -1
-                                    && PARENT.type == JSMN_OBJECT) {
-						return JSMN_ERROR_INVAL;
-				}
-				token = jsmn_alloc_token(parser, tokens, num_tokens);
-				if (token == NULL)
-					return JSMN_ERROR_NOMEM;
-				token->type = (c == '{' ? JSMN_OBJECT : JSMN_ARRAY);
-				token->start = parser->pos;
-                                JSMN_DESCEND;
+		case '{':
+		case '[':
+			count++;
+			if (tokens == NULL) {
 				break;
-			case '}': case ']':
-				if (tokens == NULL)
-					break;
-				type = (c == '}' ? JSMN_OBJECT : JSMN_ARRAY);
+			}
+			// Definitely can't use these as keys
+			// (would not be able to ascend).
+			if(parser->toksuper != -1
+					&& PARENT.type == JSMN_OBJECT) {
+				return JSMN_ERROR_INVAL;
+			}
+			token = jsmn_alloc_token(parser, tokens, num_tokens);
+			if (token == NULL)
+				return JSMN_ERROR_NOMEM;
+			token->type = (c == '{' ? JSMN_OBJECT : JSMN_ARRAY);
+			token->start = parser->pos;
+			JSMN_DESCEND;
+			break;
+		case '}':
+		case ']':
+			if (tokens == NULL)
+				break;
+			type = (c == '}' ? JSMN_OBJECT : JSMN_ARRAY);
 
-                                // Ascend one key:val pair relationship (if appl.).
-                                if(parser->toksuper != -1 && PARENT.end != -1) {
-                                    JSMN_ASCEND;
-                                }
-                                if(parser->toksuper == -1 || PARENT.type != type)
-                                    return JSMN_ERROR_INVAL;
+			// Ascend one key:val pair relationship (if appl.).
+			if(parser->toksuper != -1 && PARENT.end != -1) {
+				JSMN_ASCEND;
+			}
+			if(parser->toksuper == -1 || PARENT.type != type)
+				return JSMN_ERROR_INVAL;
 
-                                PARENT.end = parser->pos + 1;
-                                JSMN_ASCEND;
-				break;
-			case '\"':
-				r = jsmn_parse_string(parser, js, len, tokens, num_tokens);
-				if (r < 0) return r;
-				count++;
-				break;
-			case '\t' : case '\r' : case '\n' : case ' ':
-				break;
-                        case ':': // Note: no state => {'a' : 'b', : 'c'} parses
-                                  // as {'a' : 'b', 'b' : 'c'}...
-                                if (parser->toknext < 1) {
-					return JSMN_ERROR_INVAL;
-                                }
-                                if (tokens == NULL) break;
+			PARENT.end = parser->pos + 1;
+			JSMN_ASCEND;
+			break;
+		case '\"':
+			r = jsmn_parse_string(parser, js, len, tokens, num_tokens);
+			if (r < 0) return r;
+			count++;
+			break;
+		case '\t' : case '\r' : case '\n' : case ' ':
+			break;
+		case ':': // Note: no state => {'a' : 'b', : 'c'} parses
+			// as {'a' : 'b', 'b' : 'c'}...
+			if (tokens == NULL) break;
+			if (parser->toknext < 1) {
+				return JSMN_ERROR_INVAL;
+			}
 
-				if (parser->toksuper == -1
-                                    || PARENT.type != JSMN_OBJECT
-                                    || parser->toksuper == parser->toknext-1) {
-					return JSMN_ERROR_INVAL;
-				}
-                                // Key is the parent.
-                                JSMN_DESCEND;
-				break;
-			case ',':
-				if (parser->toksuper != -1
-				    && PARENT.type != JSMN_ARRAY
-				    && PARENT.type != JSMN_OBJECT) {
-                                    // Parent was key in a key:val pair.
-                                        JSMN_ASCEND;
-				}
-				break;
+			if (parser->toksuper == -1
+					|| PARENT.type != JSMN_OBJECT
+					|| parser->toksuper == parser->toknext-1) {
+				return JSMN_ERROR_INVAL;
+			}
+			// Key is the parent.
+			JSMN_DESCEND;
+			break;
+		case ',':
+			if (parser->toksuper != -1
+					&& PARENT.type != JSMN_ARRAY
+					&& PARENT.type != JSMN_OBJECT) {
+				// Parent was key in a key:val pair.
+				JSMN_ASCEND;
+			}
+			break;
 #ifdef JSMN_STRICT
 			/* In strict mode primitives are: numbers and booleans */
-			case '-': case '0': case '1' : case '2': case '3' : case '4':
-			case '5': case '6': case '7' : case '8': case '9':
-			case 't': case 'f': case 'n' :
-				/* And they must not be keys of the object */
-				if (tokens != NULL
-                                    && parser->toksuper != -1
-                                    && PARENT.type == JSMN_OBJECT) {
-						return JSMN_ERROR_INVAL;
-				}
+		case '-': case '0': case '1' : case '2': case '3' : case '4':
+		case '5': case '6': case '7' : case '8': case '9':
+		case 't': case 'f': case 'n' :
+			/* And they must not be keys of the object */
+			if (tokens != NULL
+					&& parser->toksuper != -1
+					&& PARENT.type == JSMN_OBJECT) {
+				return JSMN_ERROR_INVAL;
+			}
 #else
 			/* In non-strict mode every unquoted value is a primitive */
-			default:
+		default:
 #endif
-				r = jsmn_parse_primitive(parser, js, len, tokens, num_tokens);
-				if (r < 0) return r;
-				count++;
-				break;
+			r = jsmn_parse_primitive(parser, js, len, tokens, num_tokens);
+			if (r < 0) return r;
+			count++;
+			break;
 
 #ifdef JSMN_STRICT
 			/* Unexpected char in strict mode */
-			default:
-				return JSMN_ERROR_INVAL;
+		default:
+			return JSMN_ERROR_INVAL;
 #endif
 		}
 	}
 
 	if (tokens != NULL) {
-            if(parser->toksuper != -1) {
-		/* Unmatched opened object or array */
-		return JSMN_ERROR_PART;
-            }
+		if(parser->toksuper != -1) {
+			/* Unmatched opened object or array */
+			return JSMN_ERROR_PART;
+		}
 	}
 
 	return count;
@@ -276,10 +303,10 @@ int jsmn_parse(jsmn_parser *parser, const char *js, size_t len,
  * available.
  */
 void jsmn_init(jsmn_parser *parser) {
-    static jsmntok_t *garbage;
+	static jsmntok_t *garbage;
 
-    parser->pos = 0;
-    parser->toknext = 0;
-    parser->toksuper = -1;
+	parser->pos = 0;
+	parser->toknext = 0;
+	parser->toksuper = -1;
 }
 

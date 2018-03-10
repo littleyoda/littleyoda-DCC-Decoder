@@ -12,7 +12,7 @@
 #include "Consts.h"
 #include "Utils.h"
 
-CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, const char* ip) :
+CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, String ip) :
 z21PaketParser(c) {
 	Logger::getInstance()->addToLog("Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {

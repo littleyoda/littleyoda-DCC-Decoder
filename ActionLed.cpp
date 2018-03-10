@@ -21,7 +21,7 @@ ActionLed::~ActionLed() {
 }
 
 String ActionLed::getHTMLCfg(String urlprefix) {
-	return "";
+	return F("");
 }
 
 String ActionLed::getHTMLController(String urlprefix) {
@@ -46,6 +46,9 @@ void ActionLed::setSettings(String key, String value) {
 }
 
 void ActionLed::setSettings(int status) {
+	if (currentStatus == status) {
+		return;
+	}
 	Logger::getInstance()->addToLog("Led " + gpio->toString() + " changed to " + String(status));
 	if (status == 0) {
 		GPIO.digitalWrite(gpio, 0);
@@ -57,9 +60,9 @@ void ActionLed::setSettings(int status) {
 }
 
 
-int ActionLed::loop() {
-	return -1; // TODO Pattern
-}
+//int ActionLed::loop() {
+//	return 3000 + ; // TODO Pattern
+//}
 
 void ActionLed::setPattern(const char* patternString) {
 //	for (int i = 0; patternString[i] != 0; i++) {

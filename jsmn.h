@@ -1,5 +1,31 @@
-#ifndef __JSMN_H_
+/*
+
+from https://github.com/zserge/jsmn
+
+Copyright (c) 2010 Serge A. Zaitsev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+ */#ifndef __JSMN_H_
 #define __JSMN_H_
+
 
 // During parsing, the current token's 'skip' field is used to store
 // the location of the parent.
@@ -13,6 +39,7 @@
 // }(parent={) or ](parent=[) or ,(parent!=[or{) -> ASCEND
 
 #include <stddef.h>
+#include "Arduino.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +58,7 @@ extern "C" {
  * 	o String
  * 	o Other primitive: number, boolean (true/false) or null
  */
-typedef enum {
+typedef enum __attribute__ ((__packed__)) {
 	JSMN_UNDEFINED = 0,
 	JSMN_OBJECT = 1,
 	JSMN_ARRAY = 2,
@@ -56,13 +83,11 @@ enum jsmnerr {
  */
 typedef struct {
 	jsmntype_t type;
-	int start;
-	int end;
-	int skip;
-#ifdef JSMN_PARENT_LINKS
-	int parent;
-#endif
-} jsmntok_t;
+	sint16 start;
+	sint16 end;
+	sint16 skip;
+	sint16 parent;
+} __attribute__ ((packed)) jsmntok_t;
 
 /**
  * JSON parser. Contains an array of token blocks available. Also stores

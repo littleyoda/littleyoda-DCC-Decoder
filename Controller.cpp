@@ -14,10 +14,17 @@
 
 
 Controller::Controller() {
+	cmdlogger = NULL;
+	dccSniffer = NULL;
+	longestLoop = 0;
 	if (!SPIFFS.begin()) {
 		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
+//	for (int i = 0; i < 99; i++) {
+//		l[i] = 0;
+//	}
+//	next = 0;
 }
 
 Controller::~Controller() {
@@ -43,7 +50,8 @@ void Controller::doLoops() {
 		}
 		delay(0);
 	}
-	delay(0);
+	logLoop(millis() - now);
+
 	if (dnsServer) {
 		dnsServer->processNextRequest();
 	}
@@ -75,8 +83,8 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 	}
 	TurnOutData* data = getTurnOutData(id);
 	data->direction = direction;
-	Logger::getInstance()->addToLog(
-			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
+//	Logger::getInstance()->addToLog(
+//			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
 	lastTurnoutCmd[0] = id;
 	lastTurnoutCmd[1] = direction;
 	lastTurnoutCmd[2] = millis();
@@ -319,3 +327,24 @@ void Controller::registerSettings(ISettings* loop) {
 	settings.add(loop);
 }
 
+void Controller::logLoop(unsigned long now) {
+//	if (now > 99) {
+//		now = 99;
+//	}
+//	l[now]++;
+//	if (next <= millis()) {
+//		Serial.print(" 0: ");
+//		for (int i = 0; i < 99; i++) {
+//			Serial.printf(" %7d", l[i]);
+//			if (i % 10 == 9) {
+//				Serial.printf("\r\n%2d: ", (i + 1));
+//			}
+//		}
+//		Serial.println();
+//		next = millis() + 5000;
+//	}
+//	if (now > longestLoop) {
+//		longestLoop = now;
+//		Serial.println("Gesamt " + String(longestLoop));
+//	}
+}

@@ -26,6 +26,9 @@ Logger::~Logger() {
 
 void Logger::addToLog(String s) {
 	Serial.println(s);
+	if (maxLog == 0) {
+		return;
+	}
 	logdata* log = new logdata;
 	log->send = false;
 	log->msg = String(millis() / 1000) + String(": ") + s;
@@ -81,7 +84,7 @@ LinkedList<Logger::logdata*>* Logger::getLogs() {
 unsigned int Logger::getMemUsage() {
 	unsigned int usage = 0;
 	for (int i = 0; i < logger.size(); i++) {
-		usage +=  logger.get(i)->msg.length();
+		usage +=  (logger.get(i)->msg.length() + sizeof(String));
 	}
 	return usage;
 }

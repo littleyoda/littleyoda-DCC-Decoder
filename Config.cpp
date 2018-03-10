@@ -10,7 +10,6 @@
 #include "Logger.h"
 #include "ArduinoJson.h"
 #include "GPIO.h"
-
 #include "ActionTurnOut.h"
 #include "ActionServo.h"
 #include "ActionLed.h"
@@ -41,485 +40,450 @@
 #include "ISettings.h"
 
 
+
+
 Config::Config() {
+	lowmemory = false;
+	parser = 0;
 }
 
 Config::~Config() {
 }
 
 
-boolean Config::parse(Controller* controller, Webserver* web, String filename, boolean dryrun) {
+bool Config::parse(Controller* controller, Webserver* web, String filename, boolean dryrun) {
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg Read");
 	lowmemory = false;
 	File configFile = SPIFFS.open(filename, "r");
-	size_t size = configFile.size();
-	Serial.println("Starting Parsing");
-	char* buf = new char[size];
-	configFile.readBytes(buf, size);
-	jsmn_parser p;
-	jsmn_init(&p);
-	int r = jsmn_parse(&p, buf, size, NULL, 0);
-	if (r < 0) {
-		printf("Failed to parse JSON (Token): %d\r\n", r);
+
+	parser = new json(configFile);
+
+	String version = parser->getValueByKey(0, "version");
+	if (!version.equals("3")) {
+		Logger::getInstance()->addToLog("Ungültige Version des Konfig-Files: " + version);
 		return false;
 	}
-	jsmntok_t* t = new jsmntok_t[r];
-	jsmn_init(&p);
-	r = jsmn_parse(&p, buf, size, t, r);
-	if (r < 0) {
-		Serial.printf("Failed to parse JSON: %d\r\n", r);
-		return false;
-	}
-	Serial.println("Ok2");
-	Serial.flush();
-	/* Assume the top-level element is an object */
-	if (r < 1 || t[0].type != JSMN_OBJECT) {
-		printf("Object expected\r\n");
-		return 1;
+	if (dryrun) {
+		delete(parser);
+		return true;
 	}
 
-	for (int i = 1; i < r; i++) {
-		Serial.println("Pos: " + String(i));
-		printf("- User: %.*s\r\n", t[i].end-t[i].start,
-				buf + t[i].start);
-		//Serial.println("Start: " + String(t[i].start) + " " + String(t[i].end));
-//		Serial.printf("Key: %.*s\r\n", t[i].end-t[i].start, buf.get() + t[i].start);
-//		printf("  * %.*s\r\n", g->end - g->start, buf.get() + g->start);
-//		if (jsoneq(buf.get(), &t[i], "user") == 0) {
-//			/* We may use strndup() to fetch string value */
-//			printf("- User: %.*s\r\n", t[i+1].end-t[i+1].start,
-//					buf.get() + t[i+1].start);
-//			i++;
-//		} else if (jsoneq(buf.get(), &t[i], "admin") == 0) {
-//			/* We may additionally check if the value is either "true" or "false" */
-//			printf("- Admin: %.*s\r\n", t[i+1].end-t[i+1].start,
-//					buf.get() + t[i+1].start);
-//			i++;
-//		} else if (jsoneq(buf.get(), &t[i], "uid") == 0) {
-//			/* We may want to do strtol() here to get numeric value */
-//			printf("- UID: %.*s\r\n", t[i+1].end-t[i+1].start,
-//					buf.get() + t[i+1].start);
-//			i++;
-//		} else if (jsoneq(buf.get(), &t[i], "groups") == 0) {
-//			int j;
-//			printf("- Groups:\r\n");
-//			if (t[i+1].type != JSMN_ARRAY) {
-//				continue; /* We expect groups to be an array of strings */
-//			}
-//			for (j = 0; j < t[i+1].size; j++) {
-//				jsmntok_t *g = &t[i+j+2];
-//				printf("  * %.*s\r\n", g->end - g->start, buf.get() + g->start);
-//			}
-//			i += t[i+1].size + 1;
-//		} else {
-//			printf("Unexpected key: %.*s\r\n", t[i].end-t[i].start,
-//					buf.get() + t[i].start);
-//		}
-	}
+	parseCfg(controller, web, "cfg");
+	parseOut(controller, web, "out");
+	parseIn(controller, web, "in");
+	parseConnector(controller, web, "connector");
 
-	//	DynamicJsonBuffer jsonBuffer;
-	//	JsonObject& root = jsonBuffer.parseObject(configFile);
-	//
-	//	if (!root.success()) {
-	//		Serial.println("Parsing failed!");
-	//		return false;
-	//	}
-	//	Serial.println("Parsing ok!");
-	//	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Setup");
-	//	int version = root["version"].as<int>();
-	//	if (version != 3) {
-	//		Logger::getInstance()->addToLog("Ungültige Version: " + String(version));
-	//		return false;
-	//	}
-	//	if (dryrun) {
-	//		return true;
-	//	}
-	//
-	//	JsonArray& cfg = root["cfg"];
-	//	parseCfg(controller, web, cfg);
-	//
-	//	JsonArray& out = root["out"];
-	//	parseOut(controller, web, out);
-	//
-	//	JsonArray& in = root["in"];
-	//	parseIn(controller, web, in);
-	//
-	//	JsonArray& connector = root["connector"];
-	//	parseConnector(controller, web, connector);
-	//	configFile.close();
-	//
-	//	Logger::getInstance()->addToLog("JSON Parsing finish!");
-	//	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-Clear");
-	//	jsonBuffer.clear();
-	//	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-End");
-	//	if (lowmemory) {
-	//		Logger::getInstance()->addToLog("Nicht genügend Speicher für das JSON-File!");
-	//		return false;
-	//	}
-	return false;
+	delete(parser);
+	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg-End");
+	return true;
 }
 
-void Config::parseOut(Controller* controller, Webserver* web, JsonArray& r1) {
-	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
+
+void Config::parseOut(Controller* controller, Webserver* web, String n) {
+	int idx = parser->getFirstChildOfArrayByKey(0, n);
+	if (idx == -1) {
+		Logger::getInstance()->addToLog("Out-Sektion leer oder fehlerhaft!");
+		return;
+	}
+	while (idx != -1) {
 		if (ESP.getFreeHeap() < 1200) {
 			lowmemory = true;
 			break;
 		}
-		JsonObject& value = *it;
-		const char* art = (const char*) value["m"];
-		if (art == NULL) {
-			//Logger::getInstance()->addToLog("Null from json");
-			continue;
-		}
-		if (strcmp(art, "dccout") == 0) {
-			Pin* gpioenable = new Pin(value["enable"].as<const char*>());
-			int locoaddr = value["addr"].as<int>();
-			int dccoutput = value["dccoutputaddr"].as<int>();
+		String m = parser->getValueByKey(idx, "m");
+		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + m);
+		if (m.equals("dccout")) {
+			Pin* gpioenable = new Pin(parser->getValueByKey(idx, "enable"));
+			int locoaddr = parser->getValueByKey(idx, "addr").toInt();
+			int dccoutput = parser->getValueByKey(idx, "dccoutputaddr").toInt();
 			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
 			controller->registerNotify(a);
 			controller->registerLoop(a);
+			idx = parser->getNextSiblings(idx);
 			continue;
 		}
 
-		if (strcmp(art, "susiout") == 0) {
-			int locoaddr = value["addr"].as<int>();
+		if (m.equals("susiout")) {
+			int locoaddr = parser->getValueByKey(idx, "addr").toInt();
 			ActionSUSIGeneration* a = new ActionSUSIGeneration(locoaddr);
 			controller->registerNotify(a);
 			controller->registerLoop(a);
+			idx = parser->getNextSiblings(idx);
 			continue;
 		}
 
-		const char* id = (const char*) value["id"];
-		if (id == NULL) {
+		String id = parser->getValueByKey(idx, "id");
+		if (id.length() == 0) {
 			Logger::getInstance()->addToLog("ID is null");
+			idx = parser->getNextSiblings(idx);
 			continue;
 		}
-		if (strcmp(art, "led") == 0) {
-			Pin* ledgpio = new Pin(value["gpio"].as<const char*>());
+		if (m.equals("led")) {
+			Pin* ledgpio = new Pin(parser->getValueByKey(idx, "gpio"));
 			ActionLed* l = new ActionLed(ledgpio);
 			l->setName(id);
 			controller->registerSettings(l);
-			controller->registerLoop(l);
-		} else if (strcmp(art, "pwm") == 0) {
-			int gpiopwm = GPIO.string2gpio(value["pwm"].as<const char*>());
-			int gpiof = GPIO.string2gpio(value["forward"].as<const char*>());
-			int gpior = GPIO.string2gpio(value["reverse"].as<const char*>());
+
+		} else if (m.equals("pwm")) {
+			int gpiopwm = GPIO.string2gpio(parser->getValueByKey(idx, "pwm"));
+			int gpiof = GPIO.string2gpio(parser->getValueByKey(idx, "forward"));
+			int gpior = GPIO.string2gpio(parser->getValueByKey(idx, "reverse"));
 			ISettings* a = new ActionPWMOutput(gpiopwm, gpiof, gpior);
 			a->setName(id);
 			controller->registerSettings(a);
 
 
-		} else if (strcmp(art, "servo") == 0) {
-			int gpioservo = GPIO.string2gpio(value["gpio"].as<const char*>());
+		} else if (m.equals("servo")) {
+			int gpioservo = GPIO.string2gpio(parser->getValueByKey(idx, "gpio"));
 			ActionServo* a = new ActionServo(gpioservo);
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
 
-		} else if (strcmp(art, "turnout") == 0) {
+		} else if (m.equals("turnout")) {
 			ActionTurnOut* a = new ActionTurnOut(
-					GPIO.string2gpio(value["dir1"].as<const char*>()),
-					GPIO.string2gpio(value["dir2"].as<const char*>()),
-					GPIO.string2gpio(value["enable"].as<const char*>()));
+					GPIO.string2gpio(parser->getValueByKey(idx, "dir1")),
+					GPIO.string2gpio(parser->getValueByKey(idx, "dir2")),
+					GPIO.string2gpio(parser->getValueByKey(idx, "enable")));
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
-		} else if (strcmp(art, "sendturnout") == 0) {
-			int addr = value["addr"].as<int>();
+
+		} else if (m.equals("sendturnout")) {
+			int addr = parser->getValueByKey(idx, "addr").toInt();
 			ActionSendTurnoutCommand* a = new ActionSendTurnoutCommand(controller, addr);
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerNotify(a);
+
 		} else {
 			Logger::getInstance()->addToLog(
-					"Config: Unbekannter Eintrag " + String(art));
+					"Config: Unbekannter Eintrag " + m);
 		}
+		idx = parser->getNextSiblings(idx);
 		loop();
-
 	}
 }
 
 
 
-void Config::parseCfg(Controller* controller, Webserver* web, JsonArray& r1) {
-	for (auto value : r1) {
+void Config::parseCfg(Controller* controller, Webserver* web, String n) {
+	int idx = parser->getFirstChildOfArrayByKey(0, n);
+	if (idx == -1) {
+		Logger::getInstance()->addToLog("CFG-Sektion leer oder fehlerhaft!");
+		return;
+	}
+	while (idx != -1) {
 		if (ESP.getFreeHeap() < 1200) {
 			lowmemory = true;
 			break;
 		}
-		const char* art = (const char*) value["m"];
-		if (art == NULL) {
-			//Logger::getInstance()->addToLog("Null from json");
-			continue;
-		}
-		if ((strcmp(art, "dcclogger") == 0) || (strcmp(art, "cmdlogger") == 0)) {
+		String m = parser->getValueByKey(idx, "m");
+		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + m);
+		if (m.equals("dcclogger") || m.equals("cmdlogger")) {
 			controller->cmdlogger = new WebserviceCommandLogger();
 			controller->registerNotify(controller->cmdlogger);
 			web->registerWebServices(controller->cmdlogger);
-
-
-		} else if (strcmp(art, "dccsniffer") == 0) {
+		} else if (m.equals("dccsniffer")) {
 			controller->dccSniffer = new WebserviceDCCSniffer();
 			web->registerWebServices(controller->dccSniffer);
 
 
-		} else if (strcmp(art, "dcc") == 0) {
-			int gpio = GPIO.string2gpio(value["gpio"].as<const char*>());
+		} else if (m.equals("dcc")) {
+			int gpio = GPIO.string2gpio(parser->getValueByKey(idx, "gpio"));
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 
 
-		} else if (strcmp(art, "z21") == 0) {
-			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, value["ip"].as<const char*>());
+		} else if (m.equals("z21")) {
+			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, parser->getValueByKey(idx, "ip"));
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);
 
 
-		} else if (strcmp(art, "simulateZ21") == 0) {
+		} else if (m.equals("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
 			controller->registerCmdReceiver(rec);
 
 
-			//		} else if (strcmp(art, "espnow") == 0) {
+		} else if (m.equals("espnow")) {
 			//			String rolle = String(value["rolle"].as<const char*>());
 			//			Serial.println("Rolle: " + rolle);
 			//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
 			//			controller->registerCmdReceiver(rec);
 
 
-		} else if (strcmp(art, "webservicewifiscanner") == 0) {
+		} else if (m.equals("webservicewifiscanner")) {
 			web->registerWebServices(new WebserviceWifiScanner());
 
 
-		} else if (strcmp(art, "webservicelog") == 0) {
+		} else if (m.equals("webservicelog")) {
 			web->registerWebServices(new WebserviceLog());
 
+		} else if (m.equals("mp3")) {
+			//			int  addr = value["addr").toInt();
+			//			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
+			//			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
+			//			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
 
-			//		} else if (strcmp(art, "mp3") == 0) {
-			////			int  addr = value["addr"].as<int>();
-			////			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
-			////			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
-			////			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
-
-		} else if (strcmp(art, "wlan") == 0) {
+		} else if (m.equals("wlan")) {
 			WiFi.enableSTA(true);
-			if (value["ip"] != NULL || value["netmask"] != NULL || value["gw"] != NULL) {
-				if (value["ip"] != NULL && value["netmask"] != NULL && value["gw"] != NULL) {
-					IPAddress ip;
-					IPAddress nm;
-					IPAddress gw;
-					ip.fromString(value["ip"].as<const char*>());
-					nm.fromString(value["netmask"].as<const char*>());
-					gw.fromString(value["gw"].as<const char*>());
-					WiFi.config(ip, gw, nm);
+			String ip = parser->getValueByKey(idx, "ip");
+			String netmask = parser->getValueByKey(idx, "netmask");
+			String gw = parser->getValueByKey(idx, "gw");
+			String ssid = parser->getValueByKey(idx, "ssid");
+			String pwd = parser->getValueByKey(idx, "pwd");
+			if (ip.length() != 0 || netmask.length() != 0 || gw.length() != 0) {
+				if (ip.length() > 0 &&  netmask.length() > 0 && gw.length() > 0) {
+					IPAddress ipx;
+					IPAddress nmx;
+					IPAddress gwx;
+					ipx.fromString(ip);
+					nmx.fromString(netmask);
+					gwx.fromString(gw);
+					WiFi.config(ipx, gwx, nmx);
 				} else {
 					Logger::log("Netzwerkkonfiguration (ip, netmask, gw) unvollständig");
+					idx = parser->getNextSiblings(idx);
 					continue;
 				}
 			} else {
 				Logger::log("Netzwerkkonfiguration per DHCP");
 			}
 			int ch = 1;
-			if (value["kanal"] != NULL) {
-				ch = value["kanal"].as<int>();
+			String kanal = parser->getValueByKey(idx, "kanal");
+			if (kanal.length() > 0) {
+				ch = kanal.toInt();
 			}
-			WiFi.begin(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch);
-		} else if (strcmp(art, "ap") == 0) {
+			WiFi.begin(ssid.c_str(), pwd.c_str(), ch);
+		} else if (m.equals("ap")) {
 			IPAddress Ip(192, 168, 0, 111);
 			IPAddress NMask(255, 255, 255, 0);
 			int ch = 1;
-			if (value["kanal"] != NULL) {
-				ch = value["kanal"].as<int>();
+			String kanal = parser->getValueByKey(idx, "kanal");
+			if (kanal.length() > 0) {
+				ch = kanal.toInt();
 			}
+			String ssid = parser->getValueByKey(idx, "ssid");
+			String pwd = parser->getValueByKey(idx, "pwd");
 			WiFi.softAPConfig(Ip, Ip, NMask);
-			if (!WiFi.softAP(value["ssid"].as<const char*>(), value["pwd"].as<const char*>(), ch)) {
+			if (!WiFi.softAP(ssid.c_str(), pwd.c_str(), ch)) {
 				Logger::log("softAP fehlgeschlagen!");
 			}
 			WiFi.enableAP(true);
-			Serial.println(WiFi.softAPIP().toString());
+			Serial.println("AP-IP: " + WiFi.softAPIP().toString());
 			// TODO DNS -Server
 
 
-		} else if (strcmp(art, "i2c") == 0) {
-			int sda = GPIO.string2gpio(value["sda"].as<const char*>());
-			int scl = GPIO.string2gpio(value["scl"].as<const char*>());
+		} else if (m.equals("i2c")) {
+			int sda = GPIO.string2gpio(parser->getValueByKey(idx, "sda"));
+			int scl = GPIO.string2gpio(parser->getValueByKey(idx, "scl"));
 			Wire.begin(sda, scl);
 
 
-		} else if (strcmp(art, "i2cslave") == 0) {
-			const char* d = (const char*) value["d"];
-			if (d != NULL && (strcmp(d, "MCP23017") == 0 || strcmp(d, "mcp23017") == 0)) {
-				JsonArray& cfg = value["addr"];
-				for (auto value : cfg) {
-					int idx = value.as<int>();
-					Wire.beginTransmission(idx + 0x20);
+		} else if (m.equals("i2cslave")) {
+			String d = parser->getValueByKey(idx, "d");
+			if (d.equalsIgnoreCase("mcp23017")) {
+				int addridx = parser->getIdxByKey(idx, "addr");
+				addridx = parser->getFirstChild(addridx);
+				if (!parser->isArray(addridx)) {
+					Logger::log("Format für MCP23017 Adressen falsch!");
+					idx = parser->getNextSiblings(idx);
+					continue;
+
+				}
+				int child = parser->getFirstChild(addridx);
+				while (child != -1) {
+					int addr = parser->getString(child).toInt();
+					Wire.beginTransmission(addr + 0x20);
 					int ret = Wire.endTransmission();
 					String tret = "Failed (" + String(ret) + ")";
 					if (ret == 0) {
 						tret = "OK";
 					}
-					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(idx + 0x20) + ": " + tret);
+					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(addr + 0x20) + ": " + tret);
 					if (ret == 0) {
-						GPIO.addMCP23017(idx);
+						GPIO.addMCP23017(addr);
 					}
+					child = parser->getNextSiblings(child);
 				}
 			} else {
-				Logger::getInstance()->addToLog("Unbekanntes Gerät: " + String(d));
+				Logger::getInstance()->addToLog("Unbekanntes Gerät (I2C): " + String(d));
 			}
 
 
 		} else {
 			Logger::getInstance()->addToLog(
-					"Config: Unbekannter Eintrag " + String(art));
+					"Config: Unbekannter Eintrag " + m);
 		}
+
 		loop();
+		idx = parser->getNextSiblings(idx);
+
 	}
+
 }
 
-void Config::parseConnector(Controller* controller, Webserver* web, JsonArray& r1) {
-	int idx = 0;
-	for (auto value : r1) {
-		if (ESP.getFreeHeap() < 1200) {
-			lowmemory = true;
-			break;
-		}
-		idx++;
-		const char* in = (const char*) value["in"];
-		const char* out = (const char*) value["out"];
-		String connectString = "conn" + String(idx) + "io";
-		if (strcmp(in, "turnout") == 0 && strcmp(out, "led") == 0) {
+void Config::parseConnector(Controller* controller, Webserver* web, String n) {
+	int idx = parser->getFirstChildOfArrayByKey(0, n);
+	if (idx == -1) {
+		Logger::getInstance()->addToLog("Connector-Sektion leer oder fehlerhaft!");
+		return;
+	}
+	while (idx != -1) {
+		String in = parser->getValueByKey(idx, "in");
+		String out = parser->getValueByKey(idx, "out");
+		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + in + "/" + out);
+		if (in.equals("turnout") && out.equals("led")) {
 			Connectors* cin;
-			JsonArray& r1 = value["values"];
-			for (auto value : r1) {
-				String connectString = "conn" + String(idx) + "io"; idx++;
+			int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
+			if (!parser->isArray(addridx)) {
+				Logger::log("Format falsch!");
+				idx = parser->getNextSiblings(idx);
+				continue;
+
+			}
+			int child = parser->getFirstChild(addridx);
+			while (child != -1) {
 				if (ESP.getFreeHeap() < 1200) {
 					lowmemory = true;
 					break;
 				}
-				int addr = value[0].as<int>();
-				const char* pin = value[1].as<const char*>();
-				Logger::getInstance()->addToLog("Turnout/Led" + String(addr) + "/" + String(pin));
+				int idx = parser->getFirstChild(child);
+				int addr = parser->getString(idx).toInt();
+				String pin = parser->getString(parser->getNextSiblings(idx));
 
+//				Logger::getInstance()->addToLog("Turnout/Led " + String(addr) + "/" + String(pin));
 
 				Pin* ledgpio = new Pin(pin);
 				ActionLed* l = new ActionLed(ledgpio);
-				l->setName(connectString);
 				controller->registerSettings(l);
-				controller->registerLoop(l);
-
-
-				ISettings* a = getSettingById(controller, connectString.c_str());
-				cin = new ConnectorTurnout(a, addr);
+				cin = new ConnectorTurnout(l, addr);
 				controller->registerNotify(cin);
+
+				child = parser->getNextSiblings(child);
 			}
-
-
-		} else if (strcmp(in, "gpio") == 0 && strcmp(out, "sendturnout") == 0) {
+		} else if (in.equals("gpio") && out.equals("sendturnout")) {
 			Connectors* cin;
-			JsonArray& r1 = value["values"];
-			for (auto value : r1) {
-				String connectString = "conn" + String(idx) + "io"; idx++;
+			int child = parser->getFirstChildOfArrayByKey(idx, "values");
+			if (child < 0) {
+				Logger::log("Format falsch!");
+				idx = parser->getNextSiblings(idx);
+				continue;
+
+			}
+			while (child != -1) {
 				if (ESP.getFreeHeap() < 1200) {
 					lowmemory = true;
 					break;
 				}
-				const char* pin = value[0].as<const char*>();
-				int addr = value[1].as<int>();
-				Logger::getInstance()->addToLog("GPIO/Sendturnout " + String(pin) + "/" + String(addr));
+				int idx = parser->getFirstChild(child);
+				String pin = parser->getString(idx);
+				int addr = parser->getString(parser->getNextSiblings(idx)).toInt();
+//				Logger::getInstance()->addToLog("GPIO/Sendturnout " + String(pin) + "/" + String(addr));
 
 				ActionSendTurnoutCommand* atc = new ActionSendTurnoutCommand(controller, addr);
-				atc->setName(connectString);
 				controller->registerSettings(atc);
 				controller->registerNotify(atc);
 
 				Pin* g = new Pin(pin);
-				ISettings* a = getSettingById(controller, connectString.c_str());
-				cin = new ConnectorGPIO(a, g);
+				cin = new ConnectorGPIO(atc, g);
 				controller->registerNotify(cin);
+
+				child = parser->getNextSiblings(child);
 			}
 
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
 		}
+		loop();
+		idx = parser->getNextSiblings(idx);
 	}
 }
 
 
-void Config::parseIn(Controller* controller, Webserver* web, JsonArray& r1) {
-	for (JsonArray::iterator it = r1.begin(); it != r1.end(); ++it) {
-		if (ESP.getFreeHeap() < 1200) {
-			lowmemory = true;
-			break;
-		}
-		JsonObject& value = *it;
-		const char* art = (const char*) value["m"];
-		if (art == NULL) {
-			//Logger::getInstance()->addToLog("Null from json");
-			continue;
-		}
+void Config::parseIn(Controller* controller, Webserver* web, String n) {
+	int idx = parser->getFirstChildOfArrayByKey(0, n);
+	if (idx == -1) {
+		Logger::getInstance()->addToLog("In-Sektion leer oder fehlerhaft!");
+		return;
+	}
+	while (idx != -1) {
+		String m = parser->getValueByKey(idx, "m");
+		Serial.println("S: " +  m);
 		Connectors* c;
-		if (strcmp(art, "locospeed") == 0) {
-			int l = value["addr"].as<int>();
-			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+		if (m.equals("locospeed")) {
+			int l = parser->getValueByKey(idx, "addr").toInt();
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
 			c = new ConnectorLocoSpeed(a, l);
 
-		} else if (strcmp(art, "funconoff") == 0) {
-			int l = value["addr"].as<int>();
-			int f = value["func"].as<int>();
-			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+		} else  if (m.equals("funconoff")) {
+			int l = parser->getValueByKey(idx, "addr").toInt();
+			int f = parser->getValueByKey(idx, "func").toInt();
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
 			c = new ConnectorONOFF(a, l, f);
 
+		} else if (m.equals("func2value")) {
+			Logger::getInstance()->addToLog(
+					"Zur Zeit nicht implementiert " + m);
+			//TODO			int l = parser->getValueByKey(idx, "addr").toInt();
+			//			JsonObject& fv = parser->getValueByKey(idx, "func2value"];
+			//			int *array = new int[2 * fv.size()];
+			//			int pos = 0;
+			//			for (auto kv : fv) {
+			//				array[pos++] = atoi(kv.key);
+			//				array[pos++] = kv.value.as<int>();
+			//			}
+			//			ISettings* a = getSettingById(controller, parser->getValueByKey(idx, "out"][0].as<const char*>());
+			//			c = new ConnectorFunc2Value(a, l, array, 2 * fv.size());
+			//
 
-		} else if (strcmp(art, "func2value") == 0) {
-			int l = value["addr"].as<int>();
-			JsonObject& fv = value["func2value"];
-			int *array = new int[2 * fv.size()];
-			int pos = 0;
-			for (auto kv : fv) {
-				array[pos++] = atoi(kv.key);
-				array[pos++] = kv.value.as<int>();
-			}
-			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
-			c = new ConnectorFunc2Value(a, l, array, 2 * fv.size());
-
-
-		} else if (strcmp(art, "turnout") == 0) {
-			int addr = value["addr"].as<int>();
-			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+		} else if (m.equals("turnout")) {
+			int addr = parser->getValueByKey(idx, "addr").toInt();
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
 			c = new ConnectorTurnout(a, addr);
 
+		} else if (m.equals("lights")) {
+			Logger::getInstance()->addToLog(
+					"Zur Zeit nicht implementiert " + m);
+			//	TODO		int l = parser->getValueByKey(idx, "addr").toInt();
+			//			int onoff = parser->getValueByKey(idx, "on").toInt();
+			//
+			//			JsonArray& out = parser->getValueByKey(idx, "out"];
+			//			if (out.size() != 2) {
+			//				Logger::log("Keine zwei Ausgabe Led angegeben.");
+			//				continue;
+			//			}
+			//			ISettings *ptr[4];
+			//			for (int i = 0; i < 2; i++) {
+			//				ptr[i] = getSettingById(controller, parser->getValueByKey(idx, "out"][i].as<const char*>());
+			//			}
+			//			Serial.println("Lights: " + String(onoff) + " " + " Addr: " + String(l));
+			//			c = new ConnectorLights(ptr[0], ptr[1], l, onoff);
 
-		} else if (strcmp(art, "lights") == 0) {
-			int l = value["addr"].as<int>();
-			int onoff = value["on"].as<int>();
-
-			JsonArray& out = value["out"];
-			if (out.size() != 2) {
-				Logger::log("Keine zwei Ausgabe Led angegeben.");
-				continue;
-			}
-			ISettings *ptr[4];
-			for (int i = 0; i < 2; i++) {
-				ptr[i] = getSettingById(controller, value["out"][i].as<const char*>());
-			}
-			Serial.println("Lights: " + String(onoff) + " " + " Addr: " + String(l));
-			c = new ConnectorLights(ptr[0], ptr[1], l, onoff);
-		} else if (strcmp(art, "gpio") == 0) {
-			Pin* g = new Pin(value["gpio"].as<const char*>());
-			ISettings* a = getSettingById(controller, value["out"][0].as<const char*>());
+		} else if (m.equals("gpio")) {
+			Pin* g = new Pin(parser->getValueByKey(idx, "gpio"));
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
 			c = new ConnectorGPIO(a, g);
+
 		} else {
 			Logger::getInstance()->addToLog(
-					"Config: Unbekannter Eintrag " + String(art));
+					"Config: Unbekannter Eintrag " + m);
 		}
 		if (c != NULL) {
 			controller->registerNotify(c);
 		}
 		loop();
+		idx = parser->getNextSiblings(idx);
 
 	}
 }
 
-ISettings* Config::getSettingById(Controller* c, const char* id) {
+ISettings* Config::getSettingById(Controller* c, String id) {
 	for (int idx = 0; idx < c->getSettings()->size(); idx++) {
 		ISettings* s = c->getSettings()->get(idx);
 		if (s->getName().equals(id)) {
@@ -530,11 +494,3 @@ ISettings* Config::getSettingById(Controller* c, const char* id) {
 	return NULL;
 }
 
-int Config::jsoneq(const char *json, jsmntok_t *tok, const char *s) {
-	if (tok->type == JSMN_STRING && (int) strlen(s) == tok->end - tok->start &&
-			strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
-		return 0;
-	}
-	return -1;
-}
-boolean Config::lowmemory = false;

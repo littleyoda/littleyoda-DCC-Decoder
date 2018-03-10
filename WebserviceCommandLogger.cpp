@@ -19,7 +19,7 @@ WebserviceCommandLogger::~WebserviceCommandLogger() {
 
 
 void WebserviceCommandLogger::TurnoutCmd(int id, int direction, int source) {
-	addToLog("Turnout</td><td>" + String(id) + "</td><td>" + String(direction) + "</td><td>" + String(source));
+//	addToLog("Turnout</td><td>" + String(id) + "</td><td>" + String(direction) + "</td><td>" + String(source));
 }
 
 void WebserviceCommandLogger::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {

@@ -25,7 +25,7 @@ public:
 	struct container {
 		T1 key;
 		T2 value;
-	};
+	} __attribute__ ((packed));
 
 	void put(T1 t1, T2 t2) {
 		if (containerUsed == containerSize) {

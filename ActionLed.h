@@ -15,7 +15,7 @@
 #include "ISettings.h"
 #include "Pin.h"
 
-class ActionLed: public ILoop, public ISettings {
+class ActionLed: public ISettings {
 public:
 	ActionLed(Pin* gpio);
 	virtual ~ActionLed();
@@ -24,13 +24,11 @@ public:
 	virtual String getHTMLController(String urlprefix);
 	virtual void setSettings(String key, String value);
 	virtual void setSettings(int status);
-	virtual int loop();
+//	virtual int loop();
 
 private:
 	Pin* gpio;
-	int currentStatus = 0;
-//	LinkedList<int> pattern = LinkedList<int>();
-//	int patternPos = 0;
+	int currentStatus = -1;
 };
 
 #endif /* ACTIONLED_H_ */
