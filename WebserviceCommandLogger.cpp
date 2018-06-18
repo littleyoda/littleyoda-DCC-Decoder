@@ -59,7 +59,7 @@ void WebserviceCommandLogger::run() {
 	send(Utils::getHTMLHeader());
 	send("<table>"
 			"<thead>"
-			"<tr><th>Zeitpunkt</th><th></th><th>ID</th><th>Wert</th><th>Quelle (0=DCC, 1=WLAN)</th>"
+			"<tr><th>Zeitpunkt</th><th></th><th>ID</th><th>Wert</th><th>Quelle (0=DCC, 1=WLAN, 2=Internal, 3=Z21Server, 4=Rocrail )</th>"
 		    "</thead><tbody>");
 	for (int i = 0; i < logger.size(); i++) {
 		send("<tr><td>");

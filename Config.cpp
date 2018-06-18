@@ -31,6 +31,7 @@
 #include "CmdReceiverDCC.h"
 #include "CmdZentraleZ21.h"
 #include "CmdReceiverZ21Wlan.h"
+#include "CmdReceiverRocnetOverMQTT.h"
 //#include "CmdReceiverESPNOW.h"
 
 #include "WebserviceCommandLogger.h"
@@ -210,7 +211,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			//			Serial.println("Rolle: " + rolle);
 			//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
 			//			controller->registerCmdReceiver(rec);
-
+		} else if (m.equals("rocnetovermqtt")) {
+			controller->registerCmdReceiver(new CmdReceiverRocnetOverMQTT(controller));
 
 		} else if (m.equals("webservicewifiscanner")) {
 			web->registerWebServices(new WebserviceWifiScanner());
