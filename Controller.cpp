@@ -163,7 +163,7 @@ void Controller::notifyGPIOChange(int pin, int newvalue) {
 
 /**
  * @param speed see Consts.h
- * @param direction 1 = forward / 1 = reverse
+ * @param direction 1 = forward / -1 = reverse
  */
 void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		int SpeedSteps, int source) {
