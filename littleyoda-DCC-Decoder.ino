@@ -261,7 +261,6 @@ void handleSerial() {
 
 void setup() {
 	Serial.begin(115200);
-	delay(3000);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup");
 	Logger::getInstance()->addToLog("Started!");
 	Logger::getInstance()->addToLog(compile_date);
