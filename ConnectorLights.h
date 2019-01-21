@@ -13,18 +13,20 @@
 
 class ConnectorLights : public Connectors {
 public:
-	ConnectorLights(ISettings* vorne, ISettings* hinten, int locoaddr, int anaus);
+	ConnectorLights(ISettings* x, int locoaddr, int fkey, int richtung);
 	virtual ~ConnectorLights();
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
 
 private:
 	void update();
-	ISettings *ptr[2];
+	ISettings* out;
 	int addr;
-	int f0;
-	unsigned long int fstatus;
-	int richtung;
+	int func;
+	int direction;
+
+	unsigned long int currentFStatus;
+	int currentDirection;
 	requestInfo* r;
 };
 

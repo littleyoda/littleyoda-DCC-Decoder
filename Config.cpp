@@ -393,7 +393,32 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 
 				child = parser->getNextSiblings(child);
 			}
+		} else if (in.equals("direction") && out.equals("leds")) {
 
+			int addr = parser->getValueByKey(idx, "addr").toInt();
+			int func = parser->getValueByKey(idx, "func").toInt();
+			int direction = parser->getValueByKey(idx, "direction").toInt();
+			Connectors* cin;
+			int child = parser->getFirstChildOfArrayByKey(idx, "gpio");
+			if (child < 0) {
+				Logger::log("Format falsch! GPIO Array nicht gefunden!");
+				idx = parser->getNextSiblings(idx);
+				continue;
+
+			}
+			while (child != -1) {
+				if (ESP.getFreeHeap() < 1200) {
+					lowmemory = true;
+					break;
+				}
+				String pin = parser->getString(child);
+
+				Logger::log("d=>l Pin:" + String(pin) + " Addr:" + String(addr) + " Func:" + String(func));
+				ActionLed* g = new ActionLed(new Pin(pin));
+				cin = new ConnectorLights(g, addr, func, direction);
+				controller->registerNotify(cin);
+				child = parser->getNextSiblings(child);
+			}
 		} else {
 			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));

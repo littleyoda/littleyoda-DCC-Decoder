@@ -10,7 +10,7 @@
 
 #include "Controller.h"
 #include "ISettings.h"
-#include "Connectors.h";
+#include "Connectors.h"
 #include "ArduinoJson.h"
 #include "Webserver.h"
 #include "json.h"
