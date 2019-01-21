@@ -33,6 +33,8 @@ Webserver::Webserver(Controller* c) {
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
+	server->on("/format", std::bind(&Webserver::handleFormat, this));
+	server->on("/doformat", std::bind(&Webserver::handleDoFormat, this));
 	server->on("/upload", HTTP_POST,
 			[]() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); },
 			std::bind(&Webserver::handleUpload, this));
@@ -81,6 +83,21 @@ void Webserver::handleUpload() {
 		}
 	}
 	yield();
+}
+
+void Webserver::handleFormat() {
+	String output = "" + Utils::getHTMLHeader();
+	output += F("<form action=\"/doformat\" method=\"get\" onsubmit=\"return confirm('Wirklich alles löschen?');\"><button type=\"submit\">Formatieren</button></form>");
+	output += Utils::getHTMLFooter();
+	server->send(200, "text/html", output);
+}
+
+void Webserver::handleDoFormat() {
+	bool b = SPIFFS.format();
+	String output = "" + Utils::getHTMLHeader();
+	output += "Fertig, Status: " + String(b);
+	output += Utils::getHTMLFooter();
+	server->send(200, "text/html", output);
 }
 
 void Webserver::handleFilelist() {
