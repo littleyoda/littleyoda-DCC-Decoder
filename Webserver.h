@@ -40,6 +40,8 @@ private:
 	void handleSet();
 	void handleFilelist();
 	void handleUpload();
+	void handleDoFormat();
+	void handleFormat();
 	int lastWifiStatus = 6;
 	File fsUploadFile;
 	Controller* controll;
