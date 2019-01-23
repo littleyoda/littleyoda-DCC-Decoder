@@ -438,7 +438,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 	while (idx != -1) {
 		String m = parser->getValueByKey(idx, "m");
 		Serial.println("S: " +  m);
-		Connectors* c;
+		Connectors* c = NULL;
 		if (m.equals("locospeed")) {
 			int l = parser->getValueByKey(idx, "addr").toInt();
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
@@ -453,20 +453,30 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			c = new ConnectorONOFF(a, l, f);
 
 		} else if (m.equals("func2value")) {
-			Logger::getInstance()->addToLog(
-					"Zur Zeit nicht implementiert " + m);
-			//TODO			int l = parser->getValueByKey(idx, "addr").toInt();
-			//			JsonObject& fv = parser->getValueByKey(idx, "func2value"];
-			//			int *array = new int[2 * fv.size()];
-			//			int pos = 0;
-			//			for (auto kv : fv) {
-			//				array[pos++] = atoi(kv.key);
-			//				array[pos++] = kv.value.as<int>();
-			//			}
-			//			ISettings* a = getSettingById(controller, parser->getValueByKey(idx, "out"][0].as<const char*>());
-			//			c = new ConnectorFunc2Value(a, l, array, 2 * fv.size());
-			//
+			/**
+                        "m": "func2value",
+                        "addr": "4711",
+                        "out": [ "servo1" ],
+                        "func2value": { "3": "0", "4": "50", "5": "120"
+                        }
+			 */
+			int addr = parser->getValueByKey(idx, "addr").toInt();
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
 
+			int child = parser->getIdxByKey(idx, "func2value");
+			child = parser->getFirstChild(child);
+			child = parser->getFirstChild(child);
+			int arraysize = 2 * parser->getNumberOfSiblings(child);
+			int *array = new int[arraysize];
+			int pos = 0;
+			while (child != -1) {
+				child = parser->getNextSiblings(child);
+				array[pos++] = parser->getString(child).toInt();
+				array[pos++] = parser->getString(parser->getFirstChild(child)).toInt();
+			}
+
+			ISettings* a = getSettingById(controller, conn);
+			c = new ConnectorFunc2Value(a, addr, array, arraysize);
 		} else if (m.equals("turnout")) {
 			int addr = parser->getValueByKey(idx, "addr").toInt();
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
