@@ -25,6 +25,7 @@ public:
 	int getNextSiblings(int childID);
 	void printElement(int id);
 	int getFirstChildOfArrayByKey(int parentID, String key);
+	int getNumberOfSiblings(int idx);
 	bool isArray(int id);
 
 private:

@@ -46,7 +46,7 @@ void json::dump() {
 }
 
 void json::printElement(int i) {
-	Serial.printf("[%3d] S:%5d E:%5d J:%5d P:%5d ", i, elements[i].start, elements[i].end, elements[i].skip, elements[i].parent);
+	Serial.printf("[%3d] Start:%5d End:%5d J:%5d Parent:%5d Type: ", i, elements[i].start, elements[i].end, elements[i].skip, elements[i].parent);
 	switch (elements[i].type) {
 		case JSMN_UNDEFINED: Serial.print("?"); break;
 		case JSMN_OBJECT: Serial.print("O");break;
@@ -54,6 +54,7 @@ void json::printElement(int i) {
 		case JSMN_STRING: Serial.print("S");break;
 		case JSMN_PRIMITIVE: Serial.print("P");break;
 	}
+	Serial.printf("\r\n");
 }
 
 json::~json() {
@@ -147,6 +148,18 @@ bool json::jsoneq(int pos, const char *s) {
 		return true;
 	}
 	return false;
+}
+
+int json::getNumberOfSiblings(int idx) {
+	int nr = 0;
+	if (idx == -1) {
+		return nr;
+	}
+	do {
+		nr++;
+		idx = getNextSiblings(idx);
+	} while (idx != -1);
+	return nr;
 }
 
 int json::getFirstChildOfArrayByKey(int parentID, String key) {
