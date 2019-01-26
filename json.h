@@ -18,6 +18,8 @@ public:
 	virtual ~json();
 	void dump();
 	String getValueByKey(int parentID, String key);
+	String getValueByKey(int parentID, String key, String defaultValue);
+	int getChildAt(int parentID, int idx);
 	bool jsoneq(int pos, const char *s);
 	String getString(int pos);
 	int getIdxByKey(int parentID, String key);

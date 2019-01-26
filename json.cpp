@@ -89,6 +89,9 @@ int json::getFirstChild(int parentID) {
 }
 
 int json::getNextSiblings(int childID) {
+	if (childID == -1) {
+		return -1;
+	}
 	jsmntok_t* child = &elements[childID];
 
 	int idx = childID + child->skip;
@@ -117,7 +120,23 @@ String json::getValueByKey(int parentID, String key) {
 	return "";
 }
 
+
+String json::getValueByKey(int parentID, String key, String defaultValue) {
+	int idx = getIdxByKey(parentID, key);
+	if (idx == -1) {
+		return defaultValue;
+	}
+	int cidx = getFirstChild(idx);
+	if (cidx != -1) {
+		return getString(cidx);
+	}
+	return defaultValue;
+}
+
 String json::getString(int pos) {
+	if (pos == -1) {
+		return "ERROR";
+	}
 	jsmntok_t* tok = &elements[pos];
 	String s;
 	int len = tok->end - tok->start;
@@ -160,6 +179,14 @@ int json::getNumberOfSiblings(int idx) {
 		idx = getNextSiblings(idx);
 	} while (idx != -1);
 	return nr;
+}
+
+int json::getChildAt(int parentID, int idx) {
+	int child = getFirstChild(parentID);
+	for (int i = 0; i < idx; i++) {
+		child = getNextSiblings(child);
+	}
+	return child;
 }
 
 int json::getFirstChildOfArrayByKey(int parentID, String key) {
