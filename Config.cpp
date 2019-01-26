@@ -18,6 +18,7 @@
 #include "ActionDCCGeneration.h"
 #include "ActionSUSIGeneration.h"
 #include "ActionSendTurnoutCommand.h"
+#include "ActionStepperOutput.h"
 
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
@@ -156,6 +157,19 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerNotify(a);
+
+		} else if (m.equals("stepper")) {
+			int child = parser->getIdxByKey(idx, "gpio");
+			child = parser->getFirstChild(child);
+			ActionStepperOutput* a = new ActionStepperOutput(
+								new Pin(parser->getString(parser->getChildAt(child, 0))),
+								new Pin(parser->getString(parser->getChildAt(child, 1))),
+								new Pin(parser->getString(parser->getChildAt(child, 2))),
+								new Pin(parser->getString(parser->getChildAt(child, 3)))
+			);
+			a->setName(id);
+			controller->registerSettings(a);
+			controller->registerLoop(a);
 
 		} else {
 			Logger::getInstance()->addToLog(
@@ -404,7 +418,6 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 				Logger::log("Format falsch! GPIO Array nicht gefunden!");
 				idx = parser->getNextSiblings(idx);
 				continue;
-
 			}
 			while (child != -1) {
 				if (ESP.getFreeHeap() < 1200) {
