@@ -24,6 +24,8 @@
 #include "ConnectorLocoSpeed.h"
 #include "ConnectorONOFF.h"
 #include "ConnectorFunc2Value.h"
+#include "ConnectorTurnout2Value.h"
+#include "ConnectorTurnout2Value.h"
 #include "ConnectorTurnout.h"
 #include "ConnectorLights.h"
 #include "ConnectorGPIO.h"
@@ -490,6 +492,31 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 
 			ISettings* a = getSettingById(controller, conn);
 			c = new ConnectorFunc2Value(a, addr, array, arraysize);
+		} else if (m.equals("turnout2value")) {
+			/**
+                        "m": "turnout2value",
+                        "addr": "4711",
+                        "out": [ "servo1" ],
+                        "turnout2value": { "0": "0", "1": "50"}
+                        }
+			 */
+			int addr = parser->getValueByKey(idx, "addr").toInt();
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+
+			int child = parser->getIdxByKey(idx, "turnout2value");
+			child = parser->getFirstChild(child);
+			child = parser->getFirstChild(child);
+			int arraysize = 2 * parser->getNumberOfSiblings(child);
+			int *array = new int[arraysize];
+			int pos = 0;
+			while (child != -1) {
+				child = parser->getNextSiblings(child);
+				array[pos++] = parser->getString(child).toInt();
+				array[pos++] = parser->getString(parser->getFirstChild(child)).toInt();
+			}
+
+			ISettings* a = getSettingById(controller, conn);
+			c = new ConnectorTurnout2Value(a, addr, array, arraysize);
 		} else if (m.equals("turnout")) {
 			int addr = parser->getValueByKey(idx, "addr").toInt();
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
