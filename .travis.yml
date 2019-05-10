@@ -9,6 +9,7 @@ install:
 - pip install -U platformio
 - platformio update
 script:
+- sed -i "s/env_default = .*//g"  platformio.ini 
 - platformio run
 
 before_deploy:
