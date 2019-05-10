@@ -234,11 +234,12 @@ typedef struct {
 	DCC_MSG LastMsg;
 	uint8_t ExtIntNum;
 	uint8_t ExtIntPinNum;
-#ifdef DCC_DEBUG
-	uint8_t IntCount;
-	uint8_t TickCount;
-	uint8_t NestedIrqCount;
-#endif
+//#ifdef DCC_DEBUG
+	uint16_t IntCount;
+	uint16_t TickCount;
+	uint16_t NestedIrqCount;
+//#endif
+
 } DCC_PROCESSOR_STATE;
 
 DCC_PROCESSOR_STATE DccProcState;
@@ -247,16 +248,15 @@ void ExternalInterruptHandler(void) {
 // Bit evaluation without Timer 0 ------------------------------
 	uint8_t DccBitVal;
 	static int8_t bit1, bit2;
-	static word lastMicros;
+	static unsigned long lastMicros = 0;
 	static byte halfBit, DCC_IrqRunning;
-	unsigned int actMicros, bitMicros;
+	unsigned long actMicros, bitMicros;
+	DccProcState.IntCount++;
 	if (DCC_IrqRunning) {
 		// nested DCC IRQ - obviously there are glitches
 		// ignore this interrupt and increment glitchcounter
 		CLR_TP3;
-#ifdef DCC_DEBUG
 		DccProcState.NestedIrqCount++;
-#endif
 		SET_TP3;
 		return; //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> abort IRQ
 	}SET_TP3;
@@ -278,10 +278,7 @@ void ExternalInterruptHandler(void) {
 	//#endif
 	DCC_IrqRunning = true;
 	sei(); // time critical is only the micros() command,so allow nested irq's
-#ifdef DCC_DEBUG
 	DccProcState.TickCount++;
-#endif
-
 	switch (DccRx.State) {
 	case WAIT_PREAMBLE:
 		if (DccBitVal) {
@@ -1025,18 +1022,17 @@ uint8_t NmraDcc::isSetCVReady(void) {
 //	return readyEEPROM();
 }
 
-#ifdef DCC_DEBUG
-uint8_t NmraDcc::getIntCount(void)
+uint16_t NmraDcc::getIntCount(void)
 {
 	return DccProcState.IntCount;
 }
 
-uint8_t NmraDcc::getTickCount(void)
+uint16_t NmraDcc::getTickCount(void)
 {
 	return DccProcState.TickCount;
 }
 
-uint8_t NmraDcc::getNestedIrqCount(void)
+uint16_t NmraDcc::getNestedIrqCount(void)
 {
 	return DccProcState.NestedIrqCount;
 }
@@ -1050,7 +1046,6 @@ uint8_t NmraDcc::getBitCount(void)
 {
 	return DccRx.BitCount;
 }
-#endif
 
 uint8_t NmraDcc::process() {
 	if (DccProcState.inServiceMode) {
@@ -1084,8 +1079,7 @@ uint8_t NmraDcc::process() {
 			return 0;
 		} else {
 			//SET_TP4;
-			if (notifyDccMsg)
-				notifyDccMsg(&Msg);
+			notifyDccMsg(&Msg);
 
 			execDccProcessor(&Msg);
 			//CLR_TP4;

@@ -198,13 +198,11 @@ uint8_t isSetCVReady(void);
 uint16_t getAddr(void);
 
 // #define DCC_DEBUG
-#ifdef DCC_DEBUG
-uint8_t getIntCount(void);
-uint8_t getTickCount(void);
+uint16_t getIntCount(void);
+uint16_t getTickCount(void);
 uint8_t getBitCount(void);
 uint8_t getState(void);
-uint8_t getNestedIrqCount(void);
-#endif
+uint16_t getNestedIrqCount(void);
 
 };
 
