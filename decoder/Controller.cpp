@@ -86,8 +86,8 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 	}
 	TurnOutData* data = getTurnOutData(id);
 	data->direction = direction;
-//	Logger::getInstance()->addToLog(
-//			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
+	Serial.println(
+			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
 	lastTurnoutCmd[0] = id;
 	lastTurnoutCmd[1] = direction;
 	lastTurnoutCmd[2] = millis();
