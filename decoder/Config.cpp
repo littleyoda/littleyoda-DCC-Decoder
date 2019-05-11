@@ -43,7 +43,10 @@
 
 #include "ISettings.h"
 
-
+#ifdef ESP32
+	#include "FS.h"
+	#include "SPIFFS.h"
+#endif
 
 
 Config::Config() {
@@ -96,6 +99,8 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 		}
 		String m = parser->getValueByKey(idx, "m");
 		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + m);
+		#ifdef ESP8266
+
 		if (m.equals("dccout")) {
 			Pin* gpioenable = new Pin(parser->getValueByKey(idx, "enable"));
 			int locoaddr = parser->getValueByKey(idx, "addr").toInt();
@@ -116,6 +121,8 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			continue;
 		}
 
+		#endif
+
 		String id = parser->getValueByKey(idx, "id");
 		if (id.length() == 0) {
 			Logger::getInstance()->addToLog("ID is null");
@@ -129,26 +136,29 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerSettings(l);
 
 		} else if (m.equals("pwm")) {
-			int gpiopwm = GPIO.string2gpio(parser->getValueByKey(idx, "pwm"));
-			int gpiof = GPIO.string2gpio(parser->getValueByKey(idx, "forward"));
-			int gpior = GPIO.string2gpio(parser->getValueByKey(idx, "reverse"));
+			int gpiopwm = GPIOobj.string2gpio(parser->getValueByKey(idx, "pwm"));
+			int gpiof = GPIOobj.string2gpio(parser->getValueByKey(idx, "forward"));
+			int gpior = GPIOobj.string2gpio(parser->getValueByKey(idx, "reverse"));
 			ISettings* a = new ActionPWMOutput(gpiopwm, gpiof, gpior);
 			a->setName(id);
 			controller->registerSettings(a);
 
 
 		} else if (m.equals("servo")) {
-			int gpioservo = GPIO.string2gpio(parser->getValueByKey(idx, "gpio"));
+			#ifdef ESP8266
+
+			int gpioservo = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio"));
 			ActionServo* a = new ActionServo(gpioservo);
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
+            #endif
 
 		} else if (m.equals("turnout")) {
 			ActionTurnOut* a = new ActionTurnOut(
-					GPIO.string2gpio(parser->getValueByKey(idx, "dir1")),
-					GPIO.string2gpio(parser->getValueByKey(idx, "dir2")),
-					GPIO.string2gpio(parser->getValueByKey(idx, "enable")));
+					GPIOobj.string2gpio(parser->getValueByKey(idx, "dir1")),
+					GPIOobj.string2gpio(parser->getValueByKey(idx, "dir2")),
+					GPIOobj.string2gpio(parser->getValueByKey(idx, "enable")));
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
@@ -207,7 +217,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 
 		} else if (m.equals("dcc")) {
-			int gpio = GPIO.string2gpio(parser->getValueByKey(idx, "gpio"));
+			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio"));
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 
 
@@ -239,8 +249,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("mp3")) {
 			//			int  addr = value["addr").toInt();
-			//			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
-			//			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
+			//			int tx = GPIOobj.string2gpio(value["tx"].as<const char*>());
+			//			int rx = GPIOobj.string2gpio(value["rx"].as<const char*>());
 			//			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
 
 		} else if (m.equals("wlan")) {
@@ -293,8 +303,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 
 		} else if (m.equals("i2c")) {
-			int sda = GPIO.string2gpio(parser->getValueByKey(idx, "sda"));
-			int scl = GPIO.string2gpio(parser->getValueByKey(idx, "scl"));
+			int sda = GPIOobj.string2gpio(parser->getValueByKey(idx, "sda"));
+			int scl = GPIOobj.string2gpio(parser->getValueByKey(idx, "scl"));
 			Wire.begin(sda, scl);
 
 
@@ -320,7 +330,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 					}
 					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(addr + 0x20) + ": " + tret);
 					if (ret == 0) {
-						GPIO.addMCP23017(addr);
+						GPIOobj.addMCP23017(addr);
 					}
 					child = parser->getNextSiblings(child);
 				}

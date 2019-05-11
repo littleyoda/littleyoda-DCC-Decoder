@@ -14,7 +14,7 @@ ActionStepperOutput::ActionStepperOutput(Pin* p1, Pin* p2, Pin* p3, Pin* p4) {
 	pins[2] = p3;
 	pins[3] = p4;
 	for (int i = 0; i < 4; i++) {
-		GPIO.pinMode(pins[i], OUTPUT, "Stepper");
+		GPIOobj.pinMode(pins[i], OUTPUT, "Stepper");
 	}
 }
 
@@ -25,7 +25,7 @@ ActionStepperOutput::~ActionStepperOutput() {
 int ActionStepperOutput::loop() {
 	if (current == target) {
 		for (int i = 0; i < 4; i++) {
-			GPIO.digitalWrite(pins[i], 0);
+			GPIOobj.digitalWrite(pins[i], 0);
 		}
 		return 50;
 	}
@@ -43,7 +43,7 @@ int ActionStepperOutput::loop() {
 		}
 	}
 	for (int i = 0; i < 4; i++) {
-		GPIO.digitalWrite(pins[i], steps[state][i]);
+		GPIOobj.digitalWrite(pins[i], steps[state][i]);
 	}
 	return 1;
 }

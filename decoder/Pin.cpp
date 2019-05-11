@@ -15,7 +15,7 @@ Pin::Pin(const char* pindefinition) {
 		invert = true;
 		pindef = pindef.substring(1);
 	}
-	pin = GPIO.string2gpio(pindef.c_str());
+	pin = GPIOobj.string2gpio(pindef.c_str());
 
 }
 
@@ -25,7 +25,7 @@ Pin::Pin(String pindef) {
 		invert = true;
 		pindef = pindef.substring(1);
 	}
-	pin = GPIO.string2gpio(pindef.c_str());
+	pin = GPIOobj.string2gpio(pindef.c_str());
 
 }
 
@@ -37,7 +37,7 @@ String Pin::toString() {
 	if (invert) {
 		s = "!";
 	}
-	s += GPIO.gpio2string(pin) + "/" + String(pin);
+	s += GPIOobj.gpio2string(pin) + "/" + String(pin);
 	return s;
 }
 

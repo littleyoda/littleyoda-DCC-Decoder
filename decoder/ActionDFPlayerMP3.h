@@ -8,6 +8,8 @@
 #ifndef ACTIONDFPLAYERMP3_H_
 #define ACTIONDFPLAYERMP3_H_
 
+#ifdef ESP8266
+
 #include <SoftwareSerial.h>
 
 #include "INotify.h"
@@ -39,5 +41,7 @@ private:
 	unsigned long initTime = 0;;
 };
 ;
+
+#endif
 
 #endif /* ACTIONDFPLAYERMP3_H_ */

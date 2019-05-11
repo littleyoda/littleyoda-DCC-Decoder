@@ -66,7 +66,13 @@ int Logger::loop() {
 	}
 	logdata* log = logger.get(last);
 	udp->beginPacket(*logserver, 514);
-	udp->write(log->msg.c_str(), log->msg.length());
+	#ifdef ESP8266
+		udp->write(log->msg.c_str(), log->msg.length());
+	#elif ESP32
+		udp->write((const uint8_t *)log->msg.c_str(), log->msg.length());
+	#else
+		#error "This Arch is not supported"
+	#endif
 	if (udp->endPacket() == 1) {
 		log->send = true;
 	} else {

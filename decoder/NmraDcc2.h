@@ -91,6 +91,8 @@ typedef struct {
 
 #if defined(ESP8266)
 #define MAXCV     4096
+#elif defined(ESP32)
+#define MAXCV     4096
 #else
 #define MAXCV                                 E2END     // the upper limit of the CV value currently defined to max memory.
 #endif

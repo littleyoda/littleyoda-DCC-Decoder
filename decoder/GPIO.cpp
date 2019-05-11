@@ -9,9 +9,9 @@
 
 GPIOClass::GPIOClass() {
 	mcps = new LinkedList<Adafruit_MCP23017*>();
-	data = new DataContainerSimpleList<String, sint16>(16* 6 + 12, "", -1);
-	valueinputpins = new DataContainerSimpleList<sint16, sint16>(16* 6 + 12, -1, -1);
-	pinusage = new DataContainer<sint16, String>(-1, "");
+	data = new DataContainerSimpleList<String, int16_t>(16* 6 + 12, "", -1);
+	valueinputpins = new DataContainerSimpleList<int16_t, int16_t>(16* 6 + 12, -1, -1);
+	pinusage = new DataContainer<int16_t, String>(-1, "");
 	cacheEnabled = false;
 	cachedValue = NULL;
 #ifdef ARDUINO_ESP8266_ESP01
@@ -170,11 +170,20 @@ void GPIOClass::analogWrite(uint16_t pin, int val) {
 				"Analog Write not possible for Pin: " + String(pin));
 		return;
 	}
-	::analogWrite(pin, val);
+	#ifdef ESP8266
+		::analogWrite(pin, val);
+	#elif ESP32
+		// Hack
+	#endif
+
 }
 
 void GPIOClass::analogWriteFreq(uint32_t freq) {
-	::analogWriteFreq(freq);
+	#ifdef ESP8266
+		::analogWriteFreq(freq);
+	#elif ESP32
+		// Hack
+	#endif
 }
 
 /**
@@ -193,7 +202,7 @@ void GPIOClass::addMCP23017(uint8_t addr) {
 	mcps->add(m);
 }
 
-GPIOClass GPIO;
+GPIOClass GPIOobj;
 
 int GPIOClass::digitalRead(uint16_t pin) {
 	if (pin >= 100) {

@@ -4,10 +4,11 @@ Ein flexibles Framework für Modelleisenbahnen-Decoder, auf Basis eines ESP8266.
 
 Der Funktionsumfang lässt sich leicht durch weitere Klassen erweitern.
 
-Weitere Informationen befinden sich im [Wiki](https://github.com/littleyoda/littleyoda-DCC-Decoder/wiki)
+Weitere Informationen befinden sich im [Dokumentation](https://littleyoda.github.io/littleyoda-DCC-Decoder-DOC/)
 
 ## Status
- * in Entwicklung, wird von mehreren Dekodern genutzt
+ * wird von mehreren Personen produktiv genutzt für verschiedene Arten von
+   Dekodern
 
 Die folgenden Dekoder nutzen diese Software:
  * [Weichendekoder](http://spurg.open4me.de/wordpress/784/Weichendecoder)

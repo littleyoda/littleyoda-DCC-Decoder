@@ -23,6 +23,8 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifdef ESP8266
+
 #include "SPINonBlocking.h"
 
 #include "HardwareSerial.h"
@@ -46,9 +48,9 @@ SPINonClockingClass::SPINonClockingClass() {
 
 
 void SPINonClockingClass::begin(SPISettings settings, String funktion) {
-	GPIO.pinMode(MOSI, SPECIAL, funktion + " SPI"); ///< GPIO13
+	GPIOobj.pinMode(MOSI, SPECIAL, funktion + " SPI"); ///< GPIO13
 	if (settings._SCK) {
-		GPIO.pinMode(SCK, SPECIAL, funktion + " SPI/CLOCK"); ///< GPIO14
+		GPIOobj.pinMode(SCK, SPECIAL, funktion + " SPI/CLOCK"); ///< GPIO14
 	}
 	SPI1C = 0;
 	setFrequency(1000000); ///< 1MHz
@@ -58,7 +60,7 @@ void SPINonClockingClass::begin(SPISettings settings, String funktion) {
 }
 
 void SPINonClockingClass::end() {
-	GPIO.pinMode(MOSI, OUTPUT, "SPI");
+	GPIOobj.pinMode(MOSI, OUTPUT, "SPI");
 }
 
 
@@ -278,3 +280,4 @@ int SPINonClockingClass::getSCKPin() {
 	return SCK;
 }
 
+#endif

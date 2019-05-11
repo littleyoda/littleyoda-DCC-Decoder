@@ -25,6 +25,8 @@
 #ifndef SPINONBLOCKING_H_
 #define SPINONBLOCKING_H_
 
+#ifdef ESP8266
+
 #include <Arduino.h>
 #include <stdlib.h>
 
@@ -40,14 +42,15 @@
 #define SPI_CLOCK_DIV64 	0x027c1001 //250 KHz
 #define SPI_CLOCK_DIV128 	0x04fc1001 //125 KHz
 
-const uint8_t SPI_MODE0 = 0x00; ///<  CPOL: 0  CPHA: 0
-const uint8_t SPI_MODE1 = 0x01; ///<  CPOL: 0  CPHA: 1
-const uint8_t SPI_MODE2 = 0x10; ///<  CPOL: 1  CPHA: 0
-const uint8_t SPI_MODE3 = 0x11; ///<  CPOL: 1  CPHA: 1
+//const uint8_t SPI_MODE0 = 0x00; ///<  CPOL: 0  CPHA: 0
+//const uint8_t SPI_MODE1 = 0x01; ///<  CPOL: 0  CPHA: 1
+//const uint8_t SPI_MODE2 = 0x10; ///<  CPOL: 1  CPHA: 0
+//const uint8_t SPI_MODE3 = 0x11; ///<  CPOL: 1  CPHA: 1
+const uint8_t my_SPI_MODE3 = 0x11; ///<  CPOL: 0  CPHA: 0
 
 class SPISettings {
 public:
-  SPISettings() :_clock(1000000), _bitOrder(LSBFIRST), _dataMode(SPI_MODE0), _SCK(false){}
+  SPISettings() :_clock(1000000), _bitOrder(LSBFIRST), _dataMode(my_SPI_MODE3), _SCK(false){}
   SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode, bool useSCK) :_clock(clock), _bitOrder(bitOrder), _dataMode(dataMode), _SCK(useSCK) {}
   uint32_t _clock;
   uint8_t  _bitOrder;
@@ -77,5 +80,6 @@ private:
 
 extern SPINonClockingClass SPI;
 
+#endif
 
 #endif /* SPINONBLOCKING_H_ */

@@ -33,7 +33,7 @@ public:
 
 	struct requestInfo {
 		enum ART {TURNOUT, LOCO } __attribute__ ((packed)) art;
-		uint16 id;
+		uint16_t id;
 	} __attribute__ ((packed));
 	virtual void getRequestList(LinkedList<requestInfo*>* list);
 protected:

@@ -21,12 +21,19 @@ Controller* controller;
 #include "ConnectorONOFF.h"
 #include "Connectors.h"
 #include "ConnectorTurnout.h"
-
+#include "FS.h"
+#ifdef ESP32
+	#include "SPIFFS.h"
+#endif
 
 void initWifi() {
 	Serial.println("Starting Wifi...");
 	WiFi.persistent(false);
-	WiFi.hostname(controller->getHostname());
+	#ifdef ESP8266
+		WiFi.hostname(controller->getHostname());
+	#elif ESP32
+		WiFi.setHostname(controller->getHostname().c_str());
+	#endif
 	WiFi.mode(WIFI_OFF);
 	WiFi.disconnect();
 }
@@ -66,7 +73,7 @@ void loadCFG(Webserver* web) {
 		controller->enableAPModus();
 		return;
 	}
-	controller->registerLoop(&GPIO);
+	controller->registerLoop(&GPIOobj);
 	controller->registerLoop(web);
 	controller->registerLoop(Logger::getInstance());
 	controller->updateRequestList();
@@ -90,7 +97,10 @@ void handleSerial() {
 			}
 		} else if (chr == 'd') {
 			// Taken from https://github.com/esp8266/Arduino/blob/master/libraries/esp8266/examples/CheckFlashConfig/CheckFlashConfig.ino
-			uint32_t realSize = ESP.getFlashChipRealSize();
+			uint32_t realSize = -1;
+			#ifdef ESP8266
+			realSize = ESP.getFlashChipRealSize();
+			#endif
 			uint32_t ideSize = ESP.getFlashChipSize();
 			FlashMode_t ideMode = ESP.getFlashChipMode();
 
@@ -180,7 +190,7 @@ void handleSerial() {
 			Serial.printf("Pointer %d\r\n", sizeof(String*));
 			Serial.printf("String (without Buffer) %d\r\n", sizeof(String));
 			Serial.printf("int %d\r\n", sizeof(int));
-			Serial.printf("sint16 %d\r\n", sizeof(sint16));
+			Serial.printf("sint16 %d\r\n", sizeof(int16_t));
 			Serial.printf("bool %d\r\n", sizeof(bool));
 			Serial.println();
 			Serial.printf("RequestInfo %d\r\n", sizeof(INotify::requestInfo));
@@ -219,9 +229,14 @@ void handleSerial() {
 				uint8_t sec_scan;
 				uint8_t* BSSID_scan;
 				int32_t chan_scan;
-				bool hidden_scan;
+				bool hidden_scan = false;
 
-				WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan, hidden_scan);
+				#ifdef ESP8266
+					WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan, hidden_scan);
+				#elif ESP32
+					WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan);
+				#endif
+
 				message +="[";
 				for (int i = 0; i < 6; i++) {
 					if (BSSID_scan[i] < 16) {
@@ -239,7 +254,11 @@ void handleSerial() {
 				}
 				message += String(chan_scan);
 				message += " ";
-				message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? "OPEN" : "ENC ";
+				#ifdef ESP8266
+					message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? "OPEN" : "ENC ";
+				#elif ESP32
+					message += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "OPEN" : "ENC ";
+				#endif
 				message += "  Q:";
 				message += String(WiFi.RSSI(i));
 				message += "  --- ";
@@ -267,7 +286,7 @@ void setup() {
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Controller");
 	controller = new Controller();
 	controller->registerLoop(new DoubleBootDetection(controller));
-	GPIO.setController(controller);
+	GPIOobj.setController(controller);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Wifi");
 	initWifi();
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Webserver");
@@ -277,7 +296,7 @@ void setup() {
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg");
 	loadCFG(web);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup Finish");
-	Serial.println(GPIO.getUsage("\r\n"));
+	Serial.println(GPIOobj.getUsage("\r\n"));
 	Logger::getInstance()->addToLog("Setup finish!");
 	controller->longestLoop = 0;
 

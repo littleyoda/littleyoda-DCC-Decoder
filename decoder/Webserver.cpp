@@ -6,26 +6,34 @@
  */
 
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
 #include <Arduino.h>
-#include <FS.h>
-
+#ifdef ESP32
+	#include <FS.h>
+	#include "SPIFFS.h"
+#endif
 #include "Webserver.h"
+
 #include "Controller.h"
 #include "Logger.h"
 #include "WebserviceLog.h"
 #include "Utils.h"
 #include "Config.h"
 
+#ifdef ESP8266
 ESP8266WebServer* Webserver::server = 0;
 ESP8266HTTPUpdateServer* Webserver::httpUpdater = 0;
-
+#elif ESP32
+WebServer* Webserver::server = 0;
+#endif
 
 Webserver::Webserver(Controller* c) {
 	controll = c;
-
+#ifdef ESP8266
 	server = new ESP8266WebServer(80);
+#elif ESP32
+	server = new WebServer(80);
+#endif
+
 	server->onNotFound(std::bind(&Webserver::handleNotFound, this));
 	server->on("/", std::bind(&Webserver::handleRoot, this));
 	server->on("/version", std::bind(&Webserver::handleVersion, this));
@@ -40,9 +48,11 @@ Webserver::Webserver(Controller* c) {
 			std::bind(&Webserver::handleUpload, this));
 	server->on("/del", std::bind(&Webserver::handleDel, this));
 	server->begin();
+#ifdef ESP8266
 	httpUpdater = new ESP8266HTTPUpdateServer();
 	const char* update_path = "/firmware";
 	httpUpdater->setup(server, update_path, "admin", "admin");
+#endif
 
 }
 
@@ -101,9 +111,11 @@ void Webserver::handleDoFormat() {
 }
 
 void Webserver::handleFilelist() {
+	String output = "" + Utils::getHTMLHeader() + F("<table><thead><tr><th>Name</th><th>Size</th></thead><tbody>");
+#ifdef esp8266
+	// TODO
 	Dir dir = SPIFFS.openDir("/");
 
-	String output = "" + Utils::getHTMLHeader() + F("<table><thead><tr><th>Name</th><th>Size</th></thead><tbody>");
 
 	while(dir.next()){
 		File entry = dir.openFile("r");
@@ -124,6 +136,7 @@ void Webserver::handleFilelist() {
 	output += F("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><fieldset> <input name=\"Datei\" type=\"file\" size=\"50\"> ");
 	output += F("    <input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form> ");
 	output += Utils::getHTMLFooter();
+#endif
 	server->send(200, "text/html", output);
 }
 
@@ -170,8 +183,11 @@ int Webserver::loop() {
 		Serial.printf("Connection to: %s (Q:%d)\r\n", WiFi.BSSIDstr().c_str(), WiFi.RSSI());
 		lastWifiStatus = WiFi.status();
 		if (WiFi.status() == WL_CONNECTED) {
+			#ifdef esp8266
+			// TODO
 			MDNS.begin(controll->getHostname().c_str());
 			MDNS.addService("http", "tcp", 80);
+			#endif
 		}
 	}
 	return 2;

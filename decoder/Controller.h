@@ -8,7 +8,12 @@
 #ifndef CONTROLLER_H_
 #define CONTROLLER_H_
 
-#include <ESP8266WebServer.h>
+#ifdef ESP8266
+	#include <ESP8266WebServer.h>
+#else
+	#include <WebServer.h>
+#endif
+
 #include <DNSServer.h>
 #include <LinkedList.h>
 #include <map>
@@ -22,14 +27,14 @@
 #include "WebserviceDCCSniffer.h"
 
 	struct LocData {
-		sint16 speed;
-		int8 direction;
-		int8 speedsteps;
+		int16_t speed;
+		int8_t direction;
+		int8_t speedsteps;
 		unsigned long int status;
 	} __attribute__ ((packed));
 
 	struct TurnOutData {
-		int8 direction;
+		int8_t direction;
 	};
 
 class CmdReceiverBase;

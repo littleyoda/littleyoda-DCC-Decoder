@@ -12,6 +12,13 @@
 
 #include "ISettings.h"
 
+#ifndef ESP8266
+
+// HACK
+#define PWMRANGE 1024
+
+#endif
+
 class ActionPWMOutput: public ISettings {
 public:
 	ActionPWMOutput(uint8_t  pwm, uint8_t forward, uint8_t reverse);

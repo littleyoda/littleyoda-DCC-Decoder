@@ -4,6 +4,8 @@
  * Based on the work of Juian Zimmermann
  * http://www.spassbahn.de/forum/index.php?thread/11462-spa%C3%9Flan-topfschlagen-im-minenfeld/&postID=119804&highlight=julian%2Bdcc#post119804
  */
+#ifdef ESP8266
+
 #include <Arduino.h>
 #include "Consts.h"
 #include "ActionDCCGeneration.h"
@@ -18,18 +20,18 @@ ActionDCCGeneration::ActionDCCGeneration(Pin* gpio, int locoaddr, int dccoutput)
 	LOCO_ADR = locoaddr;
 	enableGpio = gpio;
 	Logger::getInstance()->addToLog("Starting DCC Generator");
-	Logger::getInstance()->addToLog("DCC-Output:" + GPIO.gpio2string(SPI.getUsedPin())
+	Logger::getInstance()->addToLog("DCC-Output:" + GPIOobj.gpio2string(SPI.getUsedPin())
 									+ " Enabled: " + enableGpio->toString()
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 									+ " genutzte DCC Adresse: " + String(DCC_ADRESSE)
 	);
-	SPISettings spi = SPISettings(17241, LSBFIRST, SPI_MODE3, false) ;
+	SPISettings spi = SPISettings(17241, LSBFIRST, my_SPI_MODE3, false) ;
 	SPI.begin(spi, "DCC");
 	SPI.beginTransaction(spi);
 
 	if (enableGpio->getPin() != Consts::DISABLE) {
-		GPIO.pinMode(enableGpio, OUTPUT, "DCC Generation");
-		GPIO.digitalWrite(enableGpio, 0);
+		GPIOobj.pinMode(enableGpio, OUTPUT, "DCC Generation");
+		GPIOobj.digitalWrite(enableGpio, 0);
 	} else {
 		// Keine Enable-Pin => also immer aktiv
 		trackenabled = true;
@@ -87,10 +89,10 @@ void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSt
 			Serial.println("Emergency? " + String(speed == Consts::SPEED_EMERGENCY));
 			if (speed == Consts::SPEED_EMERGENCY) {
 				trackenabled = false;
-				GPIO.digitalWrite(enableGpio, 0); // disable Track
+				GPIOobj.digitalWrite(enableGpio, 0); // disable Track
 			} else {
 				trackenabled = true;
-				GPIO.digitalWrite(enableGpio, 1); // Enable Track
+				GPIOobj.digitalWrite(enableGpio, 1); // Enable Track
 			}
 		} else {
 			trackenabled = true; // Always tre
@@ -295,3 +297,5 @@ void ActionDCCGeneration::send() {
 	SPI.send(SPIBuf, SPIBufUsed);
 	SPIBufUsed = 0;
 }
+
+#endif

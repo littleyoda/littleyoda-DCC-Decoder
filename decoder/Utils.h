@@ -8,7 +8,12 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
-#include <ESP8266WiFi.h>
+#ifdef ESP8266
+	#include <ESP8266WiFi.h>
+#else
+	#include <WiFi.h>
+#endif
+
 #include "Consts.h"
 #include "Logger.h"
 #include "GPIO.h"

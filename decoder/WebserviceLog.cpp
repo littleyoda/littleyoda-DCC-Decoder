@@ -9,7 +9,6 @@
 #include "Logger.h"
 #include "Webserver.h"
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 #include "Utils.h"
 
 WebserviceLog::WebserviceLog() {
@@ -42,7 +41,7 @@ void WebserviceLog::run() {
 	send(start + "IP (Access Point)</td><td>" + WiFi.softAPIP().toString() + end);
 	send(start + "IP (WLAN Client)</td><td>" + WiFi.localIP().toString() + end);
 	send(start + "Pins</td><td>");
-	send(GPIO.getUsage("<br/>"));
+	send(GPIOobj.getUsage("<br/>"));
 	send(end);
 	LinkedList<Logger::logdata*>* list = Logger::getInstance()->getLogs();
 	for (int i = 0; i < list->size(); i++) {

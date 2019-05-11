@@ -6,7 +6,10 @@
  */
 
 #include <Arduino.h>
-#include <FS.h>
+#include "FS.h"
+#ifdef ESP32
+	#include "SPIFFS.h"
+#endif
 #include "Controller.h"
 #include "Utils.h"
 #include "Logger.h"

@@ -17,10 +17,10 @@ ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable) {
 	this->enable = enable;
 	int i;
 	for (i = 0; i < 2; i++) {
-		GPIO.pinMode(dirPin[i], OUTPUT, "Weiche Richtung " + String(0));
-		GPIO.digitalWrite(dirPin[i], 0);
+		GPIOobj.pinMode(dirPin[i], OUTPUT, "Weiche Richtung " + String(0));
+		GPIOobj.digitalWrite(dirPin[i], 0);
 	}
-	GPIO.pinMode(enable, OUTPUT, "Weiche Enable");
+	GPIOobj.pinMode(enable, OUTPUT, "Weiche Enable");
 	off();
 
 }
@@ -47,9 +47,9 @@ String ActionTurnOut::getHTMLController(String urlprefix) {
 }
 
 void ActionTurnOut::off() {
-	GPIO.digitalWrite(enable, 0);
+	GPIOobj.digitalWrite(enable, 0);
 	for (int i = 0; i < 2; i++) {
-		GPIO.digitalWrite(dirPin[i], 0);
+		GPIOobj.digitalWrite(dirPin[i], 0);
 	}
 }
 
@@ -64,13 +64,13 @@ ActionTurnOut::~ActionTurnOut() {
 void ActionTurnOut::setSettings(String key, String value) {
 	int status = value.toInt();
 	if (status == 1) {
-		GPIO.digitalWrite(dirPin[0], 0);
-		GPIO.digitalWrite(dirPin[1], 1);
+		GPIOobj.digitalWrite(dirPin[0], 0);
+		GPIOobj.digitalWrite(dirPin[1], 1);
 	} else {
-		GPIO.digitalWrite(dirPin[0], 1);
-		GPIO.digitalWrite(dirPin[1], 0);
+		GPIOobj.digitalWrite(dirPin[0], 1);
+		GPIOobj.digitalWrite(dirPin[1], 0);
 	}
-	GPIO.digitalWrite(enable, 1);
+	GPIOobj.digitalWrite(enable, 1);
 	delay(200);
 	off();
 }

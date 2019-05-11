@@ -7,6 +7,7 @@
 
 #ifndef ACTIONSUSIGENERATION_H_
 #define ACTIONSUSIGENERATION_H_
+#ifdef ESP8266
 
 
 #include "INotify.h"
@@ -34,5 +35,5 @@ private:
 	uint8_t SPEED_STATE = 0;
 };
 
-
+#endif
 #endif /* ACTIONSUSIGENERATION_H_ */

@@ -10,11 +10,18 @@
 
 #include <LinkedList.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPUpdateServer.h>
+#ifdef ESP8266
+	#include <ESP8266WebServer.h>
+	#include <ESP8266HTTPUpdateServer.h>
+	#include <ESP8266mDNS.h>
+#elif ESP32
+	#include <WebServer.h>
+#else
+	#error "This Arch is not supported"
+#endif
+
 #include <FS.h>
 #include "WebserviceBase.h"
-#include <ESP8266mDNS.h>
 #include "ILoop.h"
 
 
@@ -25,7 +32,11 @@ public:
 	Webserver(Controller* c);
 	virtual int loop();
 	virtual ~Webserver();
+#ifdef ESP8266
 	static ESP8266WebServer* server;
+#elif ESP32
+	static WebServer* server;
+#endif
 	void registerWebServices(WebserviceBase* base);
 
 
@@ -46,7 +57,9 @@ private:
 	File fsUploadFile;
 	Controller* controll;
 	LinkedList<WebserviceBase*> services = LinkedList<WebserviceBase*>();
-	static ESP8266HTTPUpdateServer* httpUpdater;
+	#ifdef ESP8266
+		static ESP8266HTTPUpdateServer* httpUpdater;
+	#endif
 };
 
 

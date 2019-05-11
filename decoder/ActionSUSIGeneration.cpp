@@ -9,6 +9,8 @@
  * falsch!
  *
  */
+#ifdef ESP8266
+
 #include <Arduino.h>
 #include "Consts.h"
 #include "ActionSUSIGeneration.h"
@@ -20,12 +22,12 @@
 ActionSUSIGeneration::ActionSUSIGeneration(int locoaddr) {
 	LOCO_ADR = locoaddr;
 	Logger::getInstance()->addToLog("Starting Susi Generator");
-	Logger::getInstance()->addToLog("SUSI-Output:" + GPIO.gpio2string(SPI.getUsedPin())
+	Logger::getInstance()->addToLog("SUSI-Output:" + GPIOobj.gpio2string(SPI.getUsedPin())
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 	);
 
 	// TODO Negieren oder nicht negieren
-	SPISettings spiS = SPISettings(17241, LSBFIRST, SPI_MODE3, true);
+	SPISettings spiS = SPISettings(17241, LSBFIRST, my_SPI_MODE3, true);
 	SPI.begin(spiS, "SUSI");
 	SPI.beginTransaction(spiS);
 
@@ -120,3 +122,4 @@ void ActionSUSIGeneration::send() {
 	SPI.send(SPIBuf, SPIBufUsed);
 	SPIBufUsed = 0;
 }
+#endif

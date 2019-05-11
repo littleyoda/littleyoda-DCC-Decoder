@@ -461,7 +461,12 @@ void CmdZentraleZ21::printPacketBuffer(int size) {
 	Serial.print(" [");
 	Serial.print(udp->remoteIP());
 	Serial.print(" => ");
+#ifdef defined(udp->destinationIP())
 	Serial.print(udp->destinationIP());
+#else
+	Serial.print("???.???.???.??? ");
+#endif
+
 	Serial.println("]");
 }
 

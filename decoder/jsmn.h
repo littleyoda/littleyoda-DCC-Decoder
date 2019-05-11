@@ -84,10 +84,10 @@ enum jsmnerr {
  */
 typedef struct {
 	jsmntype_t type;
-	sint16 start;
-	sint16 end;
-	sint16 skip;
-	sint16 parent;
+	int16_t start;
+	int16_t end;
+	int16_t skip;
+	int16_t parent;
 } __attribute__ ((packed)) jsmntok_t;
 
 /**

@@ -6,8 +6,12 @@
  */
 
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
+	#ifdef ESP8266
 #include <ESP8266WiFi.h>
+	#elif ESP32
+#include <WiFi.h>
+	#endif
+
 
 #include "WebserviceWifiScanner.h"
 
@@ -43,7 +47,12 @@ void WebserviceWifiScanner::run() {
 		message += "</td><td>";
 		message += dbm2qual(WiFi.RSSI(i));
 		message += "%</td><td>";
-		message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "ENC";
+
+		#ifdef ESP8266
+			message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "ENC";
+		#elif ESP32
+			message += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "ENC";
+		#endif
 		message += "</td></tr>\n";
 	}
 	message += "</table></body></html>";

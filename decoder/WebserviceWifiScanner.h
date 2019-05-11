@@ -9,8 +9,6 @@
 #define WEBSERVICEWIFISCANNER_H_
 
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-
 #include "WebserviceBase.h"
 
 class WebserviceWifiScanner: public WebserviceBase {

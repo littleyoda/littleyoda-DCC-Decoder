@@ -14,21 +14,21 @@
 ActionPWMOutput::ActionPWMOutput(uint8_t pwm, uint8_t forward, uint8_t reverse) {
 	Logger::getInstance()->addToLog("Starting PWM...");
 	Logger::getInstance()->addToLog("PWM-Pin: "
-			+ GPIO.gpio2string(pwm) + " Forward-Pin: "
-			+ GPIO.gpio2string(forward) + " Reverse-Pin: "
-			+ GPIO.gpio2string(reverse)
+			+ GPIOobj.gpio2string(pwm) + " Forward-Pin: "
+			+ GPIOobj.gpio2string(forward) + " Reverse-Pin: "
+			+ GPIOobj.gpio2string(reverse)
 	);
-	  GPIO.analogWriteFreq(100);
+	  GPIOobj.analogWriteFreq(100);
 	  gpioPWM = pwm;
 	  gpioForward = forward;
 	  gpioReverse = reverse;
 	  String fctname = " PWM Signal";
 	  if (gpioPWM != Consts::DISABLE) {
-		  GPIO.pinMode(gpioPWM, OUTPUT, "PWM: PWM Signal"); GPIO.digitalWrite(gpioPWM, LOW); // PWM Signal
+		  GPIOobj.pinMode(gpioPWM, OUTPUT, "PWM: PWM Signal"); GPIOobj.digitalWrite(gpioPWM, LOW); // PWM Signal
 		  fctname = "";
 	  }
-	  GPIO.pinMode(gpioForward, OUTPUT, "PWM: Forward" + fctname); GPIO.digitalWrite(gpioForward, LOW); // Forward
-	  GPIO.pinMode(gpioReverse, OUTPUT, "PWM: Reverse" + fctname); GPIO.digitalWrite(gpioReverse, LOW); // Reverse
+	  GPIOobj.pinMode(gpioForward, OUTPUT, "PWM: Forward" + fctname); GPIOobj.digitalWrite(gpioForward, LOW); // Forward
+	  GPIOobj.pinMode(gpioReverse, OUTPUT, "PWM: Reverse" + fctname); GPIOobj.digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);
 }
 
@@ -76,7 +76,7 @@ void ActionPWMOutput::setSettings(String key, String value) {
 		setSpeedInProcent(s);
 	} else if (key.equals("freq")) {
 		Serial.println("Freq");
-		GPIO.analogWriteFreq(value.toInt());
+		GPIOobj.analogWriteFreq(value.toInt());
 	}
 }
 
@@ -86,17 +86,17 @@ void ActionPWMOutput::setDirection(int dir) {
 		return;
 	}
 	if (dir == 1) {
-		GPIO.digitalWrite(gpioForward, HIGH);
-		GPIO.digitalWrite(gpioReverse, LOW);
+		GPIOobj.digitalWrite(gpioForward, HIGH);
+		GPIOobj.digitalWrite(gpioReverse, LOW);
 		direction = 1;
 	} else if (dir == -1) {
-		GPIO.digitalWrite(gpioForward, LOW);
-		GPIO.digitalWrite(gpioReverse, HIGH);
+		GPIOobj.digitalWrite(gpioForward, LOW);
+		GPIOobj.digitalWrite(gpioReverse, HIGH);
 		direction = -1;
 	} else {
 		Serial.println("Error: Direction " + String(dir));
-		GPIO.digitalWrite(gpioForward, LOW);
-		GPIO.digitalWrite(gpioReverse, LOW);
+		GPIOobj.digitalWrite(gpioForward, LOW);
+		GPIOobj.digitalWrite(gpioReverse, LOW);
 		direction = 0;
 	}
 }
@@ -117,23 +117,23 @@ void ActionPWMOutput::setSpeedInProcent(int speedProc) {
 		handleSpeedandDirectionWithoutPWMPin(direction, speedProc);
 		return;
 	}
-	GPIO.analogWrite(gpioPWM, speedProc);
+	GPIOobj.analogWrite(gpioPWM, speedProc);
 }
 
 void ActionPWMOutput::handleSpeedandDirectionWithoutPWMPin(int dir, int speed) {
 	currentSpeed = speed;
 	if (dir == 1) {
-		GPIO.analogWrite(gpioForward, currentSpeed);
-		GPIO.analogWrite(gpioReverse, 0);
+		GPIOobj.analogWrite(gpioForward, currentSpeed);
+		GPIOobj.analogWrite(gpioReverse, 0);
 		direction = 1;
 	} else if (dir == -1) {
-		GPIO.analogWrite(gpioForward, 0);
-		GPIO.analogWrite(gpioReverse, currentSpeed);
+		GPIOobj.analogWrite(gpioForward, 0);
+		GPIOobj.analogWrite(gpioReverse, currentSpeed);
 		direction = -1;
 	} else {
 		Serial.println("Error: Direction " + String(dir));
-		GPIO.digitalWrite(gpioForward, LOW);
-		GPIO.digitalWrite(gpioReverse, LOW);
+		GPIOobj.digitalWrite(gpioForward, LOW);
+		GPIOobj.digitalWrite(gpioReverse, LOW);
 		direction = 0;
 	}
 }

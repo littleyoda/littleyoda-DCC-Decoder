@@ -4,6 +4,7 @@
  *  Created on: 21.08.2016
  *      Author: sven
  */
+#ifdef ESP8266
 
 #include "ActionDFPlayerMP3.h"
 #include <SoftwareSerial.h>
@@ -176,3 +177,4 @@ void ActionDFPlayerMP3::checkReceiveBuffer() {
 		  Serial.println("Finish playing! " + String(ansbuf[4] << 16 | ansbuf[5] << 8 | ansbuf[6]));
 	  }
 }
+#endif

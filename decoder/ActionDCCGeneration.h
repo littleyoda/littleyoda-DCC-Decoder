@@ -8,6 +8,7 @@
 
 #ifndef ACTIONDCCGENERATION_H_
 #define ACTIONDCCGENERATION_H_
+#ifdef ESP8266
 
 #include "INotify.h"
 #include "ILoop.h"
@@ -60,5 +61,7 @@ private:
 	Pin* enableGpio;
 	requestInfo* r;
 };
+
+#endif
 
 #endif /* ACTIONDCCGENERATION_H_ */

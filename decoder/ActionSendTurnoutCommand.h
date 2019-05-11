@@ -20,8 +20,8 @@ public:
 	virtual void TurnoutCmd(int id, int direction, int source);
 private:
 	Controller* controller;
-	sint16 id;
-	uint8 richtung;
+	int16_t id;
+	uint8_t richtung;
 };
 
 #endif /* ACTIONSENDTURNOUTCOMMAND_H_ */

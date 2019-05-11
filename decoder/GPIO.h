@@ -25,9 +25,9 @@
 
 class GPIOClass : public ILoop {
 public:
-	DataContainer<sint16, String>* pinusage;
+	DataContainer<int16_t, String>* pinusage;
 	// All GPIO in Modus INPUT or INPUT_PULLUP (will update every 30 ms)
-	DataContainerSimpleList<sint16, sint16>* valueinputpins;
+	DataContainerSimpleList<int16_t, int16_t>* valueinputpins;
 
 
 
@@ -57,7 +57,7 @@ public:
 
 
 private:
-	DataContainerSimpleList<String, sint16>* data;
+	DataContainerSimpleList<String, int16_t>* data;
 	void addUsage(uint16_t pin, String usage);
 	Controller* controller;
 	LinkedList<Adafruit_MCP23017*>* mcps;
@@ -65,7 +65,7 @@ private:
 	uint16_t* cachedValue;
 };
 
-extern GPIOClass GPIO;
+extern GPIOClass GPIOobj;
 
 
 #endif /* GPIO_H_ */

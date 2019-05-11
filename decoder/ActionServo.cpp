@@ -9,10 +9,12 @@
 #include "Logger.h"
 #include "GPIO.h"
 
+#ifdef ESP8266
+
 ActionServo::ActionServo(int pin) {
 	Logger::getInstance()->addToLog(
 			"Starting Servo GPIO: " + String(pin));
-	GPIO.pinMode(pin, OUTPUT, "Servo");
+	GPIOobj.pinMode(pin, OUTPUT, "Servo");
 	this->pin = pin;
 }
 
@@ -89,3 +91,4 @@ void ActionServo::detach() {
 	isAttach = false;
 }
 
+#endif

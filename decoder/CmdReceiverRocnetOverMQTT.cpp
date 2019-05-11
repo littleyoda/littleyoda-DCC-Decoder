@@ -86,7 +86,13 @@ int CmdReceiverRocnetOverMQTT::loop() {
 			}
 		}
 		Udp.beginPacket("224.0.0.1", 8051);
-		Udp.write("BROKER-GET");
+		#ifdef ESP8266
+			Udp.write("BROKER-GET");
+    	#elif ESP32
+			Udp.write((const uint8_t *) "BROKER-GET", 10);
+		#else
+			#error "This Arch is not supported"
+		#endif
 		Udp.endPacket();
 		return 200;
 	}

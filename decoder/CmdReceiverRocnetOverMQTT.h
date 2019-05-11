@@ -5,7 +5,15 @@
  *      Author: sven
  */
 
-#include  <ESP8266WiFi.h>
+
+#ifdef ESP8266
+	#include <ESP8266WiFi.h>
+#elif ESP32
+	#include <WiFi.h>
+#else
+	#error "This Arch is not supported"
+#endif
+
 #include <WiFiUdp.h>
 #include "PubSubClient.h"
 #include "CmdReceiverBase.h"

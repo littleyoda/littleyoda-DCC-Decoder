@@ -11,7 +11,6 @@
 #include "Arduino.h"
 #include "WebserviceBase.h"
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 
 class WebserviceLog: public WebserviceBase {
 public:

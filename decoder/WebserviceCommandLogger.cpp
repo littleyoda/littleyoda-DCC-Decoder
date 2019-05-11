@@ -7,7 +7,6 @@
 
 #include "WebserviceCommandLogger.h"
 
-#include <ESP8266WebServer.h>
 #include "Arduino.h"
 #include "Utils.h"
 

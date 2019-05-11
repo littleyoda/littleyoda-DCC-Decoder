@@ -7,6 +7,9 @@
 
 #include "DoubleBootDetection.h"
 #include <FS.h>
+#ifdef ESP32
+	#include "SPIFFS.h"
+#endif
 
 DoubleBootDetection::DoubleBootDetection(Controller* c) {
 	controll = c;

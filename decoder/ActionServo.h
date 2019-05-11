@@ -8,6 +8,8 @@
 #ifndef ACTIONSERVO_H_
 #define ACTIONSERVO_H_
 
+#ifdef ESP8266
+
 #include <Servo.h>
 
 #include "INotify.h"
@@ -33,4 +35,5 @@ private:
 
 };
 
+#endif
 #endif /* ACTIONSERVO_H_ */
