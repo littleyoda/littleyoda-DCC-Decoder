@@ -112,7 +112,7 @@ void Webserver::handleDoFormat() {
 
 void Webserver::handleFilelist() {
 	String output = "" + Utils::getHTMLHeader() + F("<table><thead><tr><th>Name</th><th>Size</th></thead><tbody>");
-#ifdef esp8266
+#ifdef ESP8266
 	// TODO
 	Dir dir = SPIFFS.openDir("/");
 
