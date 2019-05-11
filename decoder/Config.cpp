@@ -520,9 +520,10 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			int *array = new int[arraysize];
 			int pos = 0;
 			while (child != -1) {
-				child = parser->getNextSiblings(child);
+				Serial.println("Turnout2Value (" + parser->getString(child) + "/" + parser->getString(parser->getFirstChild(child)) + ")");
 				array[pos++] = parser->getString(child).toInt();
 				array[pos++] = parser->getString(parser->getFirstChild(child)).toInt();
+				child = parser->getNextSiblings(child);
 			}
 
 			ISettings* a = getSettingById(controller, conn);
