@@ -34,6 +34,6 @@ void ConnectorTurnout2Value::TurnoutCmd(int id, int direction, int source) {
 			out =  array[i + 1];
 		}
 	}
-	Serial.println("Value " + String(out));
+	Serial.println("Turnout2Value. Direction: " + String(direction) + " => Value: " + String(out));
 	action->setSettings("sd", String(out));
 }
