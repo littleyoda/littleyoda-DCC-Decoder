@@ -114,8 +114,8 @@
 struct countOf_t countOf;
 #endif
 
-ICACHE_RAM_ATTR static byte ISREdge;   // RISING or FALLING
-ICACHE_RAM_ATTR static word bitMax, bitMin;
+static byte ISREdge;   // RISING or FALLING
+static word bitMax, bitMin;
 
 typedef enum {
 	WAIT_PREAMBLE = 0, WAIT_START_BIT, WAIT_DATA, WAIT_END_BIT
@@ -130,7 +130,7 @@ typedef struct DccRx_t {
 	DCC_MSG PacketCopy;
 } DCCRX;
 
-ICACHE_RAM_ATTR DCCRX DccRx;
+static DCCRX DccRx;
 
 typedef struct {
 	uint8_t Flags;
@@ -150,9 +150,9 @@ typedef struct {
 
 }  DCC_PROCESSOR_STATE;
 
-DCC_PROCESSOR_STATE DccProcState;
+static DCC_PROCESSOR_STATE DccProcState;
 
-void ExternalInterruptHandler(void) {
+ICACHE_RAM_ATTR void ExternalInterruptHandler(void) {
 // Bit evaluation without Timer 0 ------------------------------
 	uint8_t DccBitVal;
 	static int8_t bit1, bit2;
