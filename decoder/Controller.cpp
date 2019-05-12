@@ -20,7 +20,7 @@ Controller::Controller() {
 	cmdlogger = NULL;
 	dccSniffer = NULL;
 	longestLoop = 0;
-	if (!SPIFFS.begin(true)) {
+	if (!SPIFFS.begin()) {
 		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
