@@ -48,7 +48,7 @@ void ActionSUSIGeneration::fillSpiBuffer() {
 		speed = 0;
 	}
 	if (DIR_STATE == Consts::SPEED_FORWARD) {
-		speed += 128;
+		speed += 128; // Set High Bit
 	}
 
 	SPIBufUsed = 0;
@@ -109,9 +109,11 @@ void ActionSUSIGeneration::DCCSpeed(int id, int speed, int direction, int SpeedS
 	if (id == LOCO_ADR || id == Consts::LOCID_ALL) {
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
+		} else if (SpeedSteps == 29) {
+			speed = speed * 29.0f / SpeedSteps;
 		}
 		DIR_STATE = (direction == Consts::SPEED_FORWARD);
-		SPEED_STATE = speed; // TODO SpeedSteps berücksichtigen
+		SPEED_STATE = speed;
 	}
 }
 
