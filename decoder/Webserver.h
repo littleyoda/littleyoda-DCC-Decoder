@@ -16,6 +16,8 @@
 	#include <ESP8266mDNS.h>
 #elif ESP32
 	#include <WebServer.h>
+	#include <ESPmDNS.h>
+	#include <Update.h>
 #else
 	#error "This Arch is not supported"
 #endif

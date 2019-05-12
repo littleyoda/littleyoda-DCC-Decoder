@@ -53,6 +53,38 @@ Webserver::Webserver(Controller* c) {
 	httpUpdater->setup(server, update_path, "admin", "admin");
 	
 	server->begin(); // Only for ESP8266; Bug in ESP 32 Framework; see below
+#elif ESP32
+	server->on("/firmware", HTTP_GET, [](){
+    	server->sendHeader("Connection", "close");
+    	server->send(200, "text/html", F("<form method='POST' action='/firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"));
+	});
+	server->on("/firmware", HTTP_POST, []() {
+      server->sendHeader("Connection", "close");
+      server->send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+      ESP.restart();
+    }, []() {
+      HTTPUpload& upload = server->upload();
+      if (upload.status == UPLOAD_FILE_START) {
+        Serial.setDebugOutput(true);
+        Serial.printf("Update: %s\n", upload.filename.c_str());
+        if (!Update.begin()) { //start with max available size
+          Update.printError(Serial);
+        }
+      } else if (upload.status == UPLOAD_FILE_WRITE) {
+        if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+          Update.printError(Serial);
+        }
+      } else if (upload.status == UPLOAD_FILE_END) {
+        if (Update.end(true)) { //true to set the size to the current progress
+          Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+        } else {
+          Update.printError(Serial);
+        }
+        Serial.setDebugOutput(false);
+      } else {
+        Serial.printf("Update Failed Unexpectedly (likely broken connection): status=%d\n", upload.status);
+      }
+	});	
 #endif
 }
 
@@ -146,7 +178,7 @@ void Webserver::handleFilelist() {
 				output += "</a>";
 				output += "</td></tr>";
 			}
-	   		file = root.openNextFile();
+			file = root.openNextFile();
 		  }
 	}
 #endif
@@ -206,11 +238,8 @@ int Webserver::loop() {
 		Serial.printf("Connection to: %s (Q:%d)\r\n", WiFi.BSSIDstr().c_str(), WiFi.RSSI());
 		lastWifiStatus = WiFi.status();
 		if (WiFi.status() == WL_CONNECTED) {
-			#ifdef esp8266
-			// TODO
 			MDNS.begin(controll->getHostname().c_str());
 			MDNS.addService("http", "tcp", 80);
-			#endif
 		}
 	}
 	return 2;
