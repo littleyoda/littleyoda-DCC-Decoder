@@ -96,79 +96,6 @@
 #define MIN_ONEBITHALF  35
 #define MAX_BITDIFF     18
 
-// Debug-Ports
-//#define debug     // Testpulse for logic analyser
-#ifdef debug 
-#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-#define MODE_TP1 DDRF |= (1<<2) //pinA2
-#define SET_TP1 PORTF |= (1<<2)
-#define CLR_TP1 PORTF &= ~(1<<2)
-#define MODE_TP2 DDRF |= (1<<3) //pinA3
-#define SET_TP2 PORTF |= (1<<3)
-#define CLR_TP2 PORTF &= ~(1<<3)
-#define MODE_TP3 DDRF |= (1<<4) //pinA4 
-#define SET_TP3 PORTF |= (1<<4) 
-#define CLR_TP3 PORTF &= ~(1<<4) 
-#define MODE_TP4 DDRF |= (1<<5) //pinA5 
-#define SET_TP4 PORTF |= (1<<5) 
-#define CLR_TP4 PORTF &= ~(1<<5) 
-#elif defined(__AVR_ATmega32U4__)
-#define MODE_TP1 DDRF |= (1<<4) //A3
-#define SET_TP1 PORTF |= (1<<4)
-#define CLR_TP1 PORTF &= ~(1<<4)
-#define MODE_TP2 DDRF |= (1<<5) //A2
-#define SET_TP2 PORTF |= (1<<5)
-#define CLR_TP2 PORTF &= ~(1<<5)
-#define MODE_TP3 
-#define SET_TP3 
-#define CLR_TP3 
-#define MODE_TP4 
-#define SET_TP4 
-#define CLR_TP4 
-#elif defined(__AVR_ATmega328P__) 
-#define MODE_TP1 DDRC |= (1<<1) //A1
-#define SET_TP1 PORTC |= (1<<1)
-#define CLR_TP1 PORTC &= ~(1<<1)
-#define MODE_TP2 DDRC |= (1<<2) // A2
-#define SET_TP2 PORTC |= (1<<2)
-#define CLR_TP2 PORTC &= ~(1<<2)
-#define MODE_TP3 DDRC |= (1<<3) //A3
-#define SET_TP3 PORTC |= (1<<3) 
-#define CLR_TP3 PORTC &= ~(1<<3) 
-#define MODE_TP4 DDRC |= (1<<4) //A4 
-#define SET_TP4 PORTC |= (1<<4) 
-#define CLR_TP4 PORTC &= ~(1<<4) 
-#elif defined(__arm__) && (defined(__MK20DX128__) || defined(__MK20DX256__))
-// Teensys 3.x
-#define MODE_TP1 pinMode( A1,OUTPUT )   // A1= PortC, Bit0
-#define SET_TP1  GPIOC_PSOR = 0x01
-#define CLR_TP1  GPIOC_PCOR = 0x01
-#define MODE_TP2 pinMode( A2,OUTPUT )   // A2= PortB Bit0
-#define SET_TP2  GPIOB_PSOR = 0x01
-#define CLR_TP2  GPIOB_PCOR = 0x01
-#define MODE_TP3 pinMode( A3,OUTPUT )   // A3 = PortB Bit1
-#define SET_TP3  GPIOB_PSOR = 0x02
-#define CLR_TP3  GPIOB_PCOR = 0x02
-#define MODE_TP4 pinMode( A4,OUTPUT )   // A4 = PortB Bit3
-#define SET_TP4  GPIOB_PSOR = 0x08
-#define CLR_TP4  GPIOB_PCOR = 0x08
-#elif defined (__SAM3X8E__)
-// Arduino Due
-#define MODE_TP1 pinMode( A1,OUTPUT )   // A1= PA24
-#define SET_TP1  REG_PIOA_SODR = (1<<24)
-#define CLR_TP1  REG_PIOA_CODR = (1<<24)
-#define MODE_TP2 pinMode( A2,OUTPUT )   // A2= PA23
-#define SET_TP2  REG_PIOA_SODR = (1<<23)
-#define CLR_TP2  REG_PIOA_CODR = (1<<23)
-#define MODE_TP3 pinMode( A3,OUTPUT )   // A3 = PA22
-#define SET_TP3  REG_PIOA_SODR = (1<<22)
-#define CLR_TP3  REG_PIOA_CODR = (1<<22)
-#define MODE_TP4 pinMode( A4,OUTPUT )   // A4 = PA6
-#define SET_TP4  REG_PIOA_SODR = (1<<6)
-#define CLR_TP4  REG_PIOA_CODR = (1<<6)
-
-//#elif defined(__AVR_ATmega128__) ||defined(__AVR_ATmega1281__)||defined(__AVR_ATmega2561__)
-#else
 #define MODE_TP1 
 #define SET_TP1 
 #define CLR_TP1 
@@ -182,47 +109,28 @@
 #define SET_TP4 
 #define CLR_TP4 
 
-#endif 
-#else
-#define MODE_TP1 
-#define SET_TP1 
-#define CLR_TP1 
-#define MODE_TP2 
-#define SET_TP2 
-#define CLR_TP2 
-//#define MODE_TP2 DDRC |= (1<<2) // A2
-//#define SET_TP2 PORTC |= (1<<2)
-//#define CLR_TP2 PORTC &= ~(1<<2)
-#define MODE_TP3 
-#define SET_TP3 
-#define CLR_TP3 
-#define MODE_TP4 
-#define SET_TP4 
-#define CLR_TP4 
-//#define MODE_TP4 DDRC |= (1<<4) //A4 
-//#define SET_TP4 PORTC |= (1<<4) 
-//#define CLR_TP4 PORTC &= ~(1<<4) 
 
-#endif
 #ifdef DCC_DBGVAR
 struct countOf_t countOf;
 #endif
 
-static byte ISREdge;   // RISING or FALLING
-static word bitMax, bitMin;
+ICACHE_RAM_ATTR static byte ISREdge;   // RISING or FALLING
+ICACHE_RAM_ATTR static word bitMax, bitMin;
 
 typedef enum {
 	WAIT_PREAMBLE = 0, WAIT_START_BIT, WAIT_DATA, WAIT_END_BIT
 } DccRxWaitState;
 
-struct DccRx_t {
+typedef struct DccRx_t {
 	DccRxWaitState State;
 	uint8_t DataReady;
 	uint8_t BitCount;
 	uint8_t TempByte;
 	DCC_MSG PacketBuf;
 	DCC_MSG PacketCopy;
-} DccRx;
+} DCCRX;
+
+ICACHE_RAM_ATTR DCCRX DccRx;
 
 typedef struct {
 	uint8_t Flags;
@@ -240,7 +148,7 @@ typedef struct {
 	uint16_t NestedIrqCount;
 //#endif
 
-} DCC_PROCESSOR_STATE;
+}  DCC_PROCESSOR_STATE;
 
 DCC_PROCESSOR_STATE DccProcState;
 
