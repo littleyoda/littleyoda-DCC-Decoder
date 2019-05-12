@@ -47,13 +47,13 @@ Webserver::Webserver(Controller* c) {
 			[]() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); },
 			std::bind(&Webserver::handleUpload, this));
 	server->on("/del", std::bind(&Webserver::handleDel, this));
-	server->begin();
 #ifdef ESP8266
 	httpUpdater = new ESP8266HTTPUpdateServer();
 	const char* update_path = "/firmware";
 	httpUpdater->setup(server, update_path, "admin", "admin");
+	
+	server->begin(); // Only for ESP8266; Bug in ESP 32 Framework; see below
 #endif
-
 }
 
 void Webserver::handleUpload() {
@@ -113,11 +113,8 @@ void Webserver::handleDoFormat() {
 void Webserver::handleFilelist() {
 	String output = "" + Utils::getHTMLHeader() + F("<table><thead><tr><th>Name</th><th>Size</th></thead><tbody>");
 #ifdef ESP8266
-	// TODO
 	Dir dir = SPIFFS.openDir("/");
-
-
-	while(dir.next()){
+	while (dir.next()){
 		File entry = dir.openFile("r");
 		output += "<tr><td>";
 		output += "<a href=\"" + dir.fileName() + "\">";
@@ -131,12 +128,32 @@ void Webserver::handleFilelist() {
 		output += "</a>";
 		output += "</td></tr>";
 	}
+#elif ESP32
+	fs::File root = SPIFFS.open("/");
+	if (root && root.isDirectory()) {
+		File file = root.openNextFile();
+		while (file) {
+			if (!file.isDirectory()) {
+				output += "<tr><td>";
+				output += "<a href=\"" + String(file.name()) + "\">";
+				output += String(file.name()).substring(1);
+				output += "</a>";
+				output += "</td><td>";
+				output += String(file.size());
+				output += "</td><td>";
+				output += "<a href=\"/del?file=" + String(file.name()) + "\">";
+				output += "&#x2421";
+				output += "</a>";
+				output += "</td></tr>";
+			}
+	   		file = root.openNextFile();
+		  }
+	}
+#endif
 	output += F("</tbody></table><hr>");
-
 	output += F("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><fieldset> <input name=\"Datei\" type=\"file\" size=\"50\"> ");
 	output += F("    <input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form> ");
 	output += Utils::getHTMLFooter();
-#endif
 	server->send(200, "text/html", output);
 }
 
@@ -173,6 +190,12 @@ void Webserver::handleVersion() {
 }
 
 int Webserver::loop() {
+	#ifdef ESP32
+		if (lastWifiStatus != WiFi.status() && lastWifiStatus ==  WL_DISCONNECTED) {
+			Serial.println("Server begin");
+			server->begin(); // Bug in Framework
+		}
+	#endif
 	server->handleClient();
 
 	if (lastWifiStatus != WiFi.status()) {
@@ -191,7 +214,6 @@ int Webserver::loop() {
 		}
 	}
 	return 2;
-
 }
 
 Webserver::~Webserver() {

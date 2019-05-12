@@ -85,7 +85,7 @@ public:
 		case WL_DISCONNECTED:
 			return "Disconnected";
 		default:
-			return "Unknown";
+			return "Unknown (" + String(status) + ")";
 		};
 	}
 
