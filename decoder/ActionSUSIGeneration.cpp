@@ -111,7 +111,7 @@ void ActionSUSIGeneration::DCCSpeed(int id, int speed, int direction, int SpeedS
 			speed = 0;
 		} else if (SpeedSteps == 29) {
 			Logger::log(LogLevel::WARNING ,"Unkorrigiert: " + String(speed));
-			speed = speed * 29.0f / SpeedSteps;
+			speed = speed * 127.0f / SpeedSteps;
 			Logger::log(LogLevel::WARNING ,"Korrigiert: " + String(speed));
 		}
 		DIR_STATE = (direction == Consts::SPEED_FORWARD);
