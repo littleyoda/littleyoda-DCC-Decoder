@@ -26,6 +26,7 @@ Controller* controller;
 	#include "SPIFFS.h"
 #endif
 
+
 void initWifi() {
 	Serial.println("Starting Wifi...");
 	WiFi.persistent(false);
@@ -44,7 +45,7 @@ void initWifi() {
 void loadCFG(Webserver* web) {
 	File configFile = SPIFFS.open("/config.json", "r");
 	if (!configFile) {
-		Logger::getInstance()->addToLog("Konnte Konfig-File nicht öffnen: config.json");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Konnte Konfig-File nicht öffnen: config.json");
 		controller->registerLoop(web);
 		controller->registerLoop(Logger::getInstance());
 		controller->updateRequestList();
@@ -53,7 +54,7 @@ void loadCFG(Webserver* web) {
 	}
 	size_t size = configFile.size();
 	if (size > 5024) {
-		Logger::getInstance()->addToLog("Konfig-File ist größer als 5024 bytes");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Konfig-File ist größer als 5024 bytes");
 		controller->registerLoop(web);
 		controller->registerLoop(Logger::getInstance());
 		controller->updateRequestList();
@@ -65,7 +66,7 @@ void loadCFG(Webserver* web) {
 	delete(c);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " Post Config");
 	if (!b) {
-		Logger::getInstance()->addToLog(
+		Logger::getInstance()->addToLog(LogLevel::ERROR,
 				"Config-File konnte nicht geparst werden. Fehlerhafter Syntax? Nicht genug Memory?");
 		controller->registerLoop(web);
 		controller->registerLoop(Logger::getInstance());
@@ -185,7 +186,51 @@ void handleSerial() {
 		} else if (chr == 'x') {
 			Serial.println("Debugmodus deaktiviert");
 			debugmodusPos = 0;
+		} else if (chr == '-') {
+			Logger::changeLogLevel(+1);
+		} else if (chr == '+') {
+			Logger::changeLogLevel(-1);
+		} else if (chr == 'l') {
+			LinkedList<Logger::logdata*>* logger = Logger::getInstance()->getLogs();
+			Serial.println("Logs: " + String(logger->size()));
+			for (int idx = 0; idx < logger->size(); idx++) {
+				Logger::logdata* l = logger->get(idx);
+				Serial.println(l->msg);
+			}
+		} else if (chr == '2') {
+ 	int nDevices = 0;
+	 uint8_t address,error; 
+	 Wire.begin(D4, D2);
+  for(address = 1; address < 127; address++ ) 
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
 
+    if (error == 0)
+    {
+      Serial.print("I2C device found at address 0x");
+      if (address<16) 
+        Serial.print("0");
+      Serial.print(address,HEX);
+      Serial.println("  !");
+
+      nDevices++;
+    }
+    else if (error==4) 
+    {
+      Serial.print("Unknow error at address 0x");
+      if (address<16) 
+        Serial.print("0");
+      Serial.println(address,HEX);
+    }    
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found\n");
+  else
+Serial.println("done\n");
 		} else if (chr == 'm') {
 			Serial.printf("Pointer %d\r\n", sizeof(String*));
 			Serial.printf("String (without Buffer) %d\r\n", sizeof(String));
@@ -281,8 +326,8 @@ void handleSerial() {
 void setup() {
 	Serial.begin(115200);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup");
-	Logger::getInstance()->addToLog("Started!");
-	Logger::getInstance()->addToLog(compile_date);
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Started!");
+	Logger::getInstance()->addToLog(LogLevel::INFO, compile_date);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Controller");
 	controller = new Controller();
 	controller->registerLoop(new DoubleBootDetection(controller));
@@ -297,7 +342,7 @@ void setup() {
 	loadCFG(web);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup Finish");
 	Serial.println(GPIOobj.getUsage("\r\n"));
-	Logger::getInstance()->addToLog("Setup finish!");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Setup finish!");
 	controller->longestLoop = 0;
 
 }

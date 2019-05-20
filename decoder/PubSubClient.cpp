@@ -6,6 +6,7 @@
 
 #include "PubSubClient.h"
 #include "Arduino.h"
+#include "Logger.h"
 
 PubSubClient::PubSubClient() {
     this->_state = MQTT_DISCONNECTED;
@@ -273,7 +274,7 @@ uint16_t PubSubClient::readPacket(uint8_t* lengthLength) {
     }
 
     if (!this->stream && len > MQTT_MAX_PACKET_SIZE) {
-    	Serial.println("Packet ignored. " + String(len));
+        Logger::getInstance()->printf(LogLevel::ERROR, "MQTT Packet ignored! Size: %d", len);
         len = 0; // This will cause the packet to be ignored.
     }
 

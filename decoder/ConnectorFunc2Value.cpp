@@ -7,6 +7,7 @@
 
 #include "ConnectorFunc2Value.h"
 #include "Utils.h"
+#include "Logger.h"
 #include "Arduino.h"
 
 ConnectorFunc2Value::ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int len) {
@@ -35,6 +36,6 @@ void ConnectorFunc2Value::DCCFunc(int id, unsigned long int newvalue, int source
 			}
 		}
 	}
-	Serial.println("Value " + String(out));
+	Logger::log(LogLevel::TRACE, "Func2Value Value " + String(out));
 	action->setSettings("sd", String(out));
 }

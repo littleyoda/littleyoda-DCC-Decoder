@@ -51,7 +51,7 @@ void ActionSendTurnoutCommand::setSettings(int status) {
     for (int i = 0; i < list->size(); i++) {
     	CmdSenderBase* b = list->get(i);
     	if (b == NULL) {
-    		Serial.println("Sender is null");
+			Logger::log(LogLevel::ERROR, "ActionSendTurnoutCommand: Sender is null");
     		continue;
     	}
     	b->sendSetTurnout(String(id), s);

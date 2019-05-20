@@ -41,16 +41,15 @@ int CmdReceiverRocnetOverMQTT::loop() {
 	// Phase 2: Try to connect to mqtt
 	if  (discoveryModus == 1) {
 		if (!client->connected()) {
-			Serial.print("Connecting to MQTT Server...");
+			Logger::log(LogLevel::INFO, "Connecting to MQTT Server...");
 			String clientId = "ESP8266Client-";
 			clientId += String(random(0xffff), HEX);
 			if (client->connect(clientId.c_str())) {
-				Serial.println("connected");
+				Logger::log(LogLevel::INFO, "Connected to MQTT Server");
 				client->subscribe("rocrail/service/info/lc", 1);
 				client->subscribe("rocrail/service/info/fn", 1);
 			} else {
-				Serial.print("failed, ret=");
-				Serial.print(client->state());
+				Logger::log(LogLevel::INFO, "Connection to MQTT Server failed! "  + String(client->state()));
 			}
 		} else {
 			client->loop();
@@ -75,11 +74,11 @@ int CmdReceiverRocnetOverMQTT::loop() {
 
 			// Fix Localhost with IP from sender
 			if (host.equals("localhost") || host.equals("127.0.0.1")) {
-				Logger::getInstance()->addToLog("Rocrail MTQQ localhost oder 127.0.0.1! Benutze stattdessen " + Udp.remoteIP().toString() + ":" + port);
+				Logger::getInstance()->addToLog(LogLevel::WARNING, "Rocrail MTQQ localhost oder 127.0.0.1! Benutze stattdessen " + Udp.remoteIP().toString() + ":" + port);
 				host = Udp.remoteIP().toString();
 			}
 			if (host.length() > 0  && port.length() > 0) {
-				Serial.println(host + " " + String(port.toInt()));
+				Logger::log(LogLevel::INFO, "Rocnet-Server detected: " + host + " " + String(port.toInt()));
 				client->setServer(host.c_str(), port.toInt());
 				discoveryModus = 1;
 				return 0;
@@ -102,12 +101,9 @@ int CmdReceiverRocnetOverMQTT::loop() {
 
 
 void rocnetovermqttcallback(char* topic, byte* payload, unsigned int length) {
-//	Serial.print("Message arrived [");
-//	Serial.print(topic);
-//	Serial.print("] ");
-	payload[length - 1] = 0; //
+	payload[length - 1] = 0;
 	String payloads = String((char*)payload);
-	Serial.println(payloads);
+	Logger::log(LogLevel::TRACE, payloads);
 	if (payloads.startsWith("<lc ") || payloads.startsWith("<fn ")) {
 		CmdReceiverRocnetOverMQTT::_instance->parse(payloads);
 	}
@@ -115,11 +111,6 @@ void rocnetovermqttcallback(char* topic, byte* payload, unsigned int length) {
 
 void CmdReceiverRocnetOverMQTT::parse(String s) {
 	if (s.startsWith("<lc ")) {
-//		Serial.println(extractXMLAttribute(s, "addr"));
-//		Serial.println(extractXMLAttribute(s, "dir"));
-//		Serial.println(extractXMLAttribute(s, "fn"));
-//		Serial.println(extractXMLAttribute(s, "V"));
-//		Serial.println(extractXMLAttribute(s, "V_max"));
 		int addr = extractXMLAttribute(s, "addr").toInt();
 		controller->notifyDCCSpeed(addr,
 				extractXMLAttribute(s, "V").toInt(),

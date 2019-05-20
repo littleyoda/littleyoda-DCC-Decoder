@@ -12,8 +12,8 @@
 #include "GPIO.h"
 
 ActionPWMOutput::ActionPWMOutput(uint8_t pwm, uint8_t forward, uint8_t reverse) {
-	Logger::getInstance()->addToLog("Starting PWM...");
-	Logger::getInstance()->addToLog("PWM-Pin: "
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting PWM...");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "PWM-Pin: "
 			+ GPIOobj.gpio2string(pwm) + " Forward-Pin: "
 			+ GPIOobj.gpio2string(forward) + " Reverse-Pin: "
 			+ GPIOobj.gpio2string(reverse)
@@ -63,7 +63,7 @@ String ActionPWMOutput::getHTMLController(String urlprefix) {
 }
 
 void ActionPWMOutput::setSettings(String key, String value) {
-	Serial.println(key + " " + value);
+	Logger::log(LogLevel::TRACE, "SetSettings " + key + "/" + value);
 	if (key.equals("sd")) {
 		int v = value.toInt();
 		if (v < 0) {
@@ -71,11 +71,9 @@ void ActionPWMOutput::setSettings(String key, String value) {
 		} else {
 			setDirection(1);
 		}
-		Serial.println("Speed");
 		int s = PWMRANGE * abs(value.toInt()) / 100;
 		setSpeedInProcent(s);
 	} else if (key.equals("freq")) {
-		Serial.println("Freq");
 		GPIOobj.analogWriteFreq(value.toInt());
 	}
 }
@@ -94,7 +92,7 @@ void ActionPWMOutput::setDirection(int dir) {
 		GPIOobj.digitalWrite(gpioReverse, HIGH);
 		direction = -1;
 	} else {
-		Serial.println("Error: Direction " + String(dir));
+		Logger::log(LogLevel::ERROR, "Error: Direction " + String(dir));
 		GPIOobj.digitalWrite(gpioForward, LOW);
 		GPIOobj.digitalWrite(gpioReverse, LOW);
 		direction = 0;
@@ -131,7 +129,7 @@ void ActionPWMOutput::handleSpeedandDirectionWithoutPWMPin(int dir, int speed) {
 		GPIOobj.analogWrite(gpioReverse, currentSpeed);
 		direction = -1;
 	} else {
-		Serial.println("Error: Direction " + String(dir));
+		Logger::log(LogLevel::ERROR, "Error: Direction " + String(dir));
 		GPIOobj.digitalWrite(gpioForward, LOW);
 		GPIOobj.digitalWrite(gpioReverse, LOW);
 		direction = 0;

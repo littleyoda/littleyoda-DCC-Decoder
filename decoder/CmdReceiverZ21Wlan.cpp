@@ -14,7 +14,7 @@
 
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, String ip) :
 z21PaketParser(c) {
-	Logger::getInstance()->addToLog("Starting Z21 Wlan Receiver ...");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {
 		z21Server = new IPAddress(192, 168, 0, 111);
 	} else {
@@ -22,7 +22,7 @@ z21PaketParser(c) {
 		z21Server->fromString(ip);
 
 	}
-	Logger::getInstance()->addToLog("Using: " + String(z21Server->toString()));
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Using: " + String(z21Server->toString()));
 	udp = new WiFiUDP();
 	udp->begin(localPort);
 	enableBroadcasts();
@@ -38,7 +38,7 @@ int CmdReceiverZ21Wlan::loop() {
 	}
 	long int time = millis();
 	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
-		Logger::getInstance()->addToLog("Z21 wlan Timeout");
+		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
 		controller->emergencyStop(Consts::SOURCE_INTERNAL);
 		timeout = 0;
 	}
@@ -193,7 +193,7 @@ CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
 
 void CmdReceiverZ21Wlan::resetTimeout() {
 	if (timeout == 0) {
-		Serial.println("Message from Z21 received!");
+		Logger::log(LogLevel::INFO, "Message after Timeout from Z21 received!");
 	}
 	timeout = millis();
 }

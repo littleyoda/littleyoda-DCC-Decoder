@@ -21,8 +21,8 @@
 
 ActionSUSIGeneration::ActionSUSIGeneration(int locoaddr) {
 	LOCO_ADR = locoaddr;
-	Logger::getInstance()->addToLog("Starting Susi Generator");
-	Logger::getInstance()->addToLog("SUSI-Output:" + GPIOobj.gpio2string(SPI.getUsedPin())
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Susi Generator");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "SUSI-Output:" + GPIOobj.gpio2string(SPI.getUsedPin())
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 	);
 
@@ -110,7 +110,9 @@ void ActionSUSIGeneration::DCCSpeed(int id, int speed, int direction, int SpeedS
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
 		} else if (SpeedSteps == 29) {
+			Logger::log(LogLevel::WARNING ,"Unkorrigiert: " + String(speed));
 			speed = speed * 29.0f / SpeedSteps;
+			Logger::log(LogLevel::WARNING ,"Korrigiert: " + String(speed));
 		}
 		DIR_STATE = (direction == Consts::SPEED_FORWARD);
 		SPEED_STATE = speed;

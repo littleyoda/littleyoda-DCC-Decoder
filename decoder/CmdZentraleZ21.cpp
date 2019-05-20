@@ -14,7 +14,7 @@
 
 CmdZentraleZ21::CmdZentraleZ21(Controller* c) :
 		CmdReceiverBase(c) {
-	Logger::getInstance()->addToLog("Starting Z21 Zentrale ...");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Zentrale ...");
 	udp = new WiFiUDP();
 	udp->begin(localPort);
 }
@@ -29,8 +29,7 @@ int CmdZentraleZ21::loop() {
 	}
 	long int time = millis();
 	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
-		Serial.println("Timeout");
-		Logger::getInstance()->addToLog("Z21 Zentrale Timeout");
+		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 Zentrale Timeout");
 		controller->emergencyStop(Consts::SOURCE_Z21SERVER);
 		timeout = 0;
 	}

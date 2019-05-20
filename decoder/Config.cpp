@@ -67,7 +67,7 @@ bool Config::parse(Controller* controller, Webserver* web, String filename, bool
 
 	String version = parser->getValueByKey(0, "version");
 	if (!version.equals("3")) {
-		Logger::getInstance()->addToLog("Ungültige Version des Konfig-Files: " + version);
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültige Version des Konfig-Files: " + version);
 		return false;
 	}
 	if (dryrun) {
@@ -89,7 +89,7 @@ bool Config::parse(Controller* controller, Webserver* web, String filename, bool
 void Config::parseOut(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog("Out-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Out-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -125,7 +125,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 
 		String id = parser->getValueByKey(idx, "id");
 		if (id.length() == 0) {
-			Logger::getInstance()->addToLog("ID is null");
+			Logger::getInstance()->addToLog(LogLevel::ERROR, "ID is null");
 			idx = parser->getNextSiblings(idx);
 			continue;
 		}
@@ -184,7 +184,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerLoop(a);
 
 		} else {
-			Logger::getInstance()->addToLog(
+			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
 		}
 		idx = parser->getNextSiblings(idx);
@@ -197,7 +197,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog("CFG-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "CFG-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -270,12 +270,12 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 					gwx.fromString(gw);
 					WiFi.config(ipx, gwx, nmx);
 				} else {
-					Logger::log("Netzwerkkonfiguration (ip, netmask, gw) unvollständig");
+					Logger::log(LogLevel::ERROR,"Netzwerkkonfiguration (ip, netmask, gw) unvollständig");
 					idx = parser->getNextSiblings(idx);
 					continue;
 				}
 			} else {
-				Logger::log("Netzwerkkonfiguration per DHCP");
+				Logger::log(LogLevel::INFO, "Netzwerkkonfiguration per DHCP");
 			}
 			int ch = 1;
 			String kanal = parser->getValueByKey(idx, "kanal");
@@ -295,7 +295,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			String pwd = parser->getValueByKey(idx, "pwd");
 			WiFi.softAPConfig(Ip, Ip, NMask);
 			if (!WiFi.softAP(ssid.c_str(), pwd.c_str(), ch)) {
-				Logger::log("softAP fehlgeschlagen!");
+				Logger::log(LogLevel::ERROR, "softAP fehlgeschlagen!");
 			}
 			WiFi.enableAP(true);
 			Serial.println("AP-IP: " + WiFi.softAPIP().toString());
@@ -314,7 +314,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 				int addridx = parser->getIdxByKey(idx, "addr");
 				addridx = parser->getFirstChild(addridx);
 				if (!parser->isArray(addridx)) {
-					Logger::log("Format für MCP23017 Adressen falsch!");
+					Logger::log(LogLevel::ERROR, "Format für MCP23017 Adressen falsch!");
 					idx = parser->getNextSiblings(idx);
 					continue;
 
@@ -328,19 +328,19 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 					if (ret == 0) {
 						tret = "OK";
 					}
-					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(addr + 0x20) + ": " + tret);
+					Logger::getInstance()->addToLog(LogLevel::INFO, "Test MCP23017 auf I2c/" + String(addr + 0x20) + ": " + tret);
 					if (ret == 0) {
 						GPIOobj.addMCP23017(addr);
 					}
 					child = parser->getNextSiblings(child);
 				}
 			} else {
-				Logger::getInstance()->addToLog("Unbekanntes Gerät (I2C): " + String(d));
+				Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekanntes Gerät (I2C): " + String(d));
 			}
 
 
 		} else {
-			Logger::getInstance()->addToLog(
+			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
 		}
 
@@ -354,7 +354,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog("Connector-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Connector-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -365,7 +365,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 			Connectors* cin;
 			int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
 			if (!parser->isArray(addridx)) {
-				Logger::log("Format falsch!");
+				Logger::log(LogLevel::ERROR, "Format im Bereich Turnout // LED falsch!");
 				idx = parser->getNextSiblings(idx);
 				continue;
 
@@ -394,7 +394,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 			Connectors* cin;
 			int child = parser->getFirstChildOfArrayByKey(idx, "values");
 			if (child < 0) {
-				Logger::log("Format falsch!");
+				Logger::log(LogLevel::ERROR, "Format GPIO//Sendturnout falsch!");
 				idx = parser->getNextSiblings(idx);
 				continue;
 
@@ -427,7 +427,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 			Connectors* cin;
 			int child = parser->getFirstChildOfArrayByKey(idx, "gpio");
 			if (child < 0) {
-				Logger::log("Format falsch! GPIO Array nicht gefunden!");
+				Logger::log(LogLevel::ERROR, "Format DIRECTION/LEDS falsch! GPIO Array nicht gefunden!");
 				idx = parser->getNextSiblings(idx);
 				continue;
 			}
@@ -438,14 +438,14 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 				}
 				String pin = parser->getString(child);
 
-				Logger::log("d=>l Pin:" + String(pin) + " Addr:" + String(addr) + " Func:" + String(func));
+				Logger::log(LogLevel::DEBUG, "d=>l Pin:" + String(pin) + " Addr:" + String(addr) + " Func:" + String(func));
 				ActionLed* g = new ActionLed(new Pin(pin));
 				cin = new ConnectorLights(g, addr, func, direction);
 				controller->registerNotify(cin);
 				child = parser->getNextSiblings(child);
 			}
 		} else {
-			Logger::getInstance()->addToLog(
+			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
 		}
 		loop();
@@ -457,7 +457,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 void Config::parseIn(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog("In-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "In-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -535,7 +535,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			c = new ConnectorTurnout(a, addr);
 
 		} else if (m.equals("lights")) {
-			Logger::getInstance()->addToLog(
+			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Zur Zeit nicht implementiert " + m);
 			//	TODO		int l = parser->getValueByKey(idx, "addr").toInt();
 			//			int onoff = parser->getValueByKey(idx, "on").toInt();
@@ -559,7 +559,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			c = new ConnectorGPIO(a, g);
 
 		} else {
-			Logger::getInstance()->addToLog(
+			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
 		}
 		if (c != NULL) {
@@ -578,7 +578,7 @@ ISettings* Config::getSettingById(Controller* c, String id) {
 			return s;
 		}
 	}
-	Logger::getInstance()->addToLog("Config: Unbekannte ID " + String(id));
+	Logger::getInstance()->addToLog(LogLevel::ERROR, "Config: Unbekannte ID " + String(id));
 	return NULL;
 }
 

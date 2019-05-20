@@ -23,7 +23,7 @@ public:
 
 protected:
 	unsigned char lastZ21Status = 0;
-	void printPacketBuffer(unsigned char packetBuffer[], int size);
+	void printPacketBuffer(String msg, unsigned char packetBuffer[], int size);
 	void emergencyStop();
 	void handleTurnout(unsigned char packetBuffer[]);
 	void handleDCCSpeed(unsigned int locoid, unsigned char packetBuffer[]);

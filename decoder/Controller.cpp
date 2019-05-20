@@ -21,7 +21,7 @@ Controller::Controller() {
 	dccSniffer = NULL;
 	longestLoop = 0;
 	if (!SPIFFS.begin()) {
-		Logger::getInstance()->addToLog("SPIFFS konnte nicht genutzt werden!");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
 //	for (int i = 0; i < 99; i++) {
@@ -62,7 +62,7 @@ void Controller::doLoops() {
 
 void Controller::registerNotify(INotify* base) {
 	if (base == NULL) {
-		Logger::getInstance()->addToLog("Null in registeryNotify");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registeryNotify");
 		return;
 	}
 	actions.add(base);
@@ -70,7 +70,7 @@ void Controller::registerNotify(INotify* base) {
 
 void Controller::registerLoop(ILoop* loop) {
 	if (loop == NULL) {
-		Logger::getInstance()->addToLog("Null in registeryLoop");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registeryLoop");
 		return;
 	}
 	loops.add(loop);
@@ -86,7 +86,7 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 	}
 	TurnOutData* data = getTurnOutData(id);
 	data->direction = direction;
-	Serial.println(
+	Logger::log(LogLevel::TRACE, 
 			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
 	lastTurnoutCmd[0] = id;
 	lastTurnoutCmd[1] = direction;
@@ -123,7 +123,6 @@ String Controller::getHTMLCfg() {
 
 void Controller::setRequest(String id, String key, String value) {
 	int idx = id.toInt();
-	Serial.println(idx);
 	if (idx >= settings.size()) {
 		return;
 	}
@@ -158,7 +157,7 @@ TurnOutData* Controller::getTurnOutData(int id) {
 
 
 void Controller::notifyGPIOChange(int pin, int newvalue) {
-	Serial.println("Pin changed " + String(pin) + "/" + String(newvalue));
+	Logger::log(LogLevel::TRACE, "Pin changed " + String(pin) + "/" + String(newvalue));
 	for (int idx = 0; idx < actions.size(); idx++) {
 		actions.get(idx)->GPIOChange(pin, newvalue);
 	}
@@ -171,7 +170,7 @@ void Controller::notifyGPIOChange(int pin, int newvalue) {
 void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		int SpeedSteps, int source) {
 	if (direction == 0) {
-		Logger::getInstance()->addToLog("Ungültige Richtung (0)");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültige Richtung (0)");
 	}
 	EMERGENCYActive = speed == Consts::SPEED_EMERGENCY;
 	// Filter out known commands
@@ -193,9 +192,10 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 	data->direction = direction;
 	data->speed = speed;
 	data->speedsteps = SpeedSteps;
-	Serial.println(
-			"DCC-Speed: " + String(id) + " D: " + String(direction) + " "
-					+ String(speed) + " " + String(SpeedSteps));
+	// Logger::getInstance()->printf(Logger::DEBUG, 
+	// 		("DCC-Speed: " + String(id) + " D: " + String(direction) + " "
+	// 				+ String(speed) + " " + String(SpeedSteps)).c_str());
+	Logger::getInstance()->printf(LogLevel::TRACE, "DCC-Speed: %d D: %d  %d %d", id, direction, speed, SpeedSteps);
 
 	// Send the information to the actions
 	int idx;
@@ -228,7 +228,7 @@ void Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int sou
 		actions.get(idx)->DCCFunc(id, bit, (newBitValue == 0) ? 0 : 1, source);
 	}
 	if (changed) {
-		Serial.println("Func " + String(id) + " " + String(data->status));
+		Logger::log(LogLevel::TRACE, "Func " + String(id) + " " + String(data->status));
 		for (int idx = 0; idx < actions.size(); idx++) {
 			actions.get(idx)->DCCFunc(id, data->status, source);
 		}
@@ -260,7 +260,7 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 		}
  	}
 	if (changed) {
-		Serial.println("Func " + String(id) + " " + String(data->status));
+		Logger::log(LogLevel::TRACE, "Func " + String(id) + " " + String(data->status));
 		for (int idx = 0; idx < actions.size(); idx++) {
 			actions.get(idx)->DCCFunc(id, data->status, source);
 		}
@@ -296,20 +296,20 @@ void Controller::emergencyStop(int source) {
 }
 
 void Controller::enableAPModus() {
-	Logger::getInstance()->addToLog("Aktiviere Access Point!");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Aktiviere Access Point!");
  	WiFiMode_t mode = WiFi.getMode();
 	if (mode == WIFI_AP || mode == WIFI_AP_STA) {
-		Logger::getInstance()->addToLog("Access Point bereits aktiv!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Access Point bereits aktiv!");
 		return;
 	}
 	int status = WiFi.status();
 	if (status == WL_NO_SSID_AVAIL || status == WL_DISCONNECTED) {
-		Serial.println("Station Modus abgeschalten");
+		Logger::log(LogLevel::TRACE, "Station Modus abgeschalten");
 		WiFi.disconnect();
 	}
 	WiFi.softAP("Hallo World");
 	WiFi.enableAP(true);
-	Serial.println("IP für AP: " + WiFi.softAPIP().toString());
+	Logger::log(LogLevel::TRACE, "IP für AP: " + WiFi.softAPIP().toString());
 	dnsServer.reset(new DNSServer());
 	dnsServer->start(53, "*", WiFi.softAPIP());
 }
@@ -324,7 +324,7 @@ LinkedList<ISettings*>* Controller::getSettings() {
 
 void Controller::registerSettings(ISettings* loop) {
 	if (loop == NULL) {
-		Logger::getInstance()->addToLog("Null in registerySettings");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerySettings");
 		return;
 	}
 	settings.add(loop);

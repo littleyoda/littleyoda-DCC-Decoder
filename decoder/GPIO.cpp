@@ -64,7 +64,7 @@ GPIOClass::~GPIOClass() {
  */
 String GPIOClass::gpio2string(int gpio) {
 	if (!data->containsValue(gpio)) {
-		Logger::getInstance()->addToLog("Unbekannter GPIO: " + String(gpio));
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekannter GPIO: " + String(gpio));
 		return "Pin " + String(gpio);
 	}
 	return data->getKeyByValue(gpio);
@@ -76,12 +76,12 @@ String GPIOClass::gpio2string(int gpio) {
  */
 int GPIOClass::string2gpio(const char* pin) {
 	if (pin == NULL) {
-		Logger::log("PIN fehlt (null in string2gpio)");
+		Logger::log(LogLevel::ERROR, "PIN fehlt (null in string2gpio)");
 		return Consts::DISABLE;
 	}
 	String s = String(pin);
 	if (!data->containsKey(s)) {
-		Logger::getInstance()->addToLog("Unbekannter Pin in Config: " + s);
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekannter Pin in Config: " + s);
 		return Consts::DISABLE;
 	}
 	return data->getValueByKey(s);
@@ -89,11 +89,11 @@ int GPIOClass::string2gpio(const char* pin) {
 
 int GPIOClass::string2gpio(String pin) {
 	if (pin == NULL) {
-		Logger::log("PIN fehlt (null in string2gpio)");
+		Logger::log(LogLevel::ERROR, "PIN fehlt (null in string2gpio)");
 		return Consts::DISABLE;
 	}
 	if (!data->containsKey(pin)) {
-		Logger::getInstance()->addToLog("Unbekannter Pin in Config: " + pin);
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekannter Pin in Config: " + pin);
 		return Consts::DISABLE;
 	}
 	return data->getValueByKey(pin);
@@ -105,13 +105,13 @@ void GPIOClass::pinMode(Pin* pin, uint8_t mode, String usage) {
 
 void GPIOClass::pinMode(uint16_t pin, uint8_t mode, String usage) {
 	if (pin == Consts::DISABLE) {
-		Logger::getInstance()->addToLog(
+		Logger::getInstance()->addToLog(LogLevel::ERROR, 
 				"Accessing Disabled Pin (pinMode): " + String(pin));
 		return;
 	}
 	if (pin >= 100) {
 		if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP ) {
-			Logger::getInstance()->addToLog("Unsupported PinMode: " + String(mode) + " for pin " + String(pin));
+			Logger::getInstance()->addToLog(LogLevel::ERROR, "Unsupported PinMode: " + String(mode) + " for pin " + String(pin));
 			return;
 		}
 		int mcpIdx = (pin / 100) - 1;
@@ -146,7 +146,7 @@ void GPIOClass::digitalWrite(Pin* pin, uint8_t val) {
 
 void GPIOClass::digitalWrite(uint16_t pin, uint8_t val) {
 	if (pin == Consts::DISABLE) {
-		Logger::getInstance()->addToLog(
+		Logger::getInstance()->addToLog(LogLevel::ERROR, 
 				"Accessing Disabled Pin (pinMode): " + String(pin));
 		return;
 	}
@@ -161,12 +161,12 @@ void GPIOClass::digitalWrite(uint16_t pin, uint8_t val) {
 
 void GPIOClass::analogWrite(uint16_t pin, int val) {
 	if (pin == Consts::DISABLE) {
-		Logger::getInstance()->addToLog(
+		Logger::getInstance()->addToLog(LogLevel::ERROR, 
 				"Accessing Disabled Pin (pinMode): " + String(pin));
 		return;
 	}
 	if (pin >= 100) {
-		Logger::getInstance()->addToLog(
+		Logger::getInstance()->addToLog(LogLevel::ERROR, 
 				"Analog Write not possible for Pin: " + String(pin));
 		return;
 	}
@@ -252,7 +252,7 @@ void GPIOClass::cache(bool b) {
 
 void GPIOClass::addUsage(uint16_t pin, String usage) {
 	return;
-	Serial.println("Adding " + usage + " to " + String(pin));
+	Logger::log(LogLevel::DEBUG, "Adding " + usage + " to " + String(pin));
 	String value = usage;
 	if (pinusage->containsKey(pin)) {
 		String oldvalue = pinusage->getValueByKey(pin);

@@ -10,6 +10,7 @@
 #ifdef ESP32
 	#include "SPIFFS.h"
 #endif
+#include "Logger.h"
 
 DoubleBootDetection::DoubleBootDetection(Controller* c) {
 	controll = c;
@@ -24,9 +25,8 @@ int DoubleBootDetection::loop() {
 		return 10000;
 	}
 	if (status == 0) {
-	//	Serial.println("Check for Existing file");
 		boolean e = SPIFFS.exists(filename);
-		Serial.println("Exists: " + String(e));
+		Logger::log(LogLevel::TRACE, "DoubleBootDetection: " + String(e));
 		if (e) {
 			// Double Boot Remove File
 			SPIFFS.remove(filename);
@@ -36,13 +36,12 @@ int DoubleBootDetection::loop() {
 			// Create File
 			File f = SPIFFS.open(filename, "w");
 			if (!f) {
-			    Serial.println("file open failed");
+				Logger::log(LogLevel::ERROR, "Konnte Datei nicht anlegen: " + String(filename));
 			}
 			f.close();
 			status = 1;
 		}
 	} else if (status == 1 && millis() > 10000) {
-//		Serial.println("Removing File");
 		SPIFFS.remove(filename);
 		status = -1;
 	}

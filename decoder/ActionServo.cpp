@@ -12,7 +12,7 @@
 #ifdef ESP8266
 
 ActionServo::ActionServo(int pin) {
-	Logger::getInstance()->addToLog(
+	Logger::getInstance()->addToLog(LogLevel::INFO, 
 			"Starting Servo GPIO: " + String(pin));
 	GPIOobj.pinMode(pin, OUTPUT, "Servo");
 	this->pin = pin;
@@ -62,7 +62,7 @@ String ActionServo::getHTMLController(String urlprefix) {
 }
 
 void ActionServo::setSettings(String key, String value) {
-	Logger::getInstance()->addToLog(
+	Logger::getInstance()->addToLog(LogLevel::TRACE,
 			"Servo Value: " + value);
 	int status = value.toInt();
 	if (status == -1) {

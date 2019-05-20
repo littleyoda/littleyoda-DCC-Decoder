@@ -13,7 +13,7 @@
 
 ActionLed::ActionLed(Pin* g) {
 	gpio = g;
-	Logger::getInstance()->addToLog("Starting LED  " + g->toString());
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting LED  " + g->toString());
 	GPIOobj.pinMode(gpio, OUTPUT, "LED");
 }
 
@@ -49,7 +49,7 @@ void ActionLed::setSettings(int status) {
 	if (currentStatus == status) {
 		return;
 	}
-	Logger::getInstance()->addToLog("Led " + gpio->toString() + " changed to " + String(status));
+	Logger::getInstance()->addToLog(LogLevel::TRACE, "Led " + gpio->toString() + " changed to " + String(status));
 	if (status == 0) {
 		GPIOobj.digitalWrite(gpio, 0);
 		currentStatus = 0;

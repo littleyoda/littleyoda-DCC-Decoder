@@ -11,7 +11,7 @@
 #include "GPIO.h"
 
 ActionTurnOut::ActionTurnOut(int dir1, int dir2, int enable) {
-	Logger::log("Starting Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: " + enable);
+	Logger::log(LogLevel::INFO, "Starting Turnout Dir " + String(dir1) + "/" + String(dir2) + " Enable: " + enable);
 	dirPin[0] = dir1;
 	dirPin[1] = dir2;
 	this->enable = enable;

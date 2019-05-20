@@ -35,25 +35,21 @@ void z21PaketParser::parser(unsigned char packetBuffer[], int cb) {
 		}
 		//csEmergencyStop
 		if ((packetBuffer[6] & 0x01) > 0) {
-			Logger::getInstance()->addToLog("Z21: csEmergencyStop");
+			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csEmergencyStop");
 			emergencyStop();
 		}
 		//csTrackVoltageOff
 		if ((packetBuffer[6] & 0x02) > 0) {
-			Logger::getInstance()->addToLog("Z21: csTrackVoltageOff");
+			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csTrackVoltageOff");
 			emergencyStop();
 		}
 		//csShortCircuit
 		if ((packetBuffer[6] & 0x04) > 0) {
-			Logger::getInstance()->addToLog("Z21: csShortCircuit");
-			Serial.println("Short Circuit");
-			// TODO
+			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csShortCircuit");
 		}
 		//csProgrammingModeActive
 		if ((packetBuffer[6] & 0x20) > 0) {
-			Logger::getInstance()->addToLog("Z21: csProgrammingModeActive");
-			Serial.println("ProgrammingMode");
-			// TODO
+			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csProgrammingModeActive");
 		}
 		lastZ21Status = packetBuffer[6];
 		return;
@@ -120,7 +116,7 @@ void z21PaketParser::parser(unsigned char packetBuffer[], int cb) {
 			offset = 4;
 		}
 		if (turnoutOffset != offset) {
-			Logger::getInstance()->addToLog("Turnout Offset: " + String(offset));
+			Logger::getInstance()->addToLog(LogLevel::INFO, "Turnout Offset: " + String(offset));
 			turnoutOffset = offset;
 		}
 		return;
@@ -145,22 +141,23 @@ void z21PaketParser::parser(unsigned char packetBuffer[], int cb) {
 			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0xF3
 			&& packetBuffer[5] == 0x0A;
 	if (firmware) {
-		printPacketBuffer(packetBuffer, cb);
+		printPacketBuffer("Firmware", packetBuffer, cb);
 		handleFirmware(packetBuffer);
 		return;
 	}
-	Serial.print("Unbekannt: ");
-	printPacketBuffer(packetBuffer, cb);
+	
+	printPacketBuffer("Unbekanntes Paket", packetBuffer, cb);
 
 }
 
 
-void z21PaketParser::printPacketBuffer(unsigned char packetBuffer[], int size) {
+void z21PaketParser::printPacketBuffer(String msg, unsigned char packetBuffer[], int size) {
+	String out = msg + ": ";
 	for (int i = 0; i < size; i++) {
-		Serial.print(Utils::getHex(packetBuffer[i]));
-		Serial.print(" ");
+		out += (Utils::getHex(packetBuffer[i]));
+		out += " ";
 	}
-	Serial.println();
+	Logger::log(LogLevel::DEBUG, out);
 }
 
 
@@ -230,7 +227,7 @@ void z21PaketParser::handleFirmware(unsigned char packetBuffer[]) {
 	unsigned int lsbB = v & 15;
 	if (firmwareVersion == 0) {
 		firmwareVersion = msb * 100 + lsbA * 10 + lsbB;
-		Logger::getInstance()->addToLog("Fimrware Version: " + String(firmwareVersion));
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Fimrware Version: " + String(firmwareVersion));
 	}
 }
 

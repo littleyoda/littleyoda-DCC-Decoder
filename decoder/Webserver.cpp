@@ -231,7 +231,7 @@ int Webserver::loop() {
 	server->handleClient();
 
 	if (lastWifiStatus != WiFi.status()) {
-		Logger::getInstance()->addToLog(
+		Logger::getInstance()->addToLog(LogLevel::INFO, 
 				"Wifi status changed: " + Utils::wifi2String(lastWifiStatus)
 		+ " => " + Utils::wifi2String(WiFi.status()) + " IP:"
 		+ WiFi.localIP().toString());

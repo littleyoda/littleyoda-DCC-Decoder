@@ -8,10 +8,16 @@
 #include "Logger.h"
 
 
+
 Logger::Logger() {
 	startmemory = ESP.getFreeHeap();
 	udp = NULL;
 	logserver = NULL;
+	Debug.begin("xxx"); // Initialize the WiFi server
+	Debug.setResetCmdEnabled(true); // Enable the reset command
+	Debug.showProfiler(false); // Profiler (Good to measure times, to optimize codes)
+	Debug.showColors(true); // Colors
+	Debug.setSerialEnabled(false);
 }
 
 Logger* Logger::getInstance() {
@@ -24,7 +30,8 @@ Logger* Logger::getInstance() {
 Logger::~Logger() {
 }
 
-void Logger::addToLog(String s) {
+void Logger::addToLog(LogLevel loglevel, String s) {
+	//TODO loglevel check
 	Serial.println(s);
 	if (maxLog == 0) {
 		return;
@@ -32,6 +39,7 @@ void Logger::addToLog(String s) {
 	logdata* log = new logdata;
 	log->send = false;
 	log->msg = String(millis() / 1000) + String(": ") + s;
+	log->sendRD = false;
 	logger.add(log);
 	if (logger.size() > maxLog) {
 		logdata* l = logger.shift();
@@ -42,6 +50,29 @@ void Logger::addToLog(String s) {
 		logdata* l = logger.shift();
 		delete(l);
 	}
+}
+
+void Logger::printf(LogLevel loglevel, const char * msg, ...) {
+	va_list arg;
+	va_start(arg, msg);
+	char temp[100];
+	char* buffer = temp;
+	size_t len = vsnprintf_P(temp, sizeof(temp), msg, arg);
+	va_end(arg);
+	if (len > sizeof(temp) - 1) {
+		buffer = new char[len + 1];
+		if (!buffer) {
+			return;
+		}
+		va_start(arg, msg);
+		vsnprintf_P(buffer, len + 1, msg, arg);
+		va_end(arg);
+	}
+	String out = String(buffer);
+	if (buffer != temp) {
+		delete[] buffer;
+	}
+	addToLog(loglevel, out);
 }
 
 int Logger::findLastUnsend() {
@@ -56,13 +87,52 @@ int Logger::findLastUnsend() {
 	return last;
 }
 
+int Logger::findLastUnsendRD() {
+	int last = -1;
+	for (int idx = logger.size() - 1; idx >= 0; idx--) {
+		logdata* l = logger.get(idx);
+		if (l->sendRD) {
+			break;
+		}
+		last = idx;
+	}
+	return last;
+}
+
 int Logger::loop() {
+	Debug.handle();
+	boolean finish = true;
+	if (!sendUDP()) {
+		finish = false;
+	}
+	if (!sendRD()) {
+		finish = false;
+	}
+	return (finish ? 100 : 10);
+}
+
+boolean Logger::sendRD() {
+	if (!Debug.isActive(RemoteDebug::ANY)) {
+		return true;
+	}
+	int last = findLastUnsendRD();
+	if (last == -1) {
+		return true;
+	}
+	logdata* log = logger.get(last);
+	log->sendRD = true;
+	Serial.println("Sending: " + log->msg);
+	Debug.println(log->msg.c_str());
+	return false;
+}
+
+boolean Logger::sendUDP() {
 	if (udp == NULL) {
-		return 4000;
+		return true;
 	}
 	int last = findLastUnsend();
 	if (last == -1) {
-		return 500;
+		return true;
 	}
 	logdata* log = logger.get(last);
 	udp->beginPacket(*logserver, 514);
@@ -75,10 +145,8 @@ int Logger::loop() {
 	#endif
 	if (udp->endPacket() == 1) {
 		log->send = true;
-	} else {
-		return 500; // Waiting for connection
-	}
-	return 10;
+	} 
+	return false;
 }
 
 LinkedList<Logger::logdata*>* Logger::getLogs() {
@@ -103,6 +171,31 @@ void Logger::setIPAddress(IPAddress* ip) {
 
 Logger* Logger::theInstance = NULL;
 
-void Logger::log(String s) {
-	getInstance()->addToLog(s);
+void Logger::log(LogLevel loglevel, String s) {
+	getInstance()->addToLog(loglevel, s);
+}
+
+void Logger::changeLogLevel(int diff) {
+	getInstance()->Debug.setLogLevel(getInstance()->Debug.getLogLevel() + diff);
+	String out = "";
+	switch (getInstance()->Debug.getLogLevel()) {
+		case LogLevel::TRACE: 
+			out = "TRACE";
+			break;
+		case LogLevel::DEBUG:
+			out = "DEBUG";
+			break;
+		case LogLevel::INFO:
+			out = "INFO";
+			break;
+		case LogLevel::WARNING:
+			out = "WARNING";
+			break;
+		case LogLevel::ERROR:
+			out = "ERROR";
+			break;
+		default:
+			out = "UNKNOWN";
+	}
+	log(LogLevel::ERROR, "Loglevel: " + out);
 }

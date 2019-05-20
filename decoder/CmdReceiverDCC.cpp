@@ -32,7 +32,7 @@ void notifyDccAccTurnoutOutput(uint16_t Addr, uint8_t Direction,
 CmdReceiverDCC::CmdReceiverDCC(Controller* c, uint8_t ExtIntNum,
 		uint8_t ExtIntPinNum) :
 		CmdReceiverBase(c) {
-	Logger::getInstance()->addToLog("Starting DCC Receiver (PIN: " + String(ExtIntNum) + ")...");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting DCC Receiver (PIN: " + String(ExtIntNum) + ")...");
 	CmdReceiverDCC::_instance = this;
 	Dcc.pin(ExtIntNum, ExtIntPinNum, false);
 	Dcc.init( MAN_ID_DIY, 10,
