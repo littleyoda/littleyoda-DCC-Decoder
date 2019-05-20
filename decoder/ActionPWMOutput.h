@@ -25,6 +25,9 @@ public:
 	virtual ~ActionPWMOutput();
 	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
+	void setPwmValues(uint8_t* arr);
+	uint8_t getValue(uint8_t pos);
+
 private:
 	virtual void setSettings(String key, String value);
 	virtual void setDirection(int dir);
@@ -35,6 +38,7 @@ private:
 	int gpioPWM;
 	int gpioForward;
 	int gpioReverse;
+	uint8_t* arr;
 };
 
 #endif /* ACTIONPWMOUTPUT_H_ */

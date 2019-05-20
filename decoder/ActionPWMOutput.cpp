@@ -36,15 +36,36 @@ ActionPWMOutput::~ActionPWMOutput() {
 }
 
 String ActionPWMOutput::getHTMLCfg(String urlprefix) {
+	Serial.println("Cfg Started");
 	String message = "";
-	message += "<div class=\"column column-90\">Freq: ";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(100) + "\">" + String(100) + "</a>\n";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(250) + "\">" + String(250) + "</a>\n";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(500) + "\">" + String(500) + "</a>\n";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(1000) + "\">" + String(1000) + "</a>\n";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(5000) + "\">" + String(5000) + "</a>\n";
-	message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(10000) + "\">" + String(10000) + "</a>\n";
-	message += "</div>";
+	if (message.reserve(6500)) {
+		message += "<div class=\"column column-90\">Freq: ";
+		message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(100) + "\">" + String(100) + "</a>\n";
+		message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(250) + "\">" + String(250) + "</a>\n";
+		message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(500) + "\">" + String(500) + "</a>\n";
+		message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(1000) + "\">" + String(1000) + "</a>\n";
+		message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(5000) + "\">" + String(5000) + "</a>\n";
+		message += " <a class=\"button\" href=\"" + urlprefix + "key=freq&value=" +  String(10000) + "\">" + String(10000) + "</a>\n";
+		message += "</div>";
+		message += "<svg height=\"210\" width=\"650\">";
+		message += "<defs><style type=\"text/css\">";
+		message +=  "<![CDATA[";
+		message +=  " line { stroke:rgb(255,0,0);stroke-width:2}";
+		message +=  "]]>";
+		message +=  "</style>";
+		message += "</defs>";
+		message += "<rect x=\"0\" y=\"0\" width=\"640\" height=\"128\"/>";
+		int xfactor = 5;
+		for (int i = 1; i < 128; i++) {
+			message += "<line x1=\"" + String((i-1) * xfactor) + "\" y1=\"" + String(127 - getValue(i-1))  + "\" x2=\"" +  String(i * xfactor) + "\" y2=\"" +  String(127 - getValue(i)) + "\"  />";
+		}
+		for (int i = 1; i < 6; i++) {
+			message += "<line x1=\"" + String(i * 25 * xfactor) + "\" y1=\"0\" x2=\"" +  String(i * 25 * xfactor) + "\" y2=\"128\" />";
+		}
+		message += "</svg>";
+	} else {
+		message += "Out of Memory";
+	}
 	return message;
 }
 
@@ -134,4 +155,15 @@ void ActionPWMOutput::handleSpeedandDirectionWithoutPWMPin(int dir, int speed) {
 		GPIOobj.digitalWrite(gpioReverse, LOW);
 		direction = 0;
 	}
+}
+
+void ActionPWMOutput::setPwmValues(uint8_t* a) {
+	arr = a;
+}
+
+uint8_t ActionPWMOutput::getValue(uint8_t pos) {
+	if (arr != NULL) {
+		return arr[pos];
+	}
+	return pos;
 }
