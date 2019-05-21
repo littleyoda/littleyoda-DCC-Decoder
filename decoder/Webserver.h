@@ -55,6 +55,8 @@ private:
 	void handleUpload();
 	void handleDoFormat();
 	void handleFormat();
+	void handleDoConfigGet();
+	void handleDoConfigPost();
 	int lastWifiStatus = 6;
 	File fsUploadFile;
 	Controller* controll;

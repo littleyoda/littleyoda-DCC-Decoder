@@ -43,6 +43,8 @@ Webserver::Webserver(Controller* c) {
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
 	server->on("/format", std::bind(&Webserver::handleFormat, this));
 	server->on("/doformat", std::bind(&Webserver::handleDoFormat, this));
+	server->on("/editconfig", HTTP_GET,std::bind(&Webserver::handleDoConfigGet, this));
+	server->on("/editconfig", HTTP_POST, std::bind(&Webserver::handleDoConfigPost, this));
 	server->on("/upload", HTTP_POST,
 			[]() { server->send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"1; URL=/list\">"); },
 			std::bind(&Webserver::handleUpload, this));
@@ -142,6 +144,28 @@ void Webserver::handleDoFormat() {
 	server->send(200, "text/html", output);
 }
 
+
+void Webserver::handleDoConfigPost() {
+	SPIFFS.remove("/config.json.old");
+	SPIFFS.rename("/config.json", "/config.json.old");
+	File dataFile = SPIFFS.open("/config.json", "w");
+	dataFile.print(server->arg("content"));
+	dataFile.close();
+
+	server->sendHeader("Location", String("http://") + server->client().localIP().toString() + "/list", true);
+	server->send ( 302, "text/plain", "");
+}
+
+void Webserver::handleDoConfigGet() {
+	String dataType = "text/html";
+	File dataFile = SPIFFS.open("/config.json", "r");
+	String out = "";
+		out += "<html><body><form action = \"/editconfig\" method = \"post\"><textarea rows = \"30\" cols = \"70\" name = \"content\">"
+				 + dataFile.readString()
+				 + "</textarea><input type = \"submit\" value = \"submit\" /></form></body></html>";
+    server->send(200, "text/html", out);
+}
+
 void Webserver::handleFilelist() {
 	String output = "" + Utils::getHTMLHeader() + F("<table><thead><tr><th>Name</th><th>Size</th></thead><tbody>");
 #ifdef ESP8266
@@ -184,7 +208,10 @@ void Webserver::handleFilelist() {
 #endif
 	output += F("</tbody></table><hr>");
 	output += F("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><fieldset> <input name=\"Datei\" type=\"file\" size=\"50\"> ");
-	output += F("    <input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form> ");
+	output += F("<input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form><p/>");
+	output += F("<a style=\"font-size: 4rem;\"  href=\"/editconfig\">");
+	output += F("&#x270E;");
+	output += F("</a>");
 	output += Utils::getHTMLFooter();
 	server->send(200, "text/html", output);
 }
@@ -313,7 +340,6 @@ void Webserver::handleNotFound() {
 			}
 			server->send(404, "text/plain", message);
 	} else {
-		Serial.println(server->hostHeader());
 		server->sendHeader("Location", String("http://") + server->client().localIP().toString(), true);
 		server->send ( 302, "text/plain", "");
 		server->client().stop();
