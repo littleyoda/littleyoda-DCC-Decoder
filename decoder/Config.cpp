@@ -14,11 +14,13 @@
 #include "ActionServo.h"
 #include "ActionLed.h"
 #include "ActionPWMOutput.h"
+#include "ActionPWMDirect.h"
 #include "ActionDFPlayerMP3.h"
 #include "ActionDCCGeneration.h"
 #include "ActionSUSIGeneration.h"
 #include "ActionSendTurnoutCommand.h"
 #include "ActionStepperOutput.h"
+#include "ActionPWMShieldV1Output.h"
 
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
@@ -136,64 +138,77 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerSettings(l);
 
 		} else if (m.equals("pwm")) {
-			int gpiopwm = GPIOobj.string2gpio(parser->getValueByKey(idx, "pwm"));
-			int gpiof = GPIOobj.string2gpio(parser->getValueByKey(idx, "forward"));
-			int gpior = GPIOobj.string2gpio(parser->getValueByKey(idx, "reverse"));
-			ActionPWMOutput* a = new ActionPWMOutput(gpiopwm, gpiof, gpior);
-			a->setName(id);
-			controller->registerSettings(a);
-
-			int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
-			if (addridx > 0) {
-				if (!parser->isArray(addridx)) {
-					Logger::log(LogLevel::ERROR, "Values Format im Bereich PWM falsch!");
-					idx = parser->getNextSiblings(idx);
-					continue;
-
-				}
-				uint8_t* arr;
-				arr = new uint8_t[128];
-				for (int i = 0; i < 127; i++) {
-					arr[i] = 255;
-				}
-				arr[0] = 0;
-				arr[1] = 0;
-				arr[127] = 127;
-				int child = parser->getFirstChild(addridx);
-				while (child != -1) {
-					int idx = parser->getFirstChild(child);
-					int pos  = parser->getString(idx).toInt();
-					int pwmvalue  = parser->getString(parser->getNextSiblings(idx)).toInt();
-					if (pos < 1 || pos > 127 || pwmvalue < 0 || pwmvalue > 127) {
-						Logger::getInstance()->addToLog(LogLevel::ERROR,"Ungültiger Wert " + String(pos) + "/" + String(pwmvalue));
-						child = parser->getNextSiblings(child);
-						continue;
-					}
-					arr[pos] = (uint8_t) pwmvalue;
-					child = parser->getNextSiblings(child);
-				}
-				int start = 0;
-				int akt = 0;
-				while (akt < 127) {
-					akt++;
-					if (arr[akt] == 255) {
-						continue;
-					}
-					int laenge = akt - start;
-					if (laenge == 1) {
-						start = akt;
-						continue;
-					}
-					float veraenderung = ((float) (arr[akt] - arr[start]) / laenge );
-					float wert = arr[start];
-					for (int i = start + 1; i < akt; i++) {
-						wert += veraenderung;
-						arr[i] = wert;
-					}
-					start = akt;
-				}
-				a->setPwmValues(arr);
+			String type = parser->getValueByKey(idx, "type");
+			ActionPWMOutput* a;
+			if (type.equals("") || type.equals("direct")) {
+				 int gpiopwm = GPIOobj.string2gpio(parser->getValueByKey(idx, "pwm"));
+				 int gpiof = GPIOobj.string2gpio(parser->getValueByKey(idx, "forward"));
+				 int gpior = GPIOobj.string2gpio(parser->getValueByKey(idx, "reverse"));
+				 a = new ActionPWMDirect(gpiopwm, gpiof, gpior);
+			} else if (type.equals("shieldv1")) {
+				a = new ActionPWMSchieldV1Output(0x30, 0);
+			} else {
+				Logger::log(LogLevel::ERROR, "Unbekannter Type: " + type);
 			}
+			if (a != NULL) {
+				a->setName(id);
+				controller->registerSettings(a);
+				int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
+				if (addridx > 0) {
+					if (!parser->isArray(addridx)) {
+						Logger::log(LogLevel::ERROR, "Values Format im Bereich PWM falsch!");
+						idx = parser->getNextSiblings(idx);
+						continue;
+
+					}
+					uint8_t* arr;
+					arr = new uint8_t[128];
+					for (int i = 0; i < 127; i++) {
+						arr[i] = 255;
+					}
+					// Array mit den Werten aus der Config-Datei füllen
+					arr[0] = 0;
+					arr[1] = 0;
+					arr[127] = 127;
+					int child = parser->getFirstChild(addridx);
+					while (child != -1) {
+						int idx = parser->getFirstChild(child);
+						int pos  = parser->getString(idx).toInt();
+						int pwmvalue  = parser->getString(parser->getNextSiblings(idx)).toInt();
+						if (pos < 1 || pos > 127 || pwmvalue < 0 || pwmvalue > 127) {
+							Logger::getInstance()->addToLog(LogLevel::ERROR,"Ungültiger Wert " + String(pos) + "/" + String(pwmvalue));
+							child = parser->getNextSiblings(child);
+							continue;
+						}
+						arr[pos] = (uint8_t) pwmvalue;
+						child = parser->getNextSiblings(child);
+					}
+					// Werte linear interpolieren
+					int start = 0;
+					int akt = 0;
+					while (akt < 127) {
+						akt++;
+						if (arr[akt] == 255) {
+							continue;
+						}
+						int laenge = akt - start;
+						if (laenge == 1) {
+							start = akt;
+							continue;
+						}
+						float veraenderung = ((float) (arr[akt] - arr[start]) / laenge );
+						float wert = arr[start];
+						for (int i = start + 1; i < akt; i++) {
+							wert += veraenderung;
+							arr[i] = wert;
+						}
+						start = akt;
+					}
+					a->setPwmValues(arr);
+				}
+			}
+
+
 		} else if (m.equals("servo")) {
 			#ifdef ESP8266
 

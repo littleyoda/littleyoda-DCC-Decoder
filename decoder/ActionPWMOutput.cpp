@@ -1,5 +1,7 @@
 /*
  * ActionPWMOutput.cpp
+ * 
+ * Basis-Klasse für alle PWM-Klassen
  *
  *  Created on: 09.12.2016
  *      Author: sven
@@ -11,25 +13,7 @@
 #include "Utils.h"
 #include "GPIO.h"
 
-ActionPWMOutput::ActionPWMOutput(uint8_t pwm, uint8_t forward, uint8_t reverse) {
-	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting PWM...");
-	Logger::getInstance()->addToLog(LogLevel::INFO, "PWM-Pin: "
-			+ GPIOobj.gpio2string(pwm) + " Forward-Pin: "
-			+ GPIOobj.gpio2string(forward) + " Reverse-Pin: "
-			+ GPIOobj.gpio2string(reverse)
-	);
-	  GPIOobj.analogWriteFreq(100);
-	  gpioPWM = pwm;
-	  gpioForward = forward;
-	  gpioReverse = reverse;
-	  String fctname = " PWM Signal";
-	  if (gpioPWM != Consts::DISABLE) {
-		  GPIOobj.pinMode(gpioPWM, OUTPUT, "PWM: PWM Signal"); GPIOobj.digitalWrite(gpioPWM, LOW); // PWM Signal
-		  fctname = "";
-	  }
-	  GPIOobj.pinMode(gpioForward, OUTPUT, "PWM: Forward" + fctname); GPIOobj.digitalWrite(gpioForward, LOW); // Forward
-	  GPIOobj.pinMode(gpioReverse, OUTPUT, "PWM: Reverse" + fctname); GPIOobj.digitalWrite(gpioReverse, LOW); // Reverse
-	  setDirection(1);
+ActionPWMOutput::ActionPWMOutput() {
 }
 
 ActionPWMOutput::~ActionPWMOutput() {
@@ -76,86 +60,13 @@ String ActionPWMOutput::getHTMLController(String urlprefix) {
 	message += "</div>";
 	message += "<div class=\"column column-90\">";
 	message +=  "<div id=\"pwmValue\">0</div>";
-	message += " <input type=range min=-100 max=100 value=0 step=10 oninput=\"" + action + "\" onchange=\"" + action + "\"><br/>";
+	message += " <input type=range min=-100 max=100 value=0 step=5 oninput=\"" + action + "\" onchange=\"" + action + "\"><br/>";
 	message += "</div>";
 
 	message += "</div>";
 	return message;
 }
 
-void ActionPWMOutput::setSettings(String key, String value) {
-	Logger::log(LogLevel::TRACE, "SetSettings " + key + "/" + value);
-	if (key.equals("sd")) {
-		int v = value.toInt();
-		if (v < 0) {
-			setDirection(-1);
-		} else {
-			setDirection(1);
-		}
-		int s = PWMRANGE * abs(value.toInt()) / 100;
-		setSpeedInProcent(s);
-	} else if (key.equals("freq")) {
-		GPIOobj.analogWriteFreq(value.toInt());
-	}
-}
-
-void ActionPWMOutput::setDirection(int dir) {
-	if (gpioPWM == Consts::DISABLE) {
-		handleSpeedandDirectionWithoutPWMPin(dir, currentSpeed);
-		return;
-	}
-	if (dir == 1) {
-		GPIOobj.digitalWrite(gpioForward, HIGH);
-		GPIOobj.digitalWrite(gpioReverse, LOW);
-		direction = 1;
-	} else if (dir == -1) {
-		GPIOobj.digitalWrite(gpioForward, LOW);
-		GPIOobj.digitalWrite(gpioReverse, HIGH);
-		direction = -1;
-	} else {
-		Logger::log(LogLevel::ERROR, "Error: Direction " + String(dir));
-		GPIOobj.digitalWrite(gpioForward, LOW);
-		GPIOobj.digitalWrite(gpioReverse, LOW);
-		direction = 0;
-	}
-}
-
-//void ActionPWMOutput::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
-//	if (id == locid || id == Consts::LOCID_ALL) {
-//		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
-//			speed = 0;
-//		}
-//		setDirection(direction);
-//		int v = PWMRANGE * speed / SpeedSteps;
-//		setSpeedInProcent(v);
-//	}
-//}
-
-void ActionPWMOutput::setSpeedInProcent(int speedProc) {
-	if (gpioPWM == Consts::DISABLE) {
-		handleSpeedandDirectionWithoutPWMPin(direction, speedProc);
-		return;
-	}
-	GPIOobj.analogWrite(gpioPWM, speedProc);
-}
-
-void ActionPWMOutput::handleSpeedandDirectionWithoutPWMPin(int dir, int speed) {
-	currentSpeed = speed;
-	if (dir == 1) {
-		GPIOobj.analogWrite(gpioForward, currentSpeed);
-		GPIOobj.analogWrite(gpioReverse, 0);
-		direction = 1;
-	} else if (dir == -1) {
-		GPIOobj.analogWrite(gpioForward, 0);
-		GPIOobj.analogWrite(gpioReverse, currentSpeed);
-		direction = -1;
-	} else {
-		Logger::log(LogLevel::ERROR, "Error: Direction " + String(dir));
-		GPIOobj.digitalWrite(gpioForward, LOW);
-		GPIOobj.digitalWrite(gpioReverse, LOW);
-		direction = 0;
-	}
-}
 
 void ActionPWMOutput::setPwmValues(uint8_t* a) {
 	arr = a;
