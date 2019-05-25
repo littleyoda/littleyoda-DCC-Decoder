@@ -62,8 +62,8 @@ public:
 	void notifyGPIOChange(int pin, int newvalue);
 
 	void enableAPModus();
-	String getHTMLController();
-	String getHTMLCfg();
+	void getHTMLController();
+	void getHTMLCfg();
 	void setRequest(String id, String key, String value);
 	bool isEmergency();
 	String getHostname();

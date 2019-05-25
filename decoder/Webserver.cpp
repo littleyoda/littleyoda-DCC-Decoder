@@ -348,10 +348,14 @@ void Webserver::handleNotFound() {
 
 
 void Webserver::handleController() {
-	String message = Utils::getHTMLHeader();
-	message += controll->getHTMLController();
-	message += Utils::getHTMLFooter();
-	server->send(200, "text/html", message);
+	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+	server->send(200, "text/html", Utils::getHTMLHeader());
+	controll->getHTMLController();
+	server->sendContent(Utils::getHTMLFooter());
+}
+
+void Webserver::sendContent(String s) {
+	server->sendContent(s);
 }
 
 void Webserver::registerWebServices(WebserviceBase* base) {
@@ -371,8 +375,8 @@ void Webserver::handleSet() {
 }
 
 void Webserver::handleCfg() {
-	String message = Utils::getHTMLHeader();
-	message += controll->getHTMLCfg();
-	message += Utils::getHTMLFooter();
-	server->send(200, "text/html", message);
+	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+	server->send(200, "text/html", Utils::getHTMLHeader());
+	controll->getHTMLCfg();
+	server->sendContent(Utils::getHTMLFooter());
 }

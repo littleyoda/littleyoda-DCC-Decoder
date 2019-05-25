@@ -14,6 +14,7 @@
 #include "Utils.h"
 #include "Logger.h"
 #include "Consts.h"
+#include "Webserver.h"
 
 
 Controller::Controller() {
@@ -99,26 +100,25 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 	}
 }
 
-String Controller::getHTMLController() {
-	String msg = "<div class=\"container\">";
+void Controller::getHTMLController() {
+	Webserver::sendContent("<div class=\"container\">");
 	for (int idx = 0; idx < settings.size(); idx++) {
-		msg += settings.get(idx)->getHTMLController(
+		String msg = settings.get(idx)->getHTMLController(
 				"/set?id=" + String(idx) + "&");
 		msg += "\n";
+		Webserver::sendContent(msg);
 	}
-	msg += "</div>";
-	return msg;
+	Webserver::sendContent("</div>");
 }
 
-String Controller::getHTMLCfg() {
-	String msg = "<div class=\"container\">";
+void Controller::getHTMLCfg() {
+	Webserver::sendContent("<div class=\"container\">");
 	for (int idx = 0; idx < settings.size(); idx++) {
-		msg += settings.get(idx)->getHTMLCfg(
-				"/set?id=" + String(idx) + "&");
-		msg += "\n";
+		Webserver::sendContent(
+			 settings.get(idx)->getHTMLCfg("/set?id=" + String(idx) + "&") + "\n"
+		);
 	}
-	msg += "</div>";
-	return msg;
+	Webserver::sendContent("</div>");
 }
 
 void Controller::setRequest(String id, String key, String value) {

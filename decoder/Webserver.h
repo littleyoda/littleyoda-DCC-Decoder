@@ -41,7 +41,7 @@ public:
 #endif
 	void registerWebServices(WebserviceBase* base);
 
-
+	static void sendContent(String s);
 private:
 	bool loadFromSPIFFS(String filepath);
 	void handleNotFound();
