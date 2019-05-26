@@ -139,7 +139,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("pwm")) {
 			String type = parser->getValueByKey(idx, "type");
-			ActionPWMOutput* a;
+			ActionPWMOutput* a = NULL;
 			if (type.equals("") || type.equals("direct")) {
 				 int gpiopwm = GPIOobj.string2gpio(parser->getValueByKey(idx, "pwm"));
 				 int gpiof = GPIOobj.string2gpio(parser->getValueByKey(idx, "forward"));
@@ -237,14 +237,18 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("stepper")) {
 			int child = parser->getIdxByKey(idx, "gpio");
+			boolean persistent = parser->getBooleanByKey(idx, "persistent");
 			child = parser->getFirstChild(child);
 			ActionStepperOutput* a = new ActionStepperOutput(
 								new Pin(parser->getString(parser->getChildAt(child, 0))),
 								new Pin(parser->getString(parser->getChildAt(child, 1))),
 								new Pin(parser->getString(parser->getChildAt(child, 2))),
-								new Pin(parser->getString(parser->getChildAt(child, 3)))
+								new Pin(parser->getString(parser->getChildAt(child, 3))),
+								persistent
 			);
+			//per·sis·tent
 			a->setName(id);
+			a->load();
 			controller->registerSettings(a);
 			controller->registerLoop(a);
 

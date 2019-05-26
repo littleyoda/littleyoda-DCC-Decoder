@@ -57,6 +57,7 @@ void json::printElement(int i) {
 	Serial.printf("\r\n");
 }
 
+
 json::~json() {
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Closing Parser");
 	delete[] buf;
@@ -108,6 +109,12 @@ int json::getNextSiblings(int childID) {
 	}
 }
 
+boolean json::getBooleanByKey(int parentID, String key) {
+	String value = getValueByKey(parentID, key);
+	value.toLowerCase();
+	return value.equals("true") || value.equals("j") || value.equals("y") || value.equals("1");
+}
+
 String json::getValueByKey(int parentID, String key) {
 	int idx = getIdxByKey(parentID, key);
 	if (idx == -1) {
@@ -119,6 +126,7 @@ String json::getValueByKey(int parentID, String key) {
 	}
 	return "";
 }
+
 
 
 String json::getValueByKey(int parentID, String key, String defaultValue) {

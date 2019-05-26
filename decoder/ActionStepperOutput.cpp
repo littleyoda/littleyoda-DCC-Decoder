@@ -8,7 +8,14 @@
 
 
 #include "ActionStepperOutput.h"
-ActionStepperOutput::ActionStepperOutput(Pin* p1, Pin* p2, Pin* p3, Pin* p4) {
+#include <FS.h>
+#ifdef ESP32
+	#include "SPIFFS.h"
+#endif
+
+
+ActionStepperOutput::ActionStepperOutput(Pin* p1, Pin* p2, Pin* p3, Pin* p4, boolean _persistent) {
+	Logger::log(LogLevel::INFO, "Stepper started!");
 	pins[0] = p1;
 	pins[1] = p2;
 	pins[2] = p3;
@@ -16,17 +23,28 @@ ActionStepperOutput::ActionStepperOutput(Pin* p1, Pin* p2, Pin* p3, Pin* p4) {
 	for (int i = 0; i < 4; i++) {
 		GPIOobj.pinMode(pins[i], OUTPUT, "Stepper");
 	}
+	persistent = _persistent;
 }
 
 ActionStepperOutput::~ActionStepperOutput() {
 }
 
+void ActionStepperOutput::load() {
+	if (persistent && SPIFFS.exists("/" + getName() + ".dat")) {
+		File dataFile = SPIFFS.open("/" + getName() + ".dat" , "r");
+		current = dataFile.parseInt();
+		lastsaved = current;
+		target = current;
+		Logger::log(LogLevel::INFO, "Gespeicherte Position: " + String(current));
+	}
+}
 
 int ActionStepperOutput::loop() {
 	if (current == target) {
 		for (int i = 0; i < 4; i++) {
 			GPIOobj.digitalWrite(pins[i], 0);
 		}
+		save();
 		return 50;
 	}
 	if (current < target) {
@@ -49,8 +67,14 @@ int ActionStepperOutput::loop() {
 }
 
 void ActionStepperOutput::setSettings(String key, String value) {
-	if (value.toInt() != 0) {
+	if (key.equals("ap")) {
 		target = value.toInt();
+		current = target;
+		Logger::getInstance()->printf(LogLevel::INFO, "Setting Position to %d", current);
+	} else {
+		if (value.toInt() != 0) {
+			target = value.toInt();
+		}
 	}
 }
 
@@ -73,4 +97,27 @@ String ActionStepperOutput::getHTMLController(String urlprefix) {
 	message += "</div>";
 	message += "</div>";
 	return message;
+}
+
+String ActionStepperOutput::getHTMLCfg(String urlprefix) {
+	String message =  "<div class=\"row\"> <div class=\"column column-10\">";
+	message += getName();
+	message += "</div>";
+	message += "<div class=\"column column-90\">";
+	message += "<a href=\"#\" onclick=\"";
+	message += "send('" + urlprefix + "&key=ap&value=0')";;
+	message += "\">";
+	message += "Aktuelle Position als Nullpunkt festlegen";
+	message += "</a> \r\n";
+	message += "</div>";
+	return message;
+}
+
+void ActionStepperOutput::save() {
+	if (persistent && current != lastsaved) {
+		File dataFile = SPIFFS.open("/" + getName() + ".dat" , "w");
+		dataFile.print(String(current));
+		dataFile.close();
+		lastsaved = current;
+	}
 }
