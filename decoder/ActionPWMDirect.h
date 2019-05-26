@@ -21,7 +21,7 @@
 
 class ActionPWMDirect: public ActionPWMOutput {
 public:
-	ActionPWMDirect(uint8_t  pwm, uint8_t forward, uint8_t reverse);
+	ActionPWMDirect(int  pwm, int forward, int reverse);
 	virtual ~ActionPWMDirect();
 
 private:

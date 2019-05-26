@@ -47,6 +47,8 @@ GPIOClass::GPIOClass() {
 	add("D10", D10);
 #endif
 	add("DISABLE", Consts::DISABLE);
+	add("disable", Consts::DISABLE);
+	add("disabled", Consts::DISABLE);
 }
 
 /**

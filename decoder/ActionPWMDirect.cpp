@@ -11,7 +11,7 @@
 #include "Utils.h"
 #include "GPIO.h"
 
-ActionPWMDirect::ActionPWMDirect(uint8_t pwm, uint8_t forward, uint8_t reverse) {
+ActionPWMDirect::ActionPWMDirect(int pwm, int forward, int reverse) {
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting PWM...");
 	Logger::getInstance()->addToLog(LogLevel::INFO, "PWM-Pin: "
 			+ GPIOobj.gpio2string(pwm) + " Forward-Pin: "
