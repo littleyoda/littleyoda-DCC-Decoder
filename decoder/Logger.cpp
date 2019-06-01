@@ -13,11 +13,13 @@ Logger::Logger() {
 	startmemory = ESP.getFreeHeap();
 	udp = NULL;
 	logserver = NULL;
+	#ifdef ESP8266
 	Debug.begin("xxx"); // Initialize the WiFi server
 	Debug.setResetCmdEnabled(true); // Enable the reset command
 	Debug.showProfiler(false); // Profiler (Good to measure times, to optimize codes)
 	Debug.showColors(true); // Colors
 	Debug.setSerialEnabled(false);
+	#endif
 }
 
 Logger* Logger::getInstance() {
@@ -100,7 +102,9 @@ int Logger::findLastUnsendRD() {
 }
 
 int Logger::loop() {
+	#ifdef ESP8266
 	Debug.handle();
+	#endif
 	boolean finish = true;
 	if (!sendUDP()) {
 		finish = false;
@@ -112,9 +116,11 @@ int Logger::loop() {
 }
 
 boolean Logger::sendRD() {
+	#ifdef ESP8266
 	if (!Debug.isActive(RemoteDebug::ANY)) {
 		return true;
 	}
+	#endif
 	int last = findLastUnsendRD();
 	if (last == -1) {
 		return true;
@@ -122,7 +128,9 @@ boolean Logger::sendRD() {
 	logdata* log = logger.get(last);
 	log->sendRD = true;
 	Serial.println("Sending: " + log->msg);
+	#ifdef ESP8266
 	Debug.println(log->msg.c_str());
+	#endif
 	return false;
 }
 
@@ -176,6 +184,7 @@ void Logger::log(LogLevel loglevel, String s) {
 }
 
 void Logger::changeLogLevel(int diff) {
+	#ifdef ESP8266
 	getInstance()->Debug.setLogLevel(getInstance()->Debug.getLogLevel() + diff);
 	String out = "";
 	switch (getInstance()->Debug.getLogLevel()) {
@@ -198,4 +207,5 @@ void Logger::changeLogLevel(int diff) {
 			out = "UNKNOWN";
 	}
 	log(LogLevel::ERROR, "Loglevel: " + out);
+	#endif
 }

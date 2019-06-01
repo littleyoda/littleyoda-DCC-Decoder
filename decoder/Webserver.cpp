@@ -250,9 +250,15 @@ void Webserver::handleVersion() {
 
 int Webserver::loop() {
 	#ifdef ESP32
-		if (lastWifiStatus != WiFi.status() && lastWifiStatus ==  WL_DISCONNECTED) {
+//		if (lastWifiStatus != WiFi.status() && lastWifiStatus ==  WL_DISCONNECTED) {
+		if (!init && 
+					 ((lastWifiStatus != WiFi.status() && lastWifiStatus ==  WL_DISCONNECTED)
+					 || WiFi.getMode() == WIFI_AP
+					 || WiFi.getMode() == WIFI_AP_STA)
+			 		) {
 			Serial.println("Server begin");
 			server->begin(); // Bug in Framework
+			init = true;
 		}
 	#endif
 	server->handleClient();

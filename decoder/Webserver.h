@@ -63,6 +63,8 @@ private:
 	LinkedList<WebserviceBase*> services = LinkedList<WebserviceBase*>();
 	#ifdef ESP8266
 		static ESP8266HTTPUpdateServer* httpUpdater;
+	#elif ESP32
+		boolean init = false;
 	#endif
 };
 
