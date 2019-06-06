@@ -21,7 +21,11 @@ Controller::Controller() {
 	cmdlogger = NULL;
 	dccSniffer = NULL;
 	longestLoop = 0;
-	if (!SPIFFS.begin()) {
+	#ifdef ESP32
+		if (!SPIFFS.begin(true)) {
+	#else
+		if (!SPIFFS.begin()) {
+	#endif
 		Logger::getInstance()->addToLog(LogLevel::ERROR, "SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
