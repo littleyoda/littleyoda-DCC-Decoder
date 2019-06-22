@@ -62,10 +62,13 @@ void ActionPWMSchieldV1Output::setSpeed(long l) {
 	}
 	Wire.write(dir);
 
+
 	_pwm_val=uint16_t(abs(l) * 100.0f);
 
 	if(_pwm_val>10000)
 		_pwm_val=10000;
+
+	Logger::log(LogLevel::TRACE, "Motorsteuerung Dir: " + String(dir) + "  Wert: " + String(_pwm_val));
 
 	Wire.write((byte)(_pwm_val >> 8));
 	Wire.write((byte)_pwm_val);

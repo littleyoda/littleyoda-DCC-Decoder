@@ -23,10 +23,10 @@ class ActionPWMSchieldV1Output: public ActionPWMOutput {
 public:
 	ActionPWMSchieldV1Output(uint8_t _i2caddr, uint8_t _motoraddr);
 	virtual ~ActionPWMSchieldV1Output();
+	void setSpeed(long l);
 
 private:
 	virtual void setSettings(String key, String value);
-	void setSpeed(long l);
 
 //	void setDirection(int dir);
 ///	void setSpeedInProcent(int proc);
