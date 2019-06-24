@@ -21,7 +21,7 @@
 #include "ActionSendTurnoutCommand.h"
 #include "ActionStepperOutput.h"
 #include "ActionPWMShieldV1Output.h"
-
+//#include "ActionController.h"
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
 #include "ConnectorONOFF.h"
@@ -37,7 +37,6 @@
 #include "CmdZentraleZ21.h"
 #include "CmdReceiverZ21Wlan.h"
 #include "CmdReceiverRocnetOverMQTT.h"
-//#include "CmdReceiverESPNOW.h"
 
 #include "WebserviceCommandLogger.h"
 #include "WebserviceLog.h"
@@ -48,6 +47,7 @@
 #ifdef ESP32
 	#include "FS.h"
 	#include "SPIFFS.h"
+//	#include "CmdReceiverESPNOW.h"
 #endif
 
 
@@ -146,7 +146,9 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 				 int gpior = GPIOobj.string2gpio(parser->getValueByKey(idx, "reverse"));
 				 a = new ActionPWMDirect(gpiopwm, gpiof, gpior);
 			} else if (type.equals("shieldv1")) {
-				a = new ActionPWMSchieldV1Output(0x30, 0);
+				int addr = parser->getValueByKey(idx, "i2caddr", "48").toInt();
+				int midx = parser->getValueByKey(idx, "motoridx", "0").toInt();
+				a = new ActionPWMSchieldV1Output(addr, midx);
 			} else {
 				Logger::log(LogLevel::ERROR, "Unbekannter Type: " + type);
 			}
@@ -299,13 +301,16 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		} else if (m.equals("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
 			controller->registerCmdReceiver(rec);
+//			controller->registerNotify(rec);
 
-
-		} else if (m.equals("espnow")) {
-			//			String rolle = String(value["rolle"].as<const char*>());
-			//			Serial.println("Rolle: " + rolle);
-			//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
-			//			controller->registerCmdReceiver(rec);
+		// } else if (m.equals("espnow")) {
+		// 	#ifdef ESP32
+		// 		String role = parser->getValueByKey(idx, "role");
+		// 		CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, role);
+		// 		controller->registerCmdReceiver(rec);
+		// 	#else
+		// 		Logger::log(LogLevel::ERROR, "ESPNOW not supported on ESP8266");
+		// 	#endif
 		} else if (m.equals("rocnetovermqtt")) {
 			controller->registerCmdReceiver(new CmdReceiverRocnetOverMQTT(controller));
 
@@ -406,8 +411,10 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			} else {
 				Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekanntes Gerät (I2C): " + String(d));
 			}
-
-
+		// } else if (m.equals("lycontroller")) {
+		// 	ActionController* a = new ActionController(controller);
+		// 	controller->registerNotify(a);
+		// 	controller->registerLoop(a);
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
