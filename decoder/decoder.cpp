@@ -82,7 +82,7 @@ void loadCFG(Webserver* web) {
 
 
 bool scanRunning = false;
-char* debugmodus="debug";
+const char* debugmodus="debug";
 int debugmodusPos = 0;
 void handleSerial() {
 	if (Serial.available() > 0) {
