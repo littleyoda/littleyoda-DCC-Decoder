@@ -44,6 +44,11 @@
 
 #include "ISettings.h"
 
+#ifdef LY_FEATURE_AUDIO
+	#include "ActionAudioI2S.h"
+#endif
+
+
 #ifdef ESP32
 	#include "FS.h"
 	#include "SPIFFS.h"
@@ -124,7 +129,6 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 		}
 
 		#endif
-
 		String id = parser->getValueByKey(idx, "id");
 		if (id.length() == 0) {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, "ID is null");
@@ -253,6 +257,15 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			a->load();
 			controller->registerSettings(a);
 			controller->registerLoop(a);
+
+		#ifdef LY_FEATURE_AUDIO
+		} else if (m.equals("audioi2s")) {
+			ActionAudioI2S* a = new ActionAudioI2S();
+			a->setName(id);
+			controller->registerSettings(a);
+			controller->registerLoop(a);
+
+		#endif
 
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
