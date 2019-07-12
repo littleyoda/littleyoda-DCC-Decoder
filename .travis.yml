@@ -14,10 +14,13 @@ script:
 
 before_deploy:
 - mkdir release
-- cp ./.pioenvs/nodemcuv2/firmware.bin release/littleyoda-DCC-Decoder.nodemcuv2.bin
-- cp ./.pioenvs/esp8285/firmware.bin release/littleyoda-DCC-Decoder.esp8285.bin
-- cp ./.pioenvs/d1_mini/firmware.bin release/littleyoda-DCC-Decoder.d1_mini.bin
-- cp ./.pioenvs/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
+- cp ./.pio/build/nodemcuv2/firmware.bin release/littleyoda-DCC-Decoder.nodemcuv2.bin
+- cp ./.pio/build/esp8285/firmware.bin release/littleyoda-DCC-Decoder.esp8285.bin
+- cp ./.pio/build/d1_mini/firmware.bin release/littleyoda-DCC-Decoder.d1_mini.bin
+- cp ./.pio/build/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
+- cp ./.pio/build/esp32dev/firmware.bin release/littleyoda-DCC-Decoder.esp32dev.bin
+- cp ./.pio/build/esp32full/firmware.bin release/littleyoda-DCC-Decoder.esp32full.bin
+- cp ./.pio/build/mhetesp32minikit/firmware.bin release/littleyoda-DCC-Decoder.mhetesp32minikit.bin
 - find release
 
 notifications:
