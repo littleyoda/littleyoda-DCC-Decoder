@@ -119,8 +119,9 @@ void Controller::getHTMLCfg() {
 	Webserver::sendContent("<div class=\"container\">");
 	for (int idx = 0; idx < settings.size(); idx++) {
 		Webserver::sendContent(
-			 settings.get(idx)->getHTMLCfg("/set?id=" + String(idx) + "&") + "\n"
+			 settings.get(idx)->getHTMLCfg("/set?id=" + String(idx) + "&")
 		);
+		Webserver::sendContent("\n");
 	}
 	Webserver::sendContent("</div>");
 }

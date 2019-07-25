@@ -47,10 +47,10 @@ String ActionPWMOutput::getHTMLCfg(String urlprefix) {
 			message += "<line x1=\"" + String(i * 25 * xfactor) + "\" y1=\"0\" x2=\"" +  String(i * 25 * xfactor) + "\" y2=\"128\" />";
 		}
 		message += "</svg>";
+		return message;
 	} else {
-		message += "Out of Memory";
+		return "Out of Memory";
 	}
-	return message;
 }
 
 String ActionPWMOutput::getHTMLController(String urlprefix) {
