@@ -27,6 +27,16 @@ ActionPWMSchieldV1Output::ActionPWMSchieldV1Output(uint8_t _i2caddr, uint8_t _mo
 ActionPWMSchieldV1Output::~ActionPWMSchieldV1Output() {
 }
 
+void ActionPWMSchieldV1Output::setFreq(uint32_t freq) {
+	Logger::log(LogLevel::TRACE, "Frequenz: " + String(freq));
+	Wire.beginTransmission(i2caddr);
+	Wire.write(((byte)(freq >> 16)) & (byte)0x0f);
+	Wire.write((byte)(freq >> 16));
+	Wire.write((byte)(freq >> 8));
+	Wire.write((byte)freq);
+	Wire.endTransmission();     // stop transmitting
+}
+
 
 void ActionPWMSchieldV1Output::setSettings(String key, String value) {
 	Logger::log(LogLevel::TRACE, "SetSettings " + key + "/" + value);
@@ -35,7 +45,7 @@ void ActionPWMSchieldV1Output::setSettings(String key, String value) {
 		// int s = PWMRANGE * abs(value.toInt()) / 100;
 		// setSpeedInProcent(s);
 	} else if (key.equals("freq")) {
-		Logger::log(LogLevel::ERROR, "Freq nicht implementiert");
+		setFreq(value.toInt());
 	}
 }
 
@@ -72,14 +82,5 @@ void ActionPWMSchieldV1Output::setSpeed(long l) {
 
 	Wire.write((byte)(_pwm_val >> 8));
 	Wire.write((byte)_pwm_val);
-	Wire.endTransmission();     // stop transmitting
-}
-
-void ActionPWMSchieldV1Output::setfreq(uint32_t freq) {
-	Wire.beginTransmission(i2caddr);
-	Wire.write(((byte)(freq >> 16)) & (byte)0x0f);
-	Wire.write((byte)(freq >> 16));
-	Wire.write((byte)(freq >> 8));
-	Wire.write((byte)freq);
 	Wire.endTransmission();     // stop transmitting
 }

@@ -25,6 +25,7 @@ public:
 	String getString(int pos);
 	int getIdxByKey(int parentID, String key);
 	int getFirstChild(int parentID);
+	bool keyExists(int parentID, String key);
 	int getNextSiblings(int childID);
 	void printElement(int id);
 	int getFirstChildOfArrayByKey(int parentID, String key);

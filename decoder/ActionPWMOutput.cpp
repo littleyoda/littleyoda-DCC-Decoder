@@ -78,3 +78,7 @@ uint8_t ActionPWMOutput::getValue(uint8_t pos) {
 	}
 	return pos;
 }
+
+void ActionPWMOutput::setFreq(uint32_t value) {
+	
+}

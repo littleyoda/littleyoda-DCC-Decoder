@@ -157,6 +157,9 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 				Logger::log(LogLevel::ERROR, "Unbekannter Type: " + type);
 			}
 			if (a != NULL) {
+				if (parser->keyExists(idx, "freq")) {
+					a->setFreq(parser->getValueByKey(idx, "freq").toInt());
+				}
 				a->setName(id);
 				controller->registerSettings(a);
 				int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));

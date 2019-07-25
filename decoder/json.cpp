@@ -128,6 +128,11 @@ String json::getValueByKey(int parentID, String key) {
 }
 
 
+bool json::keyExists(int parentID, String key) {
+	int idx = getIdxByKey(parentID, key);
+	return idx != -1;
+}
+
 
 String json::getValueByKey(int parentID, String key, String defaultValue) {
 	int idx = getIdxByKey(parentID, key);

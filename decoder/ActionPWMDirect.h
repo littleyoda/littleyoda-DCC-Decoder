@@ -23,6 +23,7 @@ class ActionPWMDirect: public ActionPWMOutput {
 public:
 	ActionPWMDirect(int  pwm, int forward, int reverse);
 	virtual ~ActionPWMDirect();
+	virtual void setFreq(uint32_t value);
 
 private:
 	virtual void setSettings(String key, String value);

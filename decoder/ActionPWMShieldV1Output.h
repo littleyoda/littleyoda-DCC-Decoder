@@ -24,6 +24,7 @@ public:
 	ActionPWMSchieldV1Output(uint8_t _i2caddr, uint8_t _motoraddr);
 	virtual ~ActionPWMSchieldV1Output();
 	void setSpeed(long l);
+	virtual void setFreq(uint32_t value);
 
 private:
 	virtual void setSettings(String key, String value);
@@ -35,7 +36,6 @@ private:
 	uint8_t motoraddr;
 	uint8_t i2caddr;
 	uint8_t* arr;
-	void setfreq(uint32_t freq);
 };
 
 #endif /* ACTIONPWMOUTPUT_H_ */

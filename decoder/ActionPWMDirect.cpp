@@ -35,6 +35,11 @@ ActionPWMDirect::ActionPWMDirect(int pwm, int forward, int reverse) {
 ActionPWMDirect::~ActionPWMDirect() {
 }
 
+void ActionPWMDirect::setFreq(uint32_t value) {
+	Logger::log(LogLevel::TRACE, "Frequenz: " + String(value));
+	GPIOobj.analogWriteFreq(value);
+}
+
 
 void ActionPWMDirect::setSettings(String key, String value) {
 	Logger::log(LogLevel::TRACE, "SetSettings " + key + "/" + value);
@@ -48,7 +53,7 @@ void ActionPWMDirect::setSettings(String key, String value) {
 		int s = PWMRANGE * abs(value.toInt()) / 100;
 		setSpeedInProcent(s);
 	} else if (key.equals("freq")) {
-		GPIOobj.analogWriteFreq(value.toInt());
+		setFreq(value.toInt());
 	}
 }
 

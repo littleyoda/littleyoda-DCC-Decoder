@@ -20,6 +20,7 @@ public:
 	virtual String getHTMLController(String urlprefix);
 	void setPwmValues(uint8_t* arr);
 	uint8_t getValue(uint8_t pos);
+	virtual void setFreq(uint32_t value);
 
 private:
 	uint8_t* arr;
