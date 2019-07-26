@@ -9,6 +9,8 @@
 #define ISETTINGS_H_
 
 #include "Arduino.h"
+class Controller;
+
 class ISettings {
 public:
 	ISettings();
@@ -16,7 +18,8 @@ public:
 	virtual void setName(String s);
 	virtual String getName();
 	virtual void setSettings(String key, String value);
-	virtual String getHTMLCfg(String urlprefix) ;
+	virtual String getHTMLCfg(String urlprefix);
+	virtual void getHTMLConfig(String urlprefix, Controller* c);
 	virtual String getHTMLController(String urlprefix);
 protected:
 	String* id;

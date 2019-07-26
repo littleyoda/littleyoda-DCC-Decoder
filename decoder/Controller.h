@@ -64,6 +64,7 @@ public:
 	void enableAPModus();
 	void getHTMLController();
 	void getHTMLCfg();
+	void sendContent(String s);
 	void setRequest(String id, String key, String value);
 	bool isEmergency();
 	String getHostname();

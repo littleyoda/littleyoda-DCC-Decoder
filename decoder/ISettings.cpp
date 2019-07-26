@@ -6,6 +6,7 @@
  */
 
 #include "ISettings.h"
+#include "Controller.h"
 
 ISettings::ISettings() {
 	id = NULL;
@@ -32,4 +33,9 @@ String ISettings::getName() {
 		return "";
 	}
 	return "" + (*id);
+}
+
+void ISettings::getHTMLConfig(String urlprefix, Controller* c) {
+	// Abwärtskompatibilität
+	c->sendContent(getHTMLCfg(urlprefix));
 }

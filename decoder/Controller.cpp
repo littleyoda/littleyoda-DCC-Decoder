@@ -107,23 +107,18 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 void Controller::getHTMLController() {
 	Webserver::sendContent("<div class=\"container\">");
 	for (int idx = 0; idx < settings.size(); idx++) {
-		String msg = settings.get(idx)->getHTMLController(
-				"/set?id=" + String(idx) + "&");
-		msg += "\n";
-		Webserver::sendContent(msg);
+		sendContent(settings.get(idx)->getHTMLController("/set?id=" + String(idx) + "&"));
 	}
 	Webserver::sendContent("</div>");
 }
 
 void Controller::getHTMLCfg() {
-	Webserver::sendContent("<div class=\"container\">");
+	sendContent("<div class=\"container\">");
 	for (int idx = 0; idx < settings.size(); idx++) {
-		Webserver::sendContent(
-			 settings.get(idx)->getHTMLCfg("/set?id=" + String(idx) + "&")
-		);
-		Webserver::sendContent("\n");
+		settings.get(idx)->getHTMLConfig("/set?id=" + String(idx) + "&", this);
+		sendContent("\n");
 	}
-	Webserver::sendContent("</div>");
+	sendContent("</div>");
 }
 
 void Controller::setRequest(String id, String key, String value) {
@@ -333,6 +328,10 @@ void Controller::registerSettings(ISettings* loop) {
 		return;
 	}
 	settings.add(loop);
+}
+
+void Controller::sendContent(String s) {
+		Webserver::sendContent(s);
 }
 
 void Controller::logLoop(unsigned long now) {

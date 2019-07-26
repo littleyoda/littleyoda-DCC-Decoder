@@ -16,8 +16,8 @@ class ActionPWMOutput: public ISettings {
 public:
 	ActionPWMOutput();
 	virtual ~ActionPWMOutput();
-	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
+	virtual void getHTMLConfig(String urlprefix, Controller* c);
 	void setPwmValues(uint8_t* arr);
 	uint8_t getValue(uint8_t pos);
 	virtual void setFreq(uint32_t value);
