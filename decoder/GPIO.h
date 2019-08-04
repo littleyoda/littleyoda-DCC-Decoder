@@ -51,10 +51,22 @@ public:
 	void analogWriteFreq(uint32_t freq);
 	void addMCP23017(uint8_t addr);
 	void add(String s, int pinNumber);
+	void add(String s, int pinNumber, unsigned long supportedFunctions);
 	void cache(bool b);
 	String getUsage(String sep);
 	virtual int loop();
 
+	enum F {
+		DIGITAL_INPUT = 1,
+		DIGITAL_OUTPUT = 2,
+		SUPPORTS_PULLUP = 4,
+		SUPPORTS_PULLDOWN = 8,
+		UNSTABLE_AT_STARTUP = 16,
+		SUPPORTS_PWM = 32,
+		SUPPORTS_ADC = 64,
+		SUPPORTS_DAC = 128,
+		PIN_STRAPPING_AT_STARTUP = 256,
+	};
 
 private:
 	DataContainerSimpleList<String, int16_t>* data;
@@ -63,6 +75,9 @@ private:
 	LinkedList<Adafruit_MCP23017*>* mcps;
 	bool cacheEnabled;
 	uint16_t* cachedValue;
+	#ifdef ESP32
+		void addESP32Pin(int x);
+	#endif
 };
 
 extern GPIOClass GPIOobj;
