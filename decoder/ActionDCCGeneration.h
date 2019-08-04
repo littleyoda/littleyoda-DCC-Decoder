@@ -12,15 +12,19 @@
 
 #include "INotify.h"
 #include "ILoop.h"
+#include "ISettings.h"
 #include "Pin.h"
 
-class ActionDCCGeneration: public INotify, public ILoop {
+class ActionDCCGeneration: public INotify, public ILoop, public ISettings {
 public:
 	ActionDCCGeneration(Pin* gpioenable, int locoaddr, int dccoutput);
 	virtual ~ActionDCCGeneration();
 	virtual int loop();
 	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
+	virtual void getHTMLConfig(String urlprefix, Controller* c);
+	virtual void setSettings(String key, String value);
+
 
 private:
 	void addToSpi(int i);
@@ -37,6 +41,7 @@ private:
 	static const unsigned char DCC_FRAME_FUNC3 =0x13;
 	static const unsigned char DCC_FRAME_FUNC4 =0x14;
 	static const unsigned char DCC_FRAME_FUNC5 =0x15;
+	static const unsigned char DCC_FRAME_CV =0x16;
 
 	unsigned DCC_ADRESSE;
 	bool FORCE_LONG_ADDR = false;// Erzwingt Lange DCC Adresse. Adresen über 128 werden automatisch als lange Adressen angenommen
@@ -60,6 +65,10 @@ private:
 
 	Pin* enableGpio;
 	requestInfo* r;
+
+	uint8_t cv_sendCounter = 0;
+	uint8_t cv_value;
+	uint16_t cv_cv;
 };
 
 #endif

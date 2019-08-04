@@ -28,7 +28,7 @@ ActionDCCGeneration::ActionDCCGeneration(Pin* gpio, int locoaddr, int dccoutput)
 	SPISettings spi = SPISettings(17241, LSBFIRST, my_SPI_MODE3, false) ;
 	SPI.begin(spi, "DCC");
 	SPI.beginTransaction(spi);
-
+	setName("DCCGEN");
 	if (enableGpio->getPin() != Consts::DISABLE) {
 		GPIOobj.pinMode(enableGpio, OUTPUT, "DCC Generation");
 		GPIOobj.digitalWrite(enableGpio, 0);
@@ -109,29 +109,34 @@ void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSt
 
 uint8_t ActionDCCGeneration::STATEtoDCC(){
 	uint8_t idx = 0;
-	switch(FRAME_COUNT) {
-	case 0:
-		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_SPEED);
-		break;
-	case 1:
-		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC1);
-		break;
-	case 2:
-		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC2);
-		break;
-	case 3:
-		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC3);
-		break;
-	case 4:
-		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC4);
-		break;
-	case 5:
-		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC5);
-		break;
-	}
-	FRAME_COUNT++;
-	if (FRAME_COUNT == 6) {
-		FRAME_COUNT = 0;
+	if (cv_sendCounter > 0) {
+		cv_sendCounter--;
+		idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_CV);
+	} else {
+		switch(FRAME_COUNT) {
+		case 0:
+			idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_SPEED);
+			break;
+		case 1:
+			idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC1);
+			break;
+		case 2:
+			idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC2);
+			break;
+		case 3:
+			idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC3);
+			break;
+		case 4:
+			idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC4);
+			break;
+		case 5:
+			idx = createDCCSequence(DCC_ADRESSE,DCC_FRAME_FUNC5);
+			break;
+		}
+		FRAME_COUNT++;
+		if (FRAME_COUNT == 6) {
+			FRAME_COUNT = 0;
+		}
 	}
 	return idx;
 }
@@ -201,8 +206,19 @@ uint8_t ActionDCCGeneration::createDCCSequence(uint16_t address, unsigned char f
 		DCCBuf[idx] = i;
 		idx++;
 		break;
+	case DCC_FRAME_CV:  
+		// 1110CCVV   0   VVVVVVVV   0   DDDDDDDD	
+		// CC 11 => Byte Write
+		uint16_t cv = cv_cv - 1;
+		DCCBuf[idx] = 0b11101100 | ((cv >> 8) & 0b11);
+		idx++;
+		DCCBuf[idx] = cv & 0xFF;
+		idx++;
+		DCCBuf[idx] = cv_value & 0xFF;
+		idx++;
+		break;
 	}
-	DCCBuf[idx] = DCCBuf[0];
+	DCCBuf[idx] = DCCBuf[0]; // Platzhalter für XOR
 	for (i = 1; i <= idx - 1; i++){                           //XOR Zusammenstellen
 		DCCBuf[idx] = DCCBuf[idx] ^ DCCBuf[i];
 	}
@@ -298,4 +314,30 @@ void ActionDCCGeneration::send() {
 	SPIBufUsed = 0;
 }
 
+
+void ActionDCCGeneration::getHTMLConfig(String urlprefix, Controller* c) {
+        String message =  "<div class=\"row\"> <div class=\"column column-10\">";
+        message += "DCC Konfigurator";
+        message += "</div><div class=\"column column-90\">";
+
+
+        String action = "send('" + urlprefix + "key=cv&value=' + (Number(document.getElementById('dcc_cv').value) * 1000 + Number(document.getElementById('dcc_value').value)))";
+ 
+		message += "<form id=\"myform\" >";
+		message += "CV: <input type=\"number\" min=\"0\" max=\"1000\" id=\"dcc_cv\" /><br> Wert:<input min=\"0\" max=\"255\" type=\"number\" id=\"dcc_value\" /><button type = \"button\" onclick=\"" + action + "\">Befehl abschicken</button> ";
+		message += "</form>";
+        message += "</div>";
+        message += "</div>";
+        c->sendContent(message);
+}
+
+void ActionDCCGeneration::setSettings(String key, String value) {
+	if (key == "cv") {
+		long l = value.toInt();
+		cv_sendCounter = 2;
+		cv_cv = l / 1000;
+		cv_value = l % 1000;
+
+	}
+}
 #endif

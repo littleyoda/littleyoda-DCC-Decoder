@@ -115,6 +115,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
 			controller->registerNotify(a);
 			controller->registerLoop(a);
+			controller->registerSettings(a);
 			idx = parser->getNextSiblings(idx);
 			continue;
 		}
