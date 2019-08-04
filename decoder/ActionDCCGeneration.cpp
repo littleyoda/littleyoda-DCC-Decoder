@@ -317,7 +317,7 @@ void ActionDCCGeneration::send() {
 
 void ActionDCCGeneration::getHTMLConfig(String urlprefix, Controller* c) {
         String message =  "<div class=\"row\"> <div class=\"column column-10\">";
-        message += "DCC Konfigurator";
+        message += "DCC Konfigurator (DCC-Adresse: " + String(DCC_ADRESSE) + ")";
         message += "</div><div class=\"column column-90\">";
 
 
