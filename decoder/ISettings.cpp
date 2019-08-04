@@ -37,5 +37,8 @@ String ISettings::getName() {
 
 void ISettings::getHTMLConfig(String urlprefix, Controller* c) {
 	// Abwärtskompatibilität
-	c->sendContent(getHTMLCfg(urlprefix));
+	String s = getHTMLCfg(urlprefix);
+	if (s != NULL && s != "") {
+		c->sendContent(s);
+	}
 }

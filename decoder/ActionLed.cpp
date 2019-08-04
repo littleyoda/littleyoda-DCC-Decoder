@@ -20,9 +20,6 @@ ActionLed::ActionLed(Pin* g) {
 ActionLed::~ActionLed() {
 }
 
-String ActionLed::getHTMLCfg(String urlprefix) {
-	return F("");
-}
 
 String ActionLed::getHTMLController(String urlprefix) {
 	String message =  F("<div class=\"row\">");

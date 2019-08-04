@@ -20,7 +20,6 @@ public:
 	ActionLed(Pin* gpio);
 	virtual ~ActionLed();
 	virtual void setPattern(const char* pattern);
-	virtual String getHTMLCfg(String urlprefix);
 	virtual String getHTMLController(String urlprefix);
 	virtual void setSettings(String key, String value);
 	virtual void setSettings(int status);
