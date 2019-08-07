@@ -13,13 +13,13 @@
 #include <map>
 #include "Consts.h"
 #include "Logger.h"
-#include "Adafruit_MCP23017.h"
 #include "Pin.h"
 #include "ILoop.h"
 #include "ISettings.h"
 #include "Controller.h"
 #include "DataContainer.h"
 #include "DataContainerSimpleList.h"
+#include "Ports.h"
 
 
 
@@ -34,7 +34,7 @@ public:
 	GPIOClass();
 	~GPIOClass();
 
-	String gpio2string(int gpio);
+	String gpio2string(uint16_t gpio);
 	int string2gpio(const char* pin);
 	int string2gpio(String pin);
 	void pinMode(uint16_t pin, uint8_t mode, String usage);
@@ -50,11 +50,13 @@ public:
 	void analogWrite(uint16_t pin, int val);
 	void analogWriteFreq(uint32_t freq);
 	void addMCP23017(uint8_t addr);
-	void add(String s, int pinNumber);
-	void add(String s, int pinNumber, unsigned long supportedFunctions);
+	void addPCA9685(uint8_t addr);
+	// void add(String s, int pinNumber);
+	// void add(String s, int pinNumber, unsigned long supportedFunctions);
 	void cache(bool b);
 	String getUsage(String sep);
 	virtual int loop();
+	void debug();
 
 	enum F {
 		DIGITAL_INPUT = 1,
@@ -69,15 +71,10 @@ public:
 	};
 
 private:
-	DataContainerSimpleList<String, int16_t>* data;
-	void addUsage(uint16_t pin, String usage);
+	LinkedList<Ports*>* ports;
+	LinkedList<pinInfo*>* pinInfos;
+	pinInfo* getPinInfoByGPin(uint16_t gpin);
 	Controller* controller;
-	LinkedList<Adafruit_MCP23017*>* mcps;
-	bool cacheEnabled;
-	uint16_t* cachedValue;
-	#ifdef ESP32
-		void addESP32Pin(int x);
-	#endif
 };
 
 extern GPIOClass GPIOobj;
