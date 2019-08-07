@@ -72,8 +72,6 @@ uint8_t ActionPWMOutput::getValue(uint8_t pos) {
 	return pos;
 }
 
-void getHTMLConfig(String urlprefix, Controller *c) {
-}
 
 void ActionPWMOutput::setFreq(uint32_t value) {
 }
