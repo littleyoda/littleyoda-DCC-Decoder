@@ -22,14 +22,14 @@
 ActionSUSIGeneration::ActionSUSIGeneration(int locoaddr) {
 	LOCO_ADR = locoaddr;
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Susi Generator");
-	Logger::getInstance()->addToLog(LogLevel::INFO, "SUSI-Output:" + GPIOobj.gpio2string(SPI.getUsedPin())
+	Logger::getInstance()->addToLog(LogLevel::INFO, "SUSI-Output:" + GPIOobj.gpio2string(mySPI.getUsedPin())
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 	);
 
 	// TODO Negieren oder nicht negieren
 	SPISettings spiS = SPISettings(17241, LSBFIRST, my_SPI_MODE3, true);
-	SPI.begin(spiS, "SUSI");
-	SPI.beginTransaction(spiS);
+	mySPI.begin(spiS, "SUSI");
+	mySPI.beginTransaction(spiS);
 
 	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
@@ -37,7 +37,7 @@ ActionSUSIGeneration::ActionSUSIGeneration(int locoaddr) {
 }
 
 ActionSUSIGeneration::~ActionSUSIGeneration() {
-	SPI.end();
+	mySPI.end();
 }
 
 
@@ -87,7 +87,7 @@ void ActionSUSIGeneration::invertBuffer() {
  * Wenn der SPI-Bus frei ist, neues Paket erzeugen und verschicken
  */
 int ActionSUSIGeneration::loop() {
-	if (SPI.busy()) {
+	if (mySPI.busy()) {
 		return 0;
 	}
 	fillSpiBuffer();
@@ -121,7 +121,7 @@ void ActionSUSIGeneration::send() {
 	if (SPIBufUsed == 0) {
 		return;
 	}
-	SPI.send(SPIBuf, SPIBufUsed);
+	mySPI.send(SPIBuf, SPIBufUsed);
 	SPIBufUsed = 0;
 }
 #endif

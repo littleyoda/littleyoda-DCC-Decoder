@@ -20,14 +20,14 @@ ActionDCCGeneration::ActionDCCGeneration(Pin* gpio, int locoaddr, int dccoutput)
 	LOCO_ADR = locoaddr;
 	enableGpio = gpio;
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting DCC Generator");
-	Logger::getInstance()->addToLog(LogLevel::INFO, "DCC-Output:" + GPIOobj.gpio2string(SPI.getUsedPin())
+	Logger::getInstance()->addToLog(LogLevel::INFO, "DCC-Output:" + GPIOobj.gpio2string(mySPI.getUsedPin())
 									+ " Enabled: " + enableGpio->toString()
 									+ " Loko-Adresse: " + String(LOCO_ADR)
 									+ " genutzte DCC Adresse: " + String(DCC_ADRESSE)
 	);
 	SPISettings spi = SPISettings(17241, LSBFIRST, my_SPI_MODE3, false) ;
-	SPI.begin(spi, "DCC");
-	SPI.beginTransaction(spi);
+	mySPI.begin(spi, "DCC");
+	mySPI.beginTransaction(spi);
 	setName("DCCGEN");
 	if (enableGpio->getPin() != Consts::DISABLE) {
 		GPIOobj.pinMode(enableGpio, OUTPUT, "DCC Generation");
@@ -43,7 +43,7 @@ ActionDCCGeneration::ActionDCCGeneration(Pin* gpio, int locoaddr, int dccoutput)
 }
 
 ActionDCCGeneration::~ActionDCCGeneration() {
-	SPI.end();
+	mySPI.end();
 }
 
 
@@ -51,7 +51,7 @@ ActionDCCGeneration::~ActionDCCGeneration() {
  * Wenn der SPI-Bus frei ist, neues Paket erzeugen und verschicken
  */
 int ActionDCCGeneration::loop() {
-	if (SPI.busy()) {
+	if (mySPI.busy()) {
 		return 0;
 	}
 	if (trackenabled) {
@@ -310,7 +310,7 @@ void ActionDCCGeneration::send() {
 	if (SPIBufUsed == 0) {
 		return;
 	}
-	SPI.send(SPIBuf, SPIBufUsed);
+	mySPI.send(SPIBuf, SPIBufUsed);
 	SPIBufUsed = 0;
 }
 

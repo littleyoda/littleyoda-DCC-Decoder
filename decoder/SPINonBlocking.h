@@ -78,7 +78,7 @@ private:
   void setClockDivider(uint32_t clockDiv);
 };
 
-extern SPINonClockingClass SPI;
+extern SPINonClockingClass mySPI;
 
 #endif
 

@@ -41,7 +41,7 @@ typedef union {
 	};
 } spiClk_t;
 
-SPINonClockingClass SPI;
+SPINonClockingClass mySPI;
 
 SPINonClockingClass::SPINonClockingClass() {
 }
