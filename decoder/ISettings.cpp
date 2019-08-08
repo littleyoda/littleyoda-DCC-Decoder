@@ -8,8 +8,7 @@
 #include "ISettings.h"
 #include "Controller.h"
 
-ISettings::ISettings() {
-	id = NULL;
+ISettings::ISettings() : IStatus() {
 }
 
 ISettings::~ISettings() {
@@ -24,16 +23,6 @@ String ISettings::getHTMLController(String urlprefix) {
 	return "";
 }
 
-void ISettings::setName(String s) {
-	id = new String(s);
-}
-
-String ISettings::getName() {
-	if (id == NULL) {
-		return "";
-	}
-	return "" + (*id);
-}
 
 void ISettings::getHTMLConfig(String urlprefix, Controller* c) {
 	// Abwärtskompatibilität
@@ -42,3 +31,4 @@ void ISettings::getHTMLConfig(String urlprefix, Controller* c) {
 		c->sendContent(s);
 	}
 }
+

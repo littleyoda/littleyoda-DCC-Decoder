@@ -44,6 +44,8 @@
 
 #include "ISettings.h"
 
+#include "Display.h"
+
 #ifdef LY_FEATURE_AUDIO
 	#include "ActionAudioI2S.h"
 #endif
@@ -401,11 +403,13 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("i2cslave")) {
 			String d = parser->getValueByKey(idx, "d");
-			if (d.equalsIgnoreCase("mcp23017")) {
+			bool isPca9685 = d.equalsIgnoreCase("pca9685");
+			bool isMcp23017 = d.equalsIgnoreCase("mcp23017");
+			if (isPca9685 || isMcp23017) {
 				int addridx = parser->getIdxByKey(idx, "addr");
 				addridx = parser->getFirstChild(addridx);
 				if (!parser->isArray(addridx)) {
-					Logger::log(LogLevel::ERROR, "Format für MCP23017 Adressen falsch!");
+					Logger::log(LogLevel::ERROR, "Format für MCP23017/PC9685 Adressen falsch!");
 					idx = parser->getNextSiblings(idx);
 					continue;
 
@@ -413,15 +417,27 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 				int child = parser->getFirstChild(addridx);
 				while (child != -1) {
 					int addr = parser->getString(child).toInt();
-					Wire.beginTransmission(addr + 0x20);
+					int i2caddr = 0;
+					if (addr >= 0x10) {
+						i2caddr = addr;
+					} else if (isMcp23017) {
+						i2caddr = addr + 0x20; // Base + Offset
+					} else if (isPca9685) {
+						i2caddr = addr + 0x40; // Base + Offset
+					}
+					Wire.beginTransmission(i2caddr);
 					int ret = Wire.endTransmission();
 					String tret = "Failed (" + String(ret) + ")";
 					if (ret == 0) {
 						tret = "OK";
 					}
-					Logger::getInstance()->addToLog(LogLevel::INFO, "Test MCP23017 auf I2c/" + String(addr + 0x20) + ": " + tret);
+					Logger::getInstance()->addToLog(LogLevel::INFO, "Test MCP23017/PC9685 auf I2c/" + String(i2caddr) + ": " + tret);
 					if (ret == 0) {
-						GPIOobj.addMCP23017(addr);
+						if (isMcp23017) {
+							GPIOobj.addMCP23017(addr);
+						} else {
+							GPIOobj.addPCA9685(i2caddr);
+						}
 					}
 					child = parser->getNextSiblings(child);
 				}
@@ -432,6 +448,13 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		// 	ActionController* a = new ActionController(controller);
 		// 	controller->registerNotify(a);
 		// 	controller->registerLoop(a);
+		} else if (m.equals("display")) {
+			Display* d = new Display(controller, 
+									parser->getValueByKey(idx, "text", "No Text"),
+									parser->getValueByKey(idx, "model", "")
+									);
+		 	controller->registerLoop(d);
+
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);

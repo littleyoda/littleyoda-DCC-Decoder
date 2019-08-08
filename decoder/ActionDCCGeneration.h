@@ -24,7 +24,7 @@ public:
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
 	virtual void getHTMLConfig(String urlprefix, Controller* c);
 	virtual void setSettings(String key, String value);
-
+	virtual String getInternalStatus(String key);
 
 private:
 	void addToSpi(int i);

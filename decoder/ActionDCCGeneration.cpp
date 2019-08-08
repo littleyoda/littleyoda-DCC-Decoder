@@ -340,4 +340,15 @@ void ActionDCCGeneration::setSettings(String key, String value) {
 
 	}
 }
+
+String ActionDCCGeneration::getInternalStatus(String key) {
+	if (key.equals("addr")) {
+		return String(LOCO_ADR);
+	} else if (key.equals("dccout")) {
+		return String(DCC_ADRESSE);
+	}
+	return "";
+}
+
+
 #endif

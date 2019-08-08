@@ -66,6 +66,7 @@ public:
 	void getHTMLCfg();
 	void sendContent(String s);
 	void setRequest(String id, String key, String value);
+	String getInternalStatus(String modul, String key);
 	bool isEmergency();
 	String getHostname();
 
@@ -95,6 +96,7 @@ private:
 	LinkedList<INotify*> actions = LinkedList<INotify*>();
 	LinkedList<ILoop*> loops = LinkedList<ILoop*>();
 	LinkedList<ISettings*> settings = LinkedList<ISettings*>();
+	LinkedList<IStatus*> status = LinkedList<IStatus*>();
 	LinkedList<unsigned long> nextRun = LinkedList<unsigned long>();
 	LinkedList<INotify::requestInfo*> requestList = LinkedList<INotify::requestInfo*>();
 	long int lastTurnoutCmd[3];

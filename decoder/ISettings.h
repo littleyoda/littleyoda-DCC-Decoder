@@ -8,21 +8,17 @@
 #ifndef ISETTINGS_H_
 #define ISETTINGS_H_
 
-#include "Arduino.h"
+#include "IStatus.h"
 class Controller;
 
-class ISettings {
+class ISettings : public IStatus {
 public:
 	ISettings();
 	virtual ~ISettings();
-	virtual void setName(String s);
-	virtual String getName();
 	virtual void setSettings(String key, String value);
 	virtual String getHTMLCfg(String urlprefix);
 	virtual void getHTMLConfig(String urlprefix, Controller* c);
 	virtual String getHTMLController(String urlprefix);
-protected:
-	String* id;
 };
 
 #endif /* ISETTINGS_H_ */

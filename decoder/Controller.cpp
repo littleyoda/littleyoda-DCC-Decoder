@@ -328,6 +328,7 @@ void Controller::registerSettings(ISettings* loop) {
 		return;
 	}
 	settings.add(loop);
+	status.add(loop);
 }
 
 void Controller::sendContent(String s) {
@@ -354,4 +355,43 @@ void Controller::logLoop(unsigned long now) {
 //		longestLoop = now;
 //		Serial.println("Gesamt " + String(longestLoop));
 //	}
+}
+
+
+String Controller::getInternalStatus(String modul, String key) {
+	for (int i = 0; i < status.size(); i++) {
+		IStatus* s = status.get(i);
+		if (s->getName().equals(modul)) {
+			return s->getInternalStatus(key);
+		}
+	}
+	if (modul.equals("wifi")) {
+		String status = "";
+		switch (wifi_get_opmode()) {
+			case 0: 
+				status = "Wifi 0";
+				break;
+			case 1: 
+				status = Utils::wifi2String(WiFi.status());
+	  			if (status == "Connected") {
+					  	status = WiFi.localIP().toString();
+	  			}
+				break;
+			case 2: 
+				status = "Wifi 2";
+				break;
+			case 3: 
+				status = "WLAN: ";
+				String tmp =  Utils::wifi2String(WiFi.status());
+	  			if (tmp == "Connected") {
+					  	tmp = WiFi.localIP().toString();
+	  			}
+				status += tmp;
+				status += " / AP: ";
+				status += WiFi.softAPIP().toString();
+				break;
+		}
+		return status;
+	}
+	return "";
 }
