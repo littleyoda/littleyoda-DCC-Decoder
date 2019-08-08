@@ -15,6 +15,11 @@
 #include "Logger.h"
 #include "Consts.h"
 #include "Webserver.h"
+#ifdef ESP8266
+        #include <ESP8266WiFi.h>
+#else
+        #include <WiFi.h>
+#endif
 
 
 Controller::Controller() {
@@ -367,7 +372,14 @@ String Controller::getInternalStatus(String modul, String key) {
 	}
 	if (modul.equals("wifi")) {
 		String status = "";
-		switch (wifi_get_opmode()) {
+		int wifiStatus = 0;
+		#ifdef ESP8266
+			wifiStatus = wifi_get_opmode();
+		#else
+			wifiStatus = WiFi.getMode();
+		#endif
+
+		switch (wifiStatus) {
 			case 0: 
 				status = "Wifi 0";
 				break;
