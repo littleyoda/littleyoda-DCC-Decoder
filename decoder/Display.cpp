@@ -43,7 +43,6 @@ Display::~Display() {
 
 
 int Display::loop() {
-	Serial.println("Redraw");
 	display->clearDisplay();
   	display->setTextSize(1);
   	display->setTextColor(WHITE);
@@ -105,7 +104,6 @@ String Display::fill(String s) {
 }
 
 void Display::show(String s) {
-	Serial.println(s);
 	if (s.length() <= width) {
 		display->println(s);
 	} else {
