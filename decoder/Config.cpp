@@ -21,6 +21,7 @@
 #include "ActionSendTurnoutCommand.h"
 #include "ActionStepperOutput.h"
 #include "ActionPWMShieldV1Output.h"
+#include "ActionTraktion.h"
 //#include "ActionController.h"
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
@@ -118,6 +119,17 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerNotify(a);
 			controller->registerLoop(a);
 			controller->registerSettings(a);
+			idx = parser->getNextSiblings(idx);
+			continue;
+		}
+
+		if (m.equals("traktion")) {
+			int normal = parser->getValueByKey(idx, "normalAddr").toInt();
+			int traktion = parser->getValueByKey(idx, "traktionAddr").toInt();
+			int virtuell = parser->getValueByKey(idx, "virtuelleAddr").toInt();
+			int func = parser->getValueByKey(idx, "func").toInt();
+			ActionTraktion* a = new ActionTraktion(controller, normal, traktion, virtuell, func);
+			controller->registerNotify(a);
 			idx = parser->getNextSiblings(idx);
 			continue;
 		}
