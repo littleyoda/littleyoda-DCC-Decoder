@@ -47,8 +47,9 @@ void PortsESP32::pinMode(uint16_t pin, uint8_t mode) {
 }
 
 int PortsESP32::digitalRead(uint16_t pin) {
-		::digitalRead(pin);
+		return ::digitalRead(pin);
 }
+
 void PortsESP32::digitalWrite(uint16_t pin, uint8_t val) {
 	::digitalWrite(pin, val);
 }

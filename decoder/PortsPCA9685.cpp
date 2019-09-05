@@ -31,6 +31,7 @@ void PortsPCA9685::pinMode(uint16_t pin, uint8_t mode) {
 }
 
 int PortsPCA9685::digitalRead(uint16_t pin) {
+	return -1;
 }
 
 

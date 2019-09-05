@@ -43,7 +43,7 @@ void Ports::pinMode(uint16_t pin, uint8_t mode) {
 
 }
 int Ports::digitalRead(uint16_t pin) {
-
+	return -1;
 }
 void Ports::digitalWrite(uint16_t pin, uint8_t val) {
 
