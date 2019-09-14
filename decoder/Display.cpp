@@ -43,6 +43,9 @@ Display::~Display() {
 
 
 int Display::loop() {
+	if (display == nullptr) {
+		return 10000;
+	}
 	display->clearDisplay();
   	display->setTextSize(1);
   	display->setTextColor(WHITE);
