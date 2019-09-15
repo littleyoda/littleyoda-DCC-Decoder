@@ -255,6 +255,8 @@ void handleSerial() {
 			Serial.printf("ConnectorTurnout %d\r\n", sizeof(ConnectorTurnout));
 			Serial.println();
 
+		} else if (chr == 'j') {
+			controller->printInternalStatusAsJon();
 		} else {
 			Serial.println("Key: " + String(chr));
 

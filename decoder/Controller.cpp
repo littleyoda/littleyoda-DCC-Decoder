@@ -20,7 +20,7 @@
 #else
         #include <WiFi.h>
 #endif
-
+#include "InternalStatusWifiSys.h"
 
 Controller::Controller() {
 	cmdlogger = NULL;
@@ -362,48 +362,64 @@ void Controller::logLoop(unsigned long now) {
 //	}
 }
 
-
 String Controller::getInternalStatus(String modul, String key) {
+	statusAsString.reset();
+	collectAllInternalStatus(&statusAsString, modul, key);
+	return statusAsString.get();
+}
+
+void Controller::collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key) {
+	cb->reset();
 	for (int i = 0; i < status.size(); i++) {
 		IStatus* s = status.get(i);
-		if (s->getName().equals(modul)) {
-			return s->getInternalStatus(key);
+		if (modul.equals("*") || s->getName().equals(modul)) {
+			s->getInternalStatus(cb, key);
+		}
+		if (modul.equals("*") || modul.equals("moduls")) {
+			cb->send("modules", String(i), s->getName());
 		}
 	}
-	if (modul.equals("wifi")) {
-		String status = "";
-		int wifiStatus = 0;
-		#ifdef ESP8266
-			wifiStatus = wifi_get_opmode();
-		#else
-			wifiStatus = WiFi.getMode();
-		#endif
+	int idx = status.size();
+	cb->send("modules", String(idx++), "sys");
+	cb->send("modules", String(idx++), "log");
+ 	cb->send("modules", String(idx++), "wifi");
+	cb->send("modules", String(idx++), "loc");
+	cb->send("modules", String(idx++), "turnout");
+ 	InternalStatusWifiSys::getInternalStatus(cb, modul, key);
+	internalStatusObjStatus(cb, modul, key);
+}
 
-		switch (wifiStatus) {
-			case 0: 
-				status = "Wifi 0";
-				break;
-			case 1: 
-				status = Utils::wifi2String(WiFi.status());
-	  			if (status == "Connected") {
-					  	status = WiFi.localIP().toString();
-	  			}
-				break;
-			case 2: 
-				status = "Wifi 2";
-				break;
-			case 3: 
-				status = "WLAN: ";
-				String tmp =  Utils::wifi2String(WiFi.status());
-	  			if (tmp == "Connected") {
-					  	tmp = WiFi.localIP().toString();
-	  			}
-				status += tmp;
-				status += " / AP: ";
-				status += WiFi.softAPIP().toString();
-				break;
+
+String Controller::getInternalStatusAsJon() {
+	collectAllInternalStatus(&statusAsJson, "*", "*");
+	String output = statusAsJson.get();
+	statusAsJson.reset();
+	return output;
+}
+
+void Controller::printInternalStatusAsJon() {
+	collectAllInternalStatus(&statusAsJson, "*", "*");
+	statusAsJson.print();
+}
+
+
+void Controller::internalStatusObjStatus(IInternalStatusCallback* cb, String modul, String key) {
+	if (modul.equals("loc") || modul.equals("*")) {
+		for (std::map<int,LocData*>::iterator it = items.begin(); it != items.end(); ++it) {
+				if (key.equals("*") || String(it->first).equals(key)) {
+		 			cb->send("loc", String(it->first), String(it->second->direction) + " / " +
+		 		 	String(it->second->speed) + " / " +
+		 		 	String(it->second->speedsteps) + " / " +
+		 		 	String(it->second->status));
+				}
 		}
-		return status;
 	}
-	return "";
+	if (modul.equals("turnout") || modul.equals("*")) {
+		for (std::map<int,TurnOutData*>::iterator it = turnoutinfo.begin(); it != turnoutinfo.end(); ++it) {
+				if (key.equals("*") || String(it->first).equals(key)) {
+		 			cb->send("turnout", String(it->first), String(it->second->direction));
+				}
+		}
+	}
+
 }

@@ -110,9 +110,11 @@ void Display::show(String s) {
 	if (s.length() <= width) {
 		display->println(s);
 	} else {
+		// Scrolle durch den Text
 		if (s.length() > maxcount) {
 			maxcount = s.length();
 		}
+		s = ">" + s + "<";
 		int toolong = (s.length() - width) + 1;
 		int idx = count % toolong;
 		String out;

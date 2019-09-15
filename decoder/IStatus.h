@@ -1,14 +1,14 @@
-/*
- * ISTATUS.h
- *
- *  Created on: 07.06.2019
- *      Author: sven
- */
 
 #ifndef ISTATUS_H_
 #define ISTATUS_H_
 
 #include "Arduino.h"
+#include "IInternalStatusCallback.h"
+
+/**  Name + getInternalStatus(key)
+ * 
+ */
+
 
 class IStatus {
 public:
@@ -16,10 +16,9 @@ public:
 	virtual ~IStatus();
 	virtual void setName(String s);
 	virtual String getName();
-	virtual String getInternalStatus(String key);
+	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
 protected:
 	String* id;
-
 };
 
 #endif /* ISTATUS_H_ */

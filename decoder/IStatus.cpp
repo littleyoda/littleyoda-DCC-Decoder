@@ -1,10 +1,3 @@
-/*
- * ISTATUS.cpp
- *
- *  Created on: 07.06.2019
- *      Author: sven
- */
-
 #include "IStatus.h"
 
 IStatus::IStatus() {
@@ -15,8 +8,7 @@ IStatus::~IStatus() {
 	// TODO Auto-generated destructor stub
 }
 
-String IStatus::getInternalStatus(String key) {
-	return "";
+void IStatus::getInternalStatus(IInternalStatusCallback* cb, String key) {
 }
 
 void IStatus::setName(String s) {

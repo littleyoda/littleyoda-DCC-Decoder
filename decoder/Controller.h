@@ -25,6 +25,8 @@
 #include "ISettings.h"
 #include "WebserviceCommandLogger.h"
 #include "WebserviceDCCSniffer.h"
+#include "InternalStatusAsString.h"
+#include "InternalStatusAsJson.h"
 
 	struct LocData {
 		int16_t speed;
@@ -66,7 +68,6 @@ public:
 	void getHTMLCfg();
 	void sendContent(String s);
 	void setRequest(String id, String key, String value);
-	String getInternalStatus(String modul, String key);
 	bool isEmergency();
 	String getHostname();
 
@@ -82,8 +83,14 @@ public:
 	WebserviceCommandLogger* cmdlogger;
 	WebserviceDCCSniffer* dccSniffer;
 	unsigned long longestLoop;
+	
+	String getInternalStatus(String modul, String key);
+	String getInternalStatusAsJon();
+	void printInternalStatusAsJon();
+	void internalStatusObjStatus(IInternalStatusCallback* cb, String modul, String key);
 
 private:
+	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);
 	typedef std::map<int, LocData*> Items;
 	Items items;
 
@@ -102,6 +109,8 @@ private:
 	long int lastTurnoutCmd[3];
 	std::unique_ptr<DNSServer> dnsServer;
 	void logLoop(unsigned long d);
+	InternalStatusAsString statusAsString;
+	InternalStatusAsJson statusAsJson;
 //	unsigned int l[100];
 //	unsigned long next;
 };

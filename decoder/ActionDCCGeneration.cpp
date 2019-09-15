@@ -341,13 +341,13 @@ void ActionDCCGeneration::setSettings(String key, String value) {
 	}
 }
 
-String ActionDCCGeneration::getInternalStatus(String key) {
-	if (key.equals("addr")) {
-		return String(LOCO_ADR);
-	} else if (key.equals("dccout")) {
-		return String(DCC_ADRESSE);
+void ActionDCCGeneration::getInternalStatus(IInternalStatusCallback* cb, String key) {
+	if (key.equals("*") || key.equals("addr")) {
+		cb->send(getName(), "addr", String(LOCO_ADR));
 	}
-	return "";
+	if (key.equals("*") || key.equals("dccout")) {
+		cb->send(getName(), "dccout", String(DCC_ADRESSE));
+	}
 }
 
 

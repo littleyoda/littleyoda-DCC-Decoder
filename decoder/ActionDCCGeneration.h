@@ -14,6 +14,7 @@
 #include "ILoop.h"
 #include "ISettings.h"
 #include "Pin.h"
+#include "IInternalStatusCallback.h"
 
 class ActionDCCGeneration: public INotify, public ILoop, public ISettings {
 public:
@@ -24,7 +25,7 @@ public:
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
 	virtual void getHTMLConfig(String urlprefix, Controller* c);
 	virtual void setSettings(String key, String value);
-	virtual String getInternalStatus(String key);
+	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
 
 private:
 	void addToSpi(int i);
