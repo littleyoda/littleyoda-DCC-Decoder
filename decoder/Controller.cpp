@@ -379,12 +379,14 @@ void Controller::collectAllInternalStatus(IInternalStatusCallback* cb, String mo
 			cb->send("modules", String(i), s->getName());
 		}
 	}
+	if (modul.equals("*") || modul.equals("moduls")) {
 	int idx = status.size();
 	cb->send("modules", String(idx++), "sys");
 	cb->send("modules", String(idx++), "log");
  	cb->send("modules", String(idx++), "wifi");
 	cb->send("modules", String(idx++), "loc");
 	cb->send("modules", String(idx++), "turnout");
+	}
  	InternalStatusWifiSys::getInternalStatus(cb, modul, key);
 	internalStatusObjStatus(cb, modul, key);
 }

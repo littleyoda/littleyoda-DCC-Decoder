@@ -70,10 +70,13 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		}
 		if (key.equals("modus") || key.equals("*")) {
 			#ifdef ESP8266
-    		const char* modes[] = { "NULL", "STA", "AP", "STA+AP" };
-			uint8 midx = wifi_get_opmode();
-			cb->send("wifi", "modus", (midx >= 0 && midx <=3)? modes[midx]: "?");
+			uint8_t midx = wifi_get_opmode();
+			#else
+			uint8_t midx = WiFi.getMode();
 			#endif
+
+    		const char* modes[] = { "NULL", "STA", "AP", "STA+AP" };
+			cb->send("wifi", "modus", (midx >= 0 && midx <=3)? modes[midx]: "?");
 		}
 	}
 	if (modul.equals("sys") || modul.equals("*")) {

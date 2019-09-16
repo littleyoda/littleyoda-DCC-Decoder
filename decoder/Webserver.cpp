@@ -41,6 +41,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
+	server->on("/json", std::bind(&Webserver::handleJsonList, this));
 	server->on("/format", std::bind(&Webserver::handleFormat, this));
 	server->on("/doformat", std::bind(&Webserver::handleDoFormat, this));
 	server->on("/editconfig", HTTP_GET,std::bind(&Webserver::handleDoConfigGet, this));
@@ -385,4 +386,9 @@ void Webserver::handleCfg() {
 	server->send(200, "text/html", Utils::getHTMLHeader());
 	controll->getHTMLCfg();
 	server->sendContent(Utils::getHTMLFooter());
+}
+
+void Webserver::handleJsonList() {
+	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+	server->send(200, "application/json", controll->getInternalStatusAsJon());
 }

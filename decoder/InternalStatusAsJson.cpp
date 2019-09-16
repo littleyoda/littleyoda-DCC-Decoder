@@ -32,7 +32,7 @@ void InternalStatusAsJson::send(String modul, String key, String value) {
 
 String InternalStatusAsJson::get() {
 	String output;
-  	serializeJson(*doc, output);
+  	serializeJsonPretty(*doc, output);
 	return output;
 }
 

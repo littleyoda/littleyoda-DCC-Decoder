@@ -57,6 +57,7 @@ private:
 	void handleFormat();
 	void handleDoConfigGet();
 	void handleDoConfigPost();
+	void handleJsonList();
 	int lastWifiStatus = 6;
 	File fsUploadFile;
 	Controller* controll;
