@@ -14,12 +14,14 @@
 
 class ConnectorGPIO : public Connectors {
 public:
-	ConnectorGPIO(ISettings* a, Pin* gpio);
+	ConnectorGPIO(ISettings* a, Pin* gpio, uint16_t high, uint16_t low);
 	virtual ~ConnectorGPIO();
 	virtual void GPIOChange(int pin, int newValue);
 private:
 	ISettings* action;
 	Pin* pin;
+	uint16_t highvalue;
+	uint16_t lowvalue;
 };
 
 #endif /* CONNECTORGPIO_H_ */

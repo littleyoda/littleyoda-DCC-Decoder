@@ -542,7 +542,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 				controller->registerNotify(atc);
 
 				Pin* g = new Pin(pin);
-				cin = new ConnectorGPIO(atc, g);
+				cin = new ConnectorGPIO(atc, g, 1, 0);
 				controller->registerNotify(cin);
 
 				child = parser->getNextSiblings(child);
@@ -681,10 +681,12 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			//			c = new ConnectorLights(ptr[0], ptr[1], l, onoff);
 
 		} else if (m.equals("gpio")) {
-			Pin* g = new Pin(parser->getValueByKey(idx, "gpio"));
-			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
-			ISettings* a = getSettingById(controller, conn);
-			c = new ConnectorGPIO(a, g);
+            Pin* g = new Pin(parser->getValueByKey(idx, "gpio"));
+            String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+            uint16_t high = parser->getValueByKey(idx, "high", "1").toInt();
+            uint16_t low = parser->getValueByKey(idx, "low", "0").toInt();
+            ISettings* a = getSettingById(controller, conn);
+            c = new ConnectorGPIO(a, g, high, low);
 
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
