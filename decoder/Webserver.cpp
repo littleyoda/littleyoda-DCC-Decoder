@@ -99,7 +99,7 @@ void Webserver::handleFlow() {
 "<html><head>"
 "<script type=\"text/javascript\" src=\"vis-network.min.js.gz\"></script>"
 "<link href=\"vis-network.min.css\" rel=\"stylesheet\" type=\"text/css\" />"
-"<style type=\"text/css\">    #mynetwork {      width: 600px;      height: 400px;      border: 1px solid lightgray;    }  </style>"
+"<style type=\"text/css\">    #mynetwork {      width: 90%;      height: 600px;      border: 1px solid lightgray;    }  </style>"
 "</head><body>"
 "<div id=\"mynetwork\"></div>"
 "<script type=\"text/javascript\">");
@@ -108,7 +108,8 @@ server->sendContent("var DOTstring = `dinetwork {" + controll->createDebugDiagra
 server->sendContent("var parsedData = vis.network.convertDot(DOTstring);"
 "var data = { nodes: parsedData.nodes, edges: parsedData.edges };"
 "var container = document.getElementById('mynetwork');"
-"var options = {};"
+
+"var options = {  manipulation: false,  height: '90%',  layout: {    hierarchical: {      enabled: true,      levelSeparation: 150    }  },  physics: {    hierarchicalRepulsion: {      nodeDistance: 30    }  }};"
 "var network = new vis.Network(container, data, options);"
 "</script>"
 "</body>"
