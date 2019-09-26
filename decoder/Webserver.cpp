@@ -41,6 +41,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
+	server->on("/flow", std::bind(&Webserver::handleFlow, this));
 	server->on("/json", std::bind(&Webserver::handleJsonList, this));
 	server->on("/format", std::bind(&Webserver::handleFormat, this));
 	server->on("/doformat", std::bind(&Webserver::handleDoFormat, this));
@@ -89,6 +90,29 @@ Webserver::Webserver(Controller* c) {
       }
 	});	
 #endif
+}
+
+void Webserver::handleFlow() {
+	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+	server->send(200, "text/html", 
+"<!doctype html>"
+"<html><head>"
+"<script type=\"text/javascript\" src=\"vis-network.min.js.gz\"></script>"
+"<link href=\"vis-network.min.css\" rel=\"stylesheet\" type=\"text/css\" />"
+"<style type=\"text/css\">    #mynetwork {      width: 600px;      height: 400px;      border: 1px solid lightgray;    }  </style>"
+"</head><body>"
+"<div id=\"mynetwork\"></div>"
+"<script type=\"text/javascript\">");
+server->sendContent("var DOTstring = `dinetwork {" + controll->createDebugDiagramm() +  " }`;");
+
+server->sendContent("var parsedData = vis.network.convertDot(DOTstring);"
+"var data = { nodes: parsedData.nodes, edges: parsedData.edges };"
+"var container = document.getElementById('mynetwork');"
+"var options = {};"
+"var network = new vis.Network(container, data, options);"
+"</script>"
+"</body>"
+"</html>");
 }
 
 void Webserver::handleUpload() {

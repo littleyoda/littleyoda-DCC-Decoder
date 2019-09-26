@@ -11,7 +11,7 @@
 
 ConnectorLights::ConnectorLights(ISettings* x, int locoaddr, int fkey, int richtung) {
 
-	out = x;
+	addAction(x);
 	direction = richtung;
 	addr = locoaddr;
 	func = fkey;
@@ -44,5 +44,5 @@ void ConnectorLights::DCCFunc(int id, unsigned long int newvalue, int source) {
 
 void ConnectorLights::update() {
 	int status = (currentDirection == direction && bit_is_set(currentFStatus, func)) ? 1 : 0;
-	out->setSettings("status", String(status));
+	send("status", String(status));
 }

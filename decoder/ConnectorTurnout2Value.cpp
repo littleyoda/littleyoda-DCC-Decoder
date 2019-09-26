@@ -12,7 +12,7 @@
 ConnectorTurnout2Value::ConnectorTurnout2Value(ISettings* a, int turnoutAddr, int *array, int len) {
 	this->array = array;
 	addr = turnoutAddr;
-	action = a;
+	addAction(a);
 	arraylength = len;
 
 	r = new requestInfo();
@@ -36,5 +36,5 @@ void ConnectorTurnout2Value::TurnoutCmd(int id, int direction, int source) {
 	}
 	
 	Logger::log(LogLevel::DEBUG, "Turnout2Value. Direction: " + String(direction) + " => Value: " + String(out));
-	action->setSettings("sd", String(out));
+	send("sd", String(out));
 }

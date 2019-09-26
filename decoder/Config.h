@@ -23,6 +23,7 @@ public:
 private:
 	void parseCfg(Controller* c, Webserver* web, String n);
 	void parseOut(Controller* c, Webserver* web, String n);
+	void parseFilter(Controller* c, Webserver* web, String n);
 	void parseIn(Controller* c, Webserver* web, String n);
 	void parseConnector(Controller* c, Webserver* web, String n);
 	ISettings* getSettingById(Controller* c, String id);

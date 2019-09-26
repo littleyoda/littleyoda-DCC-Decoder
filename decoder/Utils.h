@@ -130,6 +130,18 @@ public:
 		}
 		return out;
 	}
+
+       static uint32_t  getRnd() {
+                #ifdef ESP32
+                        return esp_random();
+                #endif
+                #ifdef ESP8266
+                        return (uint32_t) os_random();
+                #endif
+                
+
+        }
+
 };
 
 #endif /* UTILS_H_ */

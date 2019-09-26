@@ -16,6 +16,8 @@ ActionSendTurnoutCommand::ActionSendTurnoutCommand(Controller* c, int number) {
 	r = new requestInfo();
 	r->art = requestInfo::ART::TURNOUT;
 	r->id = number;
+	setModulName("Send Turnout Command");
+	setConfigDescription("");
 
 }
 

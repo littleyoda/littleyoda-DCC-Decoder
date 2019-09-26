@@ -20,7 +20,6 @@ public:
 
 private:
 	void update();
-	ISettings* out;
 	int addr;
 	int func;
 	int direction;

@@ -24,6 +24,9 @@ ActionStepperOutput::ActionStepperOutput(Pin* p1, Pin* p2, Pin* p3, Pin* p4, boo
 		GPIOobj.pinMode(pins[i], OUTPUT, "Stepper");
 	}
 	persistent = _persistent;
+	setModulName("Stepper");
+	setConfigDescription("Pin: " + p1->toString() + " " + p2->toString() + " " + p3->toString() + " " + p4->toString());
+
 }
 
 ActionStepperOutput::~ActionStepperOutput() {

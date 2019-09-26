@@ -18,7 +18,6 @@ public:
 
 private:
 	int *array;
-	ISettings* action;
 	int addr;
 	int arraylength;
 };

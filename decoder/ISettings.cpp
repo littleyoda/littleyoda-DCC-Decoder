@@ -32,3 +32,9 @@ void ISettings::getHTMLConfig(String urlprefix, Controller* c) {
 	}
 }
 
+
+String ISettings::createDebugDiagramm(String parent) {
+    String out = getName() + "[label =\" " + getModulName() + "\\n" + getName() + "\\n" + getConfigDescription() + "\"];\r\n";
+	out += parent + " -> " + getName() + ";\r\n";
+	return out;
+}

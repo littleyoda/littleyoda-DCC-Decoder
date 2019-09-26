@@ -18,7 +18,6 @@ public:
 	virtual void DCCFunc(int id, int bit, int newvalue, int source);
 
 private:
-	ISettings* action;
 	int addr;
 	int funcbit;
 	requestInfo* r;

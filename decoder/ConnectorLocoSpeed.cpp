@@ -9,11 +9,13 @@
 #include "Consts.h"
 
 ConnectorLocoSpeed::ConnectorLocoSpeed(ISettings* b, int locoaddr) {
-	action = b;
+	addAction(b);
 	addr = locoaddr;
 	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = addr;
+	setModulName("LocoSpeed");
+	setConfigDescription("ID: " + String(locoaddr));
 }
 
 ConnectorLocoSpeed::~ConnectorLocoSpeed() {
@@ -24,7 +26,7 @@ void ConnectorLocoSpeed::DCCSpeed(int id, int speed, int direction, int SpeedSte
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
 		}
-		action->setSettings("sd", String(direction * 100 * speed / SpeedSteps));
+		send("sd", String(direction * 100 * speed / SpeedSteps));
 	}
 }
 

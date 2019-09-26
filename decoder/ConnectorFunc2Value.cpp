@@ -13,12 +13,19 @@
 ConnectorFunc2Value::ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int len) {
 	this->array = array;
 	addr = locoaddr;
-	action = a;
+	addAction(a);
 	arraylength = len;
 
 	r = new requestInfo();
 	r->art = requestInfo::ART::LOCO;
 	r->id = addr;
+
+	setModulName("Func2Value");
+	String out = "";
+	for (int i = 0; i < arraylength; i = i + 2) {
+		out += "F" + String(i) + ": " + String(i+1) + " ";
+	}
+	setConfigDescription(out);
 }
 
 ConnectorFunc2Value::~ConnectorFunc2Value() {
@@ -37,5 +44,5 @@ void ConnectorFunc2Value::DCCFunc(int id, unsigned long int newvalue, int source
 		}
 	}
 	Logger::log(LogLevel::TRACE, "Func2Value Value " + String(out));
-	action->setSettings("sd", String(out));
+	send("sd", String(out));
 }

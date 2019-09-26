@@ -1,15 +1,15 @@
-/*
- * ISettings.h
- *
- *  Created on: 19.07.2017
- *      Author: sven
- */
-
 #ifndef ISETTINGS_H_
 #define ISETTINGS_H_
 
 #include "IStatus.h"
+
+
 class Controller;
+
+/** setSettings + getHTMLConfig + getHTMLConfig
+ * 
+ * 
+ */
 
 class ISettings : public IStatus {
 public:
@@ -19,6 +19,7 @@ public:
 	virtual String getHTMLCfg(String urlprefix);
 	virtual void getHTMLConfig(String urlprefix, Controller* c);
 	virtual String getHTMLController(String urlprefix);
+	virtual String createDebugDiagramm(String parent);
 };
 
 #endif /* ISETTINGS_H_ */

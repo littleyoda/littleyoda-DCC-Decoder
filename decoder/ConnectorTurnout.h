@@ -19,7 +19,6 @@ public:
 
 private:
 	int id;
-	ISettings* action;
 };
 
 #endif /* CONNECTORTURNOUT_H_ */

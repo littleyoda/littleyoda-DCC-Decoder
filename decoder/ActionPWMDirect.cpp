@@ -30,6 +30,8 @@ ActionPWMDirect::ActionPWMDirect(int pwm, int forward, int reverse) {
 	  GPIOobj.pinMode(gpioForward, OUTPUT, "PWM: Forward" + fctname); GPIOobj.digitalWrite(gpioForward, LOW); // Forward
 	  GPIOobj.pinMode(gpioReverse, OUTPUT, "PWM: Reverse" + fctname); GPIOobj.digitalWrite(gpioReverse, LOW); // Reverse
 	  setDirection(1);
+	setModulName("PWM Out");
+	setConfigDescription("");
 }
 
 ActionPWMDirect::~ActionPWMDirect() {
@@ -42,7 +44,7 @@ void ActionPWMDirect::setFreq(uint32_t value) {
 
 
 void ActionPWMDirect::setSettings(String key, String value) {
-	Logger::log(LogLevel::TRACE, "SetSettings " + key + "/" + value);
+	Logger::log(LogLevel::TRACE, "PWM: SetSettings " + key + "/" + value);
 	if (key.equals("sd")) {
 		int v = value.toInt();
 		if (v < 0) {

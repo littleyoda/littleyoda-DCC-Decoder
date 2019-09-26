@@ -16,6 +16,9 @@ ActionServo::ActionServo(int pin) {
 			"Starting Servo GPIO: " + String(pin));
 	GPIOobj.pinMode(pin, OUTPUT, "Servo");
 	this->pin = pin;
+	setModulName("Servo");
+	setConfigDescription("pin: " + String(pin));
+
 }
 
 ActionServo::~ActionServo() {

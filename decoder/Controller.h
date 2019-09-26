@@ -27,6 +27,7 @@
 #include "WebserviceDCCSniffer.h"
 #include "InternalStatusAsString.h"
 #include "InternalStatusAsJson.h"
+#include "Connectors.h"
 
 	struct LocData {
 		int16_t speed;
@@ -50,6 +51,7 @@ public:
 	void registerCmdSender(CmdSenderBase* base);
 	void registerCmdReceiver(CmdReceiverBase* base);
 	void registerNotify(INotify* base);
+	void registerConnectors(Connectors* base);
 	void registerLoop(ILoop* loop);
 	void registerSettings(ISettings* loop);
 	LinkedList<ISettings*>* getSettings();
@@ -74,6 +76,7 @@ public:
 	LocData* getLocData(int id);
 	TurnOutData* getTurnOutData(int id);
 
+	String createDebugDiagramm();
 	void emergencyStop(int source);
 
 	LinkedList<CmdSenderBase*>* getSender()  {
@@ -106,6 +109,7 @@ private:
 	LinkedList<IStatus*> status = LinkedList<IStatus*>();
 	LinkedList<unsigned long> nextRun = LinkedList<unsigned long>();
 	LinkedList<INotify::requestInfo*> requestList = LinkedList<INotify::requestInfo*>();
+	LinkedList<Connectors*> connectors = LinkedList<Connectors*>();
 	long int lastTurnoutCmd[3];
 	std::unique_ptr<DNSServer> dnsServer;
 	void logLoop(unsigned long d);

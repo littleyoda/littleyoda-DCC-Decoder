@@ -4,21 +4,18 @@
 
 #include "Arduino.h"
 #include "IInternalStatusCallback.h"
+#include "INamed.h"
 
 /**  Name + getInternalStatus(key)
  * 
  */
 
 
-class IStatus {
+class IStatus : public INamed{
 public:
 	IStatus();
 	virtual ~IStatus();
-	virtual void setName(String s);
-	virtual String getName();
 	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
-protected:
-	String* id;
 };
 
 #endif /* ISTATUS_H_ */

@@ -18,7 +18,6 @@ public:
 	virtual ~ConnectorGPIO();
 	virtual void GPIOChange(int pin, int newValue);
 private:
-	ISettings* action;
 	Pin* pin;
 	uint16_t highvalue;
 	uint16_t lowvalue;

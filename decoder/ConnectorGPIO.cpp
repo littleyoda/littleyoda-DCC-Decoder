@@ -9,11 +9,13 @@
 #include "GPIO.h"
 
 ConnectorGPIO::ConnectorGPIO(ISettings* a, Pin* gpio, uint16_t high, uint16_t low) {
-	action = a;
+	addAction(a);
 	pin = gpio;
 	highvalue = high;
 	lowvalue = low;
 	GPIOobj.pinMode(gpio, INPUT_PULLUP, "GPIO");
+	setModulName("GPIO");
+	setConfigDescription(gpio->toString() + ": High " + String(high) + "/Low " + String(low));
 }
 
 ConnectorGPIO::~ConnectorGPIO() {
@@ -24,5 +26,5 @@ void ConnectorGPIO::GPIOChange(int p, int newValue) {
 	if (p != pin->getPin()) {
 		return;
 	}
-	action->setSettings("sd", String((newValue == 0) ? lowvalue : highvalue));
+	send("sd", String((newValue == 0) ? lowvalue : highvalue));
 }

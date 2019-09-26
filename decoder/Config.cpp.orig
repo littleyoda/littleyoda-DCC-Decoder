@@ -14,15 +14,12 @@
 #include "ActionServo.h"
 #include "ActionLed.h"
 #include "ActionPWMOutput.h"
-#include "ActionPWMDirect.h"
 #include "ActionDFPlayerMP3.h"
 #include "ActionDCCGeneration.h"
 #include "ActionSUSIGeneration.h"
 #include "ActionSendTurnoutCommand.h"
 #include "ActionStepperOutput.h"
-#include "ActionPWMShieldV1Output.h"
-#include "ActionTraktion.h"
-//#include "ActionController.h"
+
 #include "Connectors.h"
 #include "ConnectorLocoSpeed.h"
 #include "ConnectorONOFF.h"
@@ -34,12 +31,11 @@
 #include "ConnectorGPIO.h"
 #include "Config.h"
 
-#include "FilterLimitChange.h"
-
 #include "CmdReceiverDCC.h"
 #include "CmdZentraleZ21.h"
 #include "CmdReceiverZ21Wlan.h"
 #include "CmdReceiverRocnetOverMQTT.h"
+//#include "CmdReceiverESPNOW.h"
 
 #include "WebserviceCommandLogger.h"
 #include "WebserviceLog.h"
@@ -47,18 +43,7 @@
 
 #include "ISettings.h"
 
-#include "Display.h"
 
-#ifdef LY_FEATURE_AUDIO
-	#include "ActionAudioI2S.h"
-#endif
-
-
-#ifdef ESP32
-	#include "FS.h"
-	#include "SPIFFS.h"
-//	#include "CmdReceiverESPNOW.h"
-#endif
 
 
 Config::Config() {
@@ -76,12 +61,10 @@ bool Config::parse(Controller* controller, Webserver* web, String filename, bool
 	File configFile = SPIFFS.open(filename, "r");
 
 	parser = new json(configFile);
-	if (!parser->isValid()) {
-		return false;
-	}
+
 	String version = parser->getValueByKey(0, "version");
 	if (!version.equals("3")) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültige Version des Konfig-Files: " + version);
+		Logger::getInstance()->addToLog("Ungültige Version des Konfig-Files: " + version);
 		return false;
 	}
 	if (dryrun) {
@@ -91,7 +74,6 @@ bool Config::parse(Controller* controller, Webserver* web, String filename, bool
 
 	parseCfg(controller, web, "cfg");
 	parseOut(controller, web, "out");
-	parseFilter(controller, web, "filter");
 	parseIn(controller, web, "in");
 	parseConnector(controller, web, "connector");
 
@@ -104,7 +86,7 @@ bool Config::parse(Controller* controller, Webserver* web, String filename, bool
 void Config::parseOut(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Out-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog("Out-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -114,8 +96,6 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 		}
 		String m = parser->getValueByKey(idx, "m");
 		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + m);
-		#ifdef ESP8266
-
 		if (m.equals("dccout")) {
 			Pin* gpioenable = new Pin(parser->getValueByKey(idx, "enable"));
 			int locoaddr = parser->getValueByKey(idx, "addr").toInt();
@@ -123,18 +103,6 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
 			controller->registerNotify(a);
 			controller->registerLoop(a);
-			controller->registerSettings(a);
-			idx = parser->getNextSiblings(idx);
-			continue;
-		}
-
-		if (m.equals("traktion")) {
-			int normal = parser->getValueByKey(idx, "normalAddr").toInt();
-			int traktion = parser->getValueByKey(idx, "traktionAddr").toInt();
-			int virtuell = parser->getValueByKey(idx, "virtuelleAddr").toInt();
-			int func = parser->getValueByKey(idx, "func").toInt();
-			ActionTraktion* a = new ActionTraktion(controller, normal, traktion, virtuell, func);
-			controller->registerNotify(a);
 			idx = parser->getNextSiblings(idx);
 			continue;
 		}
@@ -148,10 +116,9 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			continue;
 		}
 
-		#endif
 		String id = parser->getValueByKey(idx, "id");
 		if (id.length() == 0) {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, "ID is null");
+			Logger::getInstance()->addToLog("ID is null");
 			idx = parser->getNextSiblings(idx);
 			continue;
 		}
@@ -162,97 +129,26 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerSettings(l);
 
 		} else if (m.equals("pwm")) {
-			String type = parser->getValueByKey(idx, "type");
-			ActionPWMOutput* a = NULL;
-			if (type.equals("") || type.equals("direct")) {
-				 int gpiopwm = GPIOobj.string2gpio(parser->getValueByKey(idx, "pwm"));
-				 int gpiof = GPIOobj.string2gpio(parser->getValueByKey(idx, "forward"));
-				 int gpior = GPIOobj.string2gpio(parser->getValueByKey(idx, "reverse"));
-				 a = new ActionPWMDirect(gpiopwm, gpiof, gpior);
-			} else if (type.equals("shieldv1")) {
-				int addr = parser->getValueByKey(idx, "i2caddr", "48").toInt();
-				int midx = parser->getValueByKey(idx, "motoridx", "0").toInt();
-				a = new ActionPWMSchieldV1Output(addr, midx);
-			} else {
-				Logger::log(LogLevel::ERROR, "Unbekannter Type: " + type);
-			}
-			if (a != NULL) {
-				if (parser->keyExists(idx, "freq")) {
-					a->setFreq(parser->getValueByKey(idx, "freq").toInt());
-				}
-				a->setName(id);
-				controller->registerSettings(a);
-				int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
-				if (addridx > 0) {
-					if (!parser->isArray(addridx)) {
-						Logger::log(LogLevel::ERROR, "Values Format im Bereich PWM falsch!");
-						idx = parser->getNextSiblings(idx);
-						continue;
-
-					}
-					uint8_t* arr;
-					arr = new uint8_t[128];
-					for (int i = 0; i < 127; i++) {
-						arr[i] = 255;
-					}
-					// Array mit den Werten aus der Config-Datei füllen
-					arr[0] = 0;
-					arr[1] = 0;
-					arr[127] = 127;
-					int child = parser->getFirstChild(addridx);
-					while (child != -1) {
-						int idx = parser->getFirstChild(child);
-						int pos  = parser->getString(idx).toInt();
-						int pwmvalue  = parser->getString(parser->getNextSiblings(idx)).toInt();
-						if (pos < 1 || pos > 127 || pwmvalue < 0 || pwmvalue > 127) {
-							Logger::getInstance()->addToLog(LogLevel::ERROR,"Ungültiger Wert " + String(pos) + "/" + String(pwmvalue));
-							child = parser->getNextSiblings(child);
-							continue;
-						}
-						arr[pos] = (uint8_t) pwmvalue;
-						child = parser->getNextSiblings(child);
-					}
-					// Werte linear interpolieren
-					int start = 0;
-					int akt = 0;
-					while (akt < 127) {
-						akt++;
-						if (arr[akt] == 255) {
-							continue;
-						}
-						int laenge = akt - start;
-						if (laenge == 1) {
-							start = akt;
-							continue;
-						}
-						float veraenderung = ((float) (arr[akt] - arr[start]) / laenge );
-						float wert = arr[start];
-						for (int i = start + 1; i < akt; i++) {
-							wert += veraenderung;
-							arr[i] = wert;
-						}
-						start = akt;
-					}
-					a->setPwmValues(arr);
-				}
-			}
+			int gpiopwm = GPIO.string2gpio(parser->getValueByKey(idx, "pwm"));
+			int gpiof = GPIO.string2gpio(parser->getValueByKey(idx, "forward"));
+			int gpior = GPIO.string2gpio(parser->getValueByKey(idx, "reverse"));
+			ISettings* a = new ActionPWMOutput(gpiopwm, gpiof, gpior);
+			a->setName(id);
+			controller->registerSettings(a);
 
 
 		} else if (m.equals("servo")) {
-			#ifdef ESP8266
-
-			int gpioservo = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio"));
+			int gpioservo = GPIO.string2gpio(parser->getValueByKey(idx, "gpio"));
 			ActionServo* a = new ActionServo(gpioservo);
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
-            #endif
 
 		} else if (m.equals("turnout")) {
 			ActionTurnOut* a = new ActionTurnOut(
-					GPIOobj.string2gpio(parser->getValueByKey(idx, "dir1")),
-					GPIOobj.string2gpio(parser->getValueByKey(idx, "dir2")),
-					GPIOobj.string2gpio(parser->getValueByKey(idx, "enable")));
+					GPIO.string2gpio(parser->getValueByKey(idx, "dir1")),
+					GPIO.string2gpio(parser->getValueByKey(idx, "dir2")),
+					GPIO.string2gpio(parser->getValueByKey(idx, "enable")));
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
@@ -266,32 +162,19 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("stepper")) {
 			int child = parser->getIdxByKey(idx, "gpio");
-			boolean persistent = parser->getBooleanByKey(idx, "persistent");
 			child = parser->getFirstChild(child);
 			ActionStepperOutput* a = new ActionStepperOutput(
 								new Pin(parser->getString(parser->getChildAt(child, 0))),
 								new Pin(parser->getString(parser->getChildAt(child, 1))),
 								new Pin(parser->getString(parser->getChildAt(child, 2))),
-								new Pin(parser->getString(parser->getChildAt(child, 3))),
-								persistent
+								new Pin(parser->getString(parser->getChildAt(child, 3)))
 			);
-			//per·sis·tent
-			a->setName(id);
-			a->load();
-			controller->registerSettings(a);
-			controller->registerLoop(a);
-
-		#ifdef LY_FEATURE_AUDIO
-		} else if (m.equals("audioi2s")) {
-			ActionAudioI2S* a = new ActionAudioI2S();
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
-
-		#endif
 
 		} else {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, 
+			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + m);
 		}
 		idx = parser->getNextSiblings(idx);
@@ -304,7 +187,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "CFG-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog("CFG-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -324,7 +207,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 
 		} else if (m.equals("dcc")) {
-			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio"));
+			int gpio = GPIO.string2gpio(parser->getValueByKey(idx, "gpio"));
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 
 
@@ -337,16 +220,13 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		} else if (m.equals("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
 			controller->registerCmdReceiver(rec);
-//			controller->registerNotify(rec);
 
-		// } else if (m.equals("espnow")) {
-		// 	#ifdef ESP32
-		// 		String role = parser->getValueByKey(idx, "role");
-		// 		CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, role);
-		// 		controller->registerCmdReceiver(rec);
-		// 	#else
-		// 		Logger::log(LogLevel::ERROR, "ESPNOW not supported on ESP8266");
-		// 	#endif
+
+		} else if (m.equals("espnow")) {
+			//			String rolle = String(value["rolle"].as<const char*>());
+			//			Serial.println("Rolle: " + rolle);
+			//			CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, rolle);
+			//			controller->registerCmdReceiver(rec);
 		} else if (m.equals("rocnetovermqtt")) {
 			controller->registerCmdReceiver(new CmdReceiverRocnetOverMQTT(controller));
 
@@ -359,8 +239,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("mp3")) {
 			//			int  addr = value["addr").toInt();
-			//			int tx = GPIOobj.string2gpio(value["tx"].as<const char*>());
-			//			int rx = GPIOobj.string2gpio(value["rx"].as<const char*>());
+			//			int tx = GPIO.string2gpio(value["tx"].as<const char*>());
+			//			int rx = GPIO.string2gpio(value["rx"].as<const char*>());
 			//			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
 
 		} else if (m.equals("wlan")) {
@@ -380,12 +260,12 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 					gwx.fromString(gw);
 					WiFi.config(ipx, gwx, nmx);
 				} else {
-					Logger::log(LogLevel::ERROR,"Netzwerkkonfiguration (ip, netmask, gw) unvollständig");
+					Logger::log("Netzwerkkonfiguration (ip, netmask, gw) unvollständig");
 					idx = parser->getNextSiblings(idx);
 					continue;
 				}
 			} else {
-				Logger::log(LogLevel::INFO, "Netzwerkkonfiguration per DHCP");
+				Logger::log("Netzwerkkonfiguration per DHCP");
 			}
 			int ch = 1;
 			String kanal = parser->getValueByKey(idx, "kanal");
@@ -405,7 +285,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			String pwd = parser->getValueByKey(idx, "pwd");
 			WiFi.softAPConfig(Ip, Ip, NMask);
 			if (!WiFi.softAP(ssid.c_str(), pwd.c_str(), ch)) {
-				Logger::log(LogLevel::ERROR, "softAP fehlgeschlagen!");
+				Logger::log("softAP fehlgeschlagen!");
 			}
 			WiFi.enableAP(true);
 			Serial.println("AP-IP: " + WiFi.softAPIP().toString());
@@ -413,20 +293,18 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 
 		} else if (m.equals("i2c")) {
-			int sda = GPIOobj.string2gpio(parser->getValueByKey(idx, "sda"));
-			int scl = GPIOobj.string2gpio(parser->getValueByKey(idx, "scl"));
+			int sda = GPIO.string2gpio(parser->getValueByKey(idx, "sda"));
+			int scl = GPIO.string2gpio(parser->getValueByKey(idx, "scl"));
 			Wire.begin(sda, scl);
 
 
 		} else if (m.equals("i2cslave")) {
 			String d = parser->getValueByKey(idx, "d");
-			bool isPca9685 = d.equalsIgnoreCase("pca9685");
-			bool isMcp23017 = d.equalsIgnoreCase("mcp23017");
-			if (isPca9685 || isMcp23017) {
+			if (d.equalsIgnoreCase("mcp23017")) {
 				int addridx = parser->getIdxByKey(idx, "addr");
 				addridx = parser->getFirstChild(addridx);
 				if (!parser->isArray(addridx)) {
-					Logger::log(LogLevel::ERROR, "Format für MCP23017/PC9685 Adressen falsch!");
+					Logger::log("Format für MCP23017 Adressen falsch!");
 					idx = parser->getNextSiblings(idx);
 					continue;
 
@@ -434,46 +312,25 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 				int child = parser->getFirstChild(addridx);
 				while (child != -1) {
 					int addr = parser->getString(child).toInt();
-					int i2caddr = 0;
-					if (addr >= 0x10) {
-						i2caddr = addr;
-					} else if (isMcp23017) {
-						i2caddr = addr + 0x20; // Base + Offset
-					} else if (isPca9685) {
-						i2caddr = addr + 0x40; // Base + Offset
-					}
-					Wire.beginTransmission(i2caddr);
+					Wire.beginTransmission(addr + 0x20);
 					int ret = Wire.endTransmission();
 					String tret = "Failed (" + String(ret) + ")";
 					if (ret == 0) {
 						tret = "OK";
 					}
-					Logger::getInstance()->addToLog(LogLevel::INFO, "Test MCP23017/PC9685 auf I2c/" + String(i2caddr) + ": " + tret);
+					Logger::getInstance()->addToLog("Test MCP23017 auf I2c/" + String(addr + 0x20) + ": " + tret);
 					if (ret == 0) {
-						if (isMcp23017) {
-							GPIOobj.addMCP23017(addr);
-						} else {
-							GPIOobj.addPCA9685(i2caddr);
-						}
+						GPIO.addMCP23017(addr);
 					}
 					child = parser->getNextSiblings(child);
 				}
 			} else {
-				Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekanntes Gerät (I2C): " + String(d));
+				Logger::getInstance()->addToLog("Unbekanntes Gerät (I2C): " + String(d));
 			}
-		// } else if (m.equals("lycontroller")) {
-		// 	ActionController* a = new ActionController(controller);
-		// 	controller->registerNotify(a);
-		// 	controller->registerLoop(a);
-		} else if (m.equals("display")) {
-			Display* d = new Display(controller, 
-									parser->getValueByKey(idx, "text", "No Text"),
-									parser->getValueByKey(idx, "model", "")
-									);
-		 	controller->registerLoop(d);
+
 
 		} else {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, 
+			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + m);
 		}
 
@@ -487,7 +344,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Connector-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog("Connector-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
@@ -498,7 +355,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 			Connectors* cin;
 			int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
 			if (!parser->isArray(addridx)) {
-				Logger::log(LogLevel::ERROR, "Format im Bereich Turnout // LED falsch!");
+				Logger::log("Format falsch!");
 				idx = parser->getNextSiblings(idx);
 				continue;
 
@@ -527,7 +384,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 			Connectors* cin;
 			int child = parser->getFirstChildOfArrayByKey(idx, "values");
 			if (child < 0) {
-				Logger::log(LogLevel::ERROR, "Format GPIO//Sendturnout falsch!");
+				Logger::log("Format falsch!");
 				idx = parser->getNextSiblings(idx);
 				continue;
 
@@ -547,7 +404,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 				controller->registerNotify(atc);
 
 				Pin* g = new Pin(pin);
-				cin = new ConnectorGPIO(atc, g, 1, 0);
+				cin = new ConnectorGPIO(atc, g);
 				controller->registerNotify(cin);
 
 				child = parser->getNextSiblings(child);
@@ -560,7 +417,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 			Connectors* cin;
 			int child = parser->getFirstChildOfArrayByKey(idx, "gpio");
 			if (child < 0) {
-				Logger::log(LogLevel::ERROR, "Format DIRECTION/LEDS falsch! GPIO Array nicht gefunden!");
+				Logger::log("Format falsch! GPIO Array nicht gefunden!");
 				idx = parser->getNextSiblings(idx);
 				continue;
 			}
@@ -571,14 +428,14 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 				}
 				String pin = parser->getString(child);
 
-				Logger::log(LogLevel::DEBUG, "d=>l Pin:" + String(pin) + " Addr:" + String(addr) + " Func:" + String(func));
+				Logger::log("d=>l Pin:" + String(pin) + " Addr:" + String(addr) + " Func:" + String(func));
 				ActionLed* g = new ActionLed(new Pin(pin));
 				cin = new ConnectorLights(g, addr, func, direction);
 				controller->registerNotify(cin);
 				child = parser->getNextSiblings(child);
 			}
 		} else {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, 
+			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag In: " + String(in) + " Out: " + String(out));
 		}
 		loop();
@@ -590,12 +447,12 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 void Config::parseIn(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "In-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog("In-Sektion leer oder fehlerhaft!");
 		return;
 	}
 	while (idx != -1) {
 		String m = parser->getValueByKey(idx, "m");
-		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + m);
+		Serial.println("S: " +  m);
 		Connectors* c = NULL;
 		if (m.equals("locospeed")) {
 			int l = parser->getValueByKey(idx, "addr").toInt();
@@ -628,9 +485,9 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			int *array = new int[arraysize];
 			int pos = 0;
 			while (child != -1) {
+				child = parser->getNextSiblings(child);
 				array[pos++] = parser->getString(child).toInt();
 				array[pos++] = parser->getString(parser->getFirstChild(child)).toInt();
-				child = parser->getNextSiblings(child);
 			}
 
 			ISettings* a = getSettingById(controller, conn);
@@ -653,10 +510,9 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			int *array = new int[arraysize];
 			int pos = 0;
 			while (child != -1) {
-				Serial.println("Turnout2Value (" + parser->getString(child) + "/" + parser->getString(parser->getFirstChild(child)) + ")");
+				child = parser->getNextSiblings(child);
 				array[pos++] = parser->getString(child).toInt();
 				array[pos++] = parser->getString(parser->getFirstChild(child)).toInt();
-				child = parser->getNextSiblings(child);
 			}
 
 			ISettings* a = getSettingById(controller, conn);
@@ -668,7 +524,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			c = new ConnectorTurnout(a, addr);
 
 		} else if (m.equals("lights")) {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, 
+			Logger::getInstance()->addToLog(
 					"Zur Zeit nicht implementiert " + m);
 			//	TODO		int l = parser->getValueByKey(idx, "addr").toInt();
 			//			int onoff = parser->getValueByKey(idx, "on").toInt();
@@ -688,18 +544,15 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 		} else if (m.equals("gpio")) {
 			Pin* g = new Pin(parser->getValueByKey(idx, "gpio"));
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
-			uint16_t high = parser->getValueByKey(idx, "high", "1").toInt();
-			uint16_t low = parser->getValueByKey(idx, "low", "0").toInt();
 			ISettings* a = getSettingById(controller, conn);
-			c = new ConnectorGPIO(a, g, high, low);
+			c = new ConnectorGPIO(a, g);
 
 		} else {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, 
+			Logger::getInstance()->addToLog(
 					"Config: Unbekannter Eintrag " + m);
 		}
 		if (c != NULL) {
 			controller->registerNotify(c);
-			controller->registerConnectors(c);
 		}
 		loop();
 		idx = parser->getNextSiblings(idx);
@@ -714,51 +567,7 @@ ISettings* Config::getSettingById(Controller* c, String id) {
 			return s;
 		}
 	}
-	String out = "";
-	for (int idx = 0; idx < c->getSettings()->size(); idx++) {
-		ISettings* s = c->getSettings()->get(idx);
-		out = out + s->getName() + "; ";
-	}
-	Logger::getInstance()->addToLog(LogLevel::ERROR, "Config: Unbekannte ID " + String(id) + " [" + out + "]");
+	Logger::getInstance()->addToLog("Config: Unbekannte ID " + String(id));
 	return NULL;
 }
 
-void Config::parseFilter(Controller* c, Webserver* web, String n) {
-	int idx = parser->getFirstChildOfArrayByKey(0, n);
-	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Connector-Sektion leer oder fehlerhaft!");
-		return;
-	}
-	while (idx != -1) {
-		if (ESP.getFreeHeap() < 1200) {
-			lowmemory = true;
-			break;
-		}
-		String m = parser->getValueByKey(idx, "m");
-		Serial.println("MEM "  + String(ESP.getFreeHeap()) + " " + m);
-
-		String id = parser->getValueByKey(idx, "id");
-		if (id.length() == 0) {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, "ID is null");
-			idx = parser->getNextSiblings(idx);
-			continue;
-		}
-		if (m.equalsIgnoreCase("limitchange")) {
-			String rate = parser->getValueByKey(idx, "rate", "100");
-			FilterLimitChange* f = new FilterLimitChange(rate.toInt());
-			f->setName(id);
-			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
-			ISettings* a = getSettingById(c, conn);
-			f->addAction(a);
-			c->registerSettings(f);
-			c->registerLoop(f);
-
-		} else {
-			Logger::getInstance()->addToLog(LogLevel::ERROR, 
-					"Config: Unbekannter Eintrag " + m);
-		}
-		loop();
-		idx = parser->getNextSiblings(idx);
-	}
-
-}

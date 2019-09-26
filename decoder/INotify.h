@@ -1,18 +1,17 @@
-/*
- * ActionBase.h
- *
- *  Created on: 17.08.2016
- *      Author: sven
- */
-
 #ifndef INOTIFY_H_
 #define INOTIFY_H_
 #include <Arduino.h>
 #include <LinkedList.h>
 
 #include "ILoop.h"
+#include "INamed.h"
 
-class INotify {
+/** Benachrichtung über Änderungen + Verwaltung der RequestListen
+ * 
+ * Author: sven
+ */
+
+class INotify /*: public INamed*/{
 public:
 	INotify();
 	virtual ~INotify();

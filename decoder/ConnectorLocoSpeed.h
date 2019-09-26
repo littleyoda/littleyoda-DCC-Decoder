@@ -17,7 +17,6 @@ public:
 	void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 
 private:
-	ISettings* action;
 	int addr;
 };
 

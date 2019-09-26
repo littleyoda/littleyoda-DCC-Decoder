@@ -72,10 +72,18 @@ void Controller::doLoops() {
 
 void Controller::registerNotify(INotify* base) {
 	if (base == NULL) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registeryNotify");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerNotify");
 		return;
 	}
 	actions.add(base);
+}
+
+void Controller::registerConnectors(Connectors* base) {
+	if (base == NULL) {
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerConnectors");
+		return;
+	}
+	connectors.add(base);
 }
 
 void Controller::registerLoop(ILoop* loop) {
@@ -148,6 +156,16 @@ LocData* Controller::getLocData(int id) {
 	}
 	return items[id];
 }
+
+String Controller::createDebugDiagramm() {
+	String out = "";
+	for (int i = 0; i < connectors.size(); i++) {
+		Connectors* a = connectors.get(i);
+		out = out + a->createDebugDiagramm("");
+	}
+	return out;
+}
+
 
 TurnOutData* Controller::getTurnOutData(int id) {
 	TurnOutData* data;
@@ -332,6 +350,7 @@ void Controller::registerSettings(ISettings* loop) {
 		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerySettings");
 		return;
 	}
+	Serial.println("Adding Settings " + loop->getName());
 	settings.add(loop);
 	status.add(loop);
 }

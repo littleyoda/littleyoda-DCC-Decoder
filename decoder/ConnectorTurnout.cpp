@@ -8,11 +8,14 @@
 #include "ConnectorTurnout.h"
 
 ConnectorTurnout::ConnectorTurnout(ISettings* a, int addr) {
-	action = a;
+	addAction(a);
 	id = addr;
 	r = new requestInfo();
 	r->art = requestInfo::ART::TURNOUT;
 	r->id = addr;
+	setModulName("Turnout");
+	setConfigDescription("ID: " + String(addr));
+
 }
 
 ConnectorTurnout::~ConnectorTurnout() {
@@ -22,6 +25,6 @@ void ConnectorTurnout::TurnoutCmd(int id, int direction, int source) {
 	if (id != this->id) {
 		return;
 	}
-	action->setSettings(String(id), String(direction));
+	send(String(id), String(direction));
 }
 
