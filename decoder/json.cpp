@@ -35,6 +35,7 @@ json::json(File f) {
 		printf("Object expected\r\n");
 		return ;
 	}
+	valid = true;
 
 }
 
@@ -217,4 +218,8 @@ bool json::isArray(int id) {
 		return false;
 	}
 	return elements[id].type == JSMN_ARRAY;
+}
+
+bool json::isValid() {
+	return valid;
 }

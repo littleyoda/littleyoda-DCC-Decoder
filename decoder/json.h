@@ -31,8 +31,10 @@ public:
 	int getFirstChildOfArrayByKey(int parentID, String key);
 	int getNumberOfSiblings(int idx);
 	bool isArray(int id);
+	bool isValid();
 
 private:
+	boolean valid = false;
 	char* buf;
 	jsmn_parser* p;
 	int elementCount;
