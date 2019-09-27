@@ -17,8 +17,12 @@ FilterLimitChange::FilterLimitChange(int r) {
 }
 
 void FilterLimitChange::setSettings(String key, String val) {
-	value = val.toInt();
-	name = key;
+	if (key.equals("sd")) {
+		value = val.toInt();
+		name = key;
+	} else {
+		send(key, val);
+	}
 }
 
 FilterLimitChange::~FilterLimitChange() {
