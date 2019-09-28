@@ -45,6 +45,7 @@ class CmdReceiverBase;
 
 class Controller {
 public:
+	typedef std::map<int, LocData*> Items;
 
 	Controller();
 	virtual ~Controller();
@@ -54,6 +55,8 @@ public:
 	void registerConnectors(Connectors* base);
 	void registerLoop(ILoop* loop);
 	void registerSettings(ISettings* loop);
+	void registerStatus(IStatus* loop);
+
 	LinkedList<ISettings*>* getSettings();
 	void updateRequestList();
 	void doLoops();
@@ -74,6 +77,7 @@ public:
 	String getHostname();
 
 	LocData* getLocData(int id);
+	Items* getLocData();
 	TurnOutData* getTurnOutData(int id);
 
 	String createDebugDiagramm();
@@ -92,9 +96,10 @@ public:
 	void printInternalStatusAsJon();
 	void internalStatusObjStatus(IInternalStatusCallback* cb, String modul, String key);
 
+	LinkedList<INotify::requestInfo*>* getRrequestList();
+
 private:
 	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);
-	typedef std::map<int, LocData*> Items;
 	Items items;
 
 	typedef std::map<int, TurnOutData*> LocTurnOuts;

@@ -24,12 +24,13 @@ Display::Display(Controller* c, String text, String model) {
 	if (model.equalsIgnoreCase("Wemos OLED Shield")) {
 
 		Serial.println("Init");
-		pinMode(0, OUTPUT);
+//		pinMode(0, OUTPUT);
 		display = new Adafruit_SSD1306(-1);
 		display->begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	    display->display();
 		pattern = text;
 		Serial.println(pattern);
+		pattern = "###" + pattern;
 	} else {
 		Logger::log(LogLevel::ERROR, "Model " + model + " wurde nicht gefunden!");
 	}
@@ -56,7 +57,7 @@ int Display::loop() {
 	if (count >= maxcount) {
 		count = 1;
 	}
-	return 700;
+	return 2000;
 }
 
 String Display::fill(String s) {
@@ -103,12 +104,14 @@ String Display::fill(String s) {
 		}
 	}
 	show(out);
+	Serial.println("=====================");
 	return out;
 }
 
 void Display::show(String s) {
 	if (s.length() <= width) {
 		display->println(s);
+		Serial.println(s);
 	} else {
 		// Scrolle durch den Text
 		if (s.length() > maxcount) {
@@ -120,5 +123,6 @@ void Display::show(String s) {
 		String out;
 		out = s.substring(idx, width + idx);
 		display->println(out);
+		Serial.println(out);
 	}
 }

@@ -50,6 +50,7 @@ private:
 	void handleController();
 	void handleVersion();
 	void handleCfg();
+	void handleStatus();
 	void handleSet();
 	void handleFilelist();
 	void handleUpload();

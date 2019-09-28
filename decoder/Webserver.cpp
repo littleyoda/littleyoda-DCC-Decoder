@@ -38,6 +38,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/", std::bind(&Webserver::handleRoot, this));
 	server->on("/version", std::bind(&Webserver::handleVersion, this));
 	server->on("/controll", std::bind(&Webserver::handleController, this));
+	server->on("/status", std::bind(&Webserver::handleStatus, this));
 	server->on("/cfg", std::bind(&Webserver::handleCfg, this));
 	server->on("/set", std::bind(&Webserver::handleSet, this));
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
@@ -416,4 +417,11 @@ void Webserver::handleCfg() {
 void Webserver::handleJsonList() {
 	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
 	server->send(200, "application/json", controll->getInternalStatusAsJon());
+}
+
+void Webserver::handleStatus() {
+//	controll->setRequest(server->arg("id"), server->arg("key"), server->arg("value"));
+	server->send(200, "text/plain", 
+		controll->getInternalStatus(server->arg("m"), server->arg("k"))
+	);
 }

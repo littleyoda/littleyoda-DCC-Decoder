@@ -15,6 +15,7 @@
 #include "Logger.h"
 #include "Consts.h"
 #include "Webserver.h"
+#include "Status.h"
 #ifdef ESP8266
         #include <ESP8266WiFi.h>
 #else
@@ -34,6 +35,7 @@ Controller::Controller() {
 		Logger::getInstance()->addToLog(LogLevel::ERROR, "SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
+	status.add(new Status(this));
 //	for (int i = 0; i < 99; i++) {
 //		l[i] = 0;
 //	}
@@ -355,6 +357,14 @@ void Controller::registerSettings(ISettings* loop) {
 	status.add(loop);
 }
 
+void Controller::registerStatus(IStatus* loop) {
+	if (loop == NULL) {
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registeryStatus");
+		return;
+	}
+	status.add(loop);
+}
+
 void Controller::sendContent(String s) {
 		Webserver::sendContent(s);
 }
@@ -442,5 +452,12 @@ void Controller::internalStatusObjStatus(IInternalStatusCallback* cb, String mod
 				}
 		}
 	}
+}
 
+Controller::Items* Controller::getLocData() {
+	return &items;
+}
+
+LinkedList<INotify::requestInfo*>* Controller::getRrequestList() {
+	return &requestList;
 }
