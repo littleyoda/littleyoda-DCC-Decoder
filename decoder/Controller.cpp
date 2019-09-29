@@ -15,7 +15,6 @@
 #include "Logger.h"
 #include "Consts.h"
 #include "Webserver.h"
-#include "Status.h"
 #ifdef ESP8266
         #include <ESP8266WiFi.h>
 #else
@@ -35,11 +34,6 @@ Controller::Controller() {
 		Logger::getInstance()->addToLog(LogLevel::ERROR, "SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
-	status.add(new Status(this));
-//	for (int i = 0; i < 99; i++) {
-//		l[i] = 0;
-//	}
-//	next = 0;
 }
 
 Controller::~Controller() {
@@ -409,12 +403,12 @@ void Controller::collectAllInternalStatus(IInternalStatusCallback* cb, String mo
 		}
 	}
 	if (modul.equals("*") || modul.equals("moduls")) {
-	int idx = status.size();
-	cb->send("modules", String(idx++), "sys");
-	cb->send("modules", String(idx++), "log");
- 	cb->send("modules", String(idx++), "wifi");
-	cb->send("modules", String(idx++), "loc");
-	cb->send("modules", String(idx++), "turnout");
+		int idx = status.size();
+		cb->send("modules", String(idx++), "sys");
+		cb->send("modules", String(idx++), "log");
+ 		cb->send("modules", String(idx++), "wifi");
+		cb->send("modules", String(idx++), "loc");
+		cb->send("modules", String(idx++), "turnout");
 	}
  	InternalStatusWifiSys::getInternalStatus(cb, modul, key);
 	internalStatusObjStatus(cb, modul, key);

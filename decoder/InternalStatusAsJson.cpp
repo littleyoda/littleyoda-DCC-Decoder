@@ -8,8 +8,7 @@
 #include "InternalStatusAsJson.h"
 
 InternalStatusAsJson::InternalStatusAsJson() {
-	// TODO Auto-generated constructor stub
-
+	doc = NULL;
 }
 
 InternalStatusAsJson::~InternalStatusAsJson() {
@@ -17,7 +16,9 @@ InternalStatusAsJson::~InternalStatusAsJson() {
 }
 
 void InternalStatusAsJson::reset() {
-	delete(doc);
+	if (doc != NULL) {
+		delete(doc);
+	}
 	doc = new DynamicJsonDocument(2048);
 	(*doc)["Hallo"] = "Hallo";
 }
