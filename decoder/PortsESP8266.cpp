@@ -56,11 +56,11 @@ void PortsESP8266::pinMode(uint16_t pin, uint8_t mode) {
 }
 
 int PortsESP8266::digitalRead(uint16_t pin) {
-		::digitalRead(pin);
+	return ::digitalRead(pin);
 }
 void PortsESP8266::digitalWrite(uint16_t pin, uint8_t val) {
 	::digitalWrite(pin, val);
 }
 void PortsESP8266::analogWrite(uint16_t pin, int val) {
-
+	::analogWrite(pin, val);
 }

@@ -54,7 +54,7 @@ void PortsESP32::digitalWrite(uint16_t pin, uint8_t val) {
 	::digitalWrite(pin, val);
 }
 void PortsESP32::analogWrite(uint16_t pin, int val) {
-
+	Serial.println("Analogwrite not supported");
 }
 
 
