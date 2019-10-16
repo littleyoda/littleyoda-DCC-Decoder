@@ -8,6 +8,9 @@
 #include "PortsESP8266.h"
 #include "Consts.h"
 
+#ifdef ESP8266
+
+
 PortsESP8266::PortsESP8266(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinOffset) {
 	add("DISABLE", Consts::DISABLE, Consts::DISABLE, 0);
 	add("disable", Consts::DISABLE, Consts::DISABLE, 0);
@@ -64,3 +67,5 @@ void PortsESP8266::digitalWrite(uint16_t pin, uint8_t val) {
 void PortsESP8266::analogWrite(uint16_t pin, int val) {
 	::analogWrite(pin, val);
 }
+
+#endif

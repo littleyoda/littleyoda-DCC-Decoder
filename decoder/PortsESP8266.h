@@ -8,6 +8,8 @@
 #ifndef PORTSESP8266_H_
 #define PORTSESP8266_H_
 
+#ifdef ESP8266
+
 #include <Arduino.h>
 #include "Ports.h"
 
@@ -21,4 +23,5 @@ public:
 	virtual void analogWrite(uint16_t pin, int val);
 };
 
+#endif  /* ESP8266 */
 #endif /* PORTSESP8266_H_ */
