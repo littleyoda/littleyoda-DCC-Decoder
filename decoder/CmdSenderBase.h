@@ -17,6 +17,7 @@ public:
 	CmdSenderBase();
 	virtual ~CmdSenderBase();
 	virtual void sendSetTurnout(String id, String status);
+  virtual void sendSetSensor(uint16_t id, uint8_t status);
 	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list);
 
 protected:

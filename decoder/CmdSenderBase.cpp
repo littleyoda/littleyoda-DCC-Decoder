@@ -16,6 +16,9 @@ CmdSenderBase::~CmdSenderBase() {
 void CmdSenderBase::sendSetTurnout(String id, String status) {
 }
 
+void CmdSenderBase::sendSetSensor(uint16_t id, uint8_t status) {
+}
+
 void CmdSenderBase::setRequestList(LinkedList<INotify::requestInfo*>* list) {
 	requestList = list;
 }

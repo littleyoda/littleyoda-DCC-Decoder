@@ -141,7 +141,7 @@ void z21PaketParser::parser(unsigned char packetBuffer[], int cb) {
 			&& packetBuffer[3] == 0x00 && packetBuffer[4] == 0xF3
 			&& packetBuffer[5] == 0x0A;
 	if (firmware) {
-		printPacketBuffer("Firmware", packetBuffer, cb);
+		//printPacketBuffer("Firmware", packetBuffer, cb);
 		handleFirmware(packetBuffer);
 		return;
 	}

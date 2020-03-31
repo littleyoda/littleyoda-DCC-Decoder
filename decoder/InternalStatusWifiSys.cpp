@@ -120,7 +120,8 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 	if (modul.equals("log") || modul.equals("*")) {
 		LinkedList<Logger::logdata*>* l = Logger::getInstance()->getLogs();
 		for (int i = 0; i <  l->size(); i++) {
-			Logger::logdata* ll = (*l)[i];
+			//Logger::logdata* ll = (*l)[i];
+      Logger::logdata* ll = l->get(i);
 			cb->send("log", String(i), ll->msg);
 		}
 	}
