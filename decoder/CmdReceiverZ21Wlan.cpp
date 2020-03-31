@@ -159,34 +159,79 @@ void CmdReceiverZ21Wlan::enableBroadcasts() {
 }
 
 /**
- * Sendet einen Weichenbefehl, der über das Webinterface ausgelöst wurde, an die Z21
+ * Sendet einen Gleis besetzt-Signal, der über ein GBM ausgelöst wurde, an die Z21 Loconet
  */
-void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
-	//Serial.println("Sending Set Turnout");
-	//addToLog("Web-Request ID: " + String(id) + " Status: " + status);
-	int statuscode = 0;
-	if (status == "1") {
-		statuscode = 1;
-	}
-	memset(packetBuffer, 0, packetBufferSize);
+void CmdReceiverZ21Wlan::sendSetSensor(uint16_t id, uint8_t status) {
+	Serial.println("Sending Set Track");
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Sensor state ID: " + String(id) + " Status: " + status);
 
-	// 5.2 LAN_X_SET_TURNOUT
-	packetBuffer[0] = 0x09;
+  id = id-1;
+//  char buf[64];
+//  sprintf(buf, "Address is %#x", id);
+//  Serial.println(buf);
+  
+  byte AddrL = ( id >> 1 ) & 0x7F ;
+
+ 
+  byte AddrH = 0;
+  if (bitRead(id,7)) bitSet(AddrH, 0);
+  if (bitRead(id,8)) bitSet(AddrH, 1);
+  if (bitRead(id,9)) bitSet(AddrH, 2);
+  if (bitRead(id,10)) bitSet(AddrH, 3);
+  if (status) bitSet(AddrH, 4);
+  if (id % 2) bitSet(AddrH, 5);
+  bitSet(AddrH, 6);
+  
+	memset(packetBuffer, 0, 8);
+
+//	// 5.2 LAN_LOCONET_FROM_LAN
+	packetBuffer[0] = 0x08;
 	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
+	packetBuffer[2] = 0xa2;
 	packetBuffer[3] = 0x00;
 
-	packetBuffer[4] = 0x53;
-	packetBuffer[5] = 0x00;
-	packetBuffer[6] = id.toInt();
-	packetBuffer[7] = 0xA8 | statuscode;
-	packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
-																	   ^ packetBuffer[7];
+	packetBuffer[4] = OPC_INPUT_REP;
+  packetBuffer[5] = AddrL;
+	packetBuffer[6] = AddrH;  
+  packetBuffer[7] = LN_CHECKSUM_SEED ^ OPC_INPUT_REP ^ AddrL ^ AddrH;
+  
+//  sprintf(buf, "Sending packet %#x %#x %#x %#x %#x %#x %#x %#x ", packetBuffer[0],packetBuffer[1],packetBuffer[2],packetBuffer[3],packetBuffer[4],packetBuffer[5],packetBuffer[6],packetBuffer[7]);
+//	Serial.println(buf);
 
 	udp->beginPacket(*z21Server, localPort);
 	udp->write(packetBuffer, packetBuffer[0]);
 	udp->endPacket();
 }
+/**
+ * Sendet einen Weichenbefehl, der über das Webinterface ausgelöst wurde, an die Z21
+ */
+void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
+  //Serial.println("Sending Set Turnout");
+  //addToLog("Web-Request ID: " + String(id) + " Status: " + status);
+  int statuscode = 0;
+  if (status == "1") {
+    statuscode = 1;
+  }
+  memset(packetBuffer, 0, packetBufferSize);
+
+  // 5.2 LAN_X_SET_TURNOUT
+  packetBuffer[0] = 0x09;
+  packetBuffer[1] = 0x00;
+  packetBuffer[2] = 0x40;
+  packetBuffer[3] = 0x00;
+
+  packetBuffer[4] = 0x53;
+  packetBuffer[5] = 0x00;
+  packetBuffer[6] = id.toInt();
+  packetBuffer[7] = 0xA8 | statuscode;
+  packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
+                                     ^ packetBuffer[7];
+
+  udp->beginPacket(*z21Server, localPort);
+  udp->write(packetBuffer, packetBuffer[0]);
+  udp->endPacket();
+}
+
 
 CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
 }

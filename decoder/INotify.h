@@ -31,7 +31,7 @@ public:
 	virtual void GPIOChange(int pin, int newValue);
 
 	struct requestInfo {
-		enum ART {TURNOUT, LOCO } __attribute__ ((packed)) art;
+		enum ART {TURNOUT, LOCO, SENSOR } __attribute__ ((packed)) art;
 		uint16_t id;
 	} __attribute__ ((packed));
 	virtual void getRequestList(LinkedList<requestInfo*>* list);
