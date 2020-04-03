@@ -259,45 +259,42 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerLoop(a);
 
 		} else if (m.equals("sensor")) {
-      // By Petr Osipov
-      // Block for sensor type
-      // Example of use in out section:
-      //{
-      //      "id":"sensor0",
-      //      "m":"sensor",
-      //      "addr":"10",
-      //      "gpio":["D0","D3"]
-      //  }
-      // Assigned pins must be capable for input.
-      // Address is the starting address. It is assigned to the first pin used. Following pins get the address increment by 1.
+			// By Petr Osipov
+			// Block for sensor type
+			// Example of use in out section:
+			//{
+			//      "id":"sensor0",
+			//      "m":"sensor",
+			//      "addr":"10",
+			//      "gpio":["D0","D3"]
+			//  }
+			// Assigned pins must be capable for input.
+			// Address is the starting address. It is assigned to the first pin used. 
+			// Following pins get the address increment by 1.
       
-      Serial.println("Processing sensor block");
+      		Serial.println("Processing sensor block");
 			int addr = parser->getValueByKey(idx, "addr").toInt();
-      int gpioarray = parser->getIdxByKey(idx, "gpio");
-      int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
-      //Serial.println("Determining pins for Sensors");
+      		int gpioarray = parser->getIdxByKey(idx, "gpio");
+      		int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
 
-      LinkedList<int> *list = new LinkedList<int>();
-      while (element!=-1){
-        list->add(GPIOobj.string2gpio(parser->getString(element)));
-        element = parser->getNextSiblings(element);
-      }
+		    LinkedList<int> *list = new LinkedList<int>();
+      		while (element!=-1) {
+        		list->add(GPIOobj.string2gpio(parser->getString(element)));
+        		element = parser->getNextSiblings(element);
+      		}
       
  			ActionSendSensorCommand* a = new ActionSendSensorCommand(controller, addr, list);
 			a->setName(id);      
 			controller->registerSettings(a);      
 			controller->registerNotify(a);      
-      controller->registerLoop(a);
-      
-
-		}	else if (m.equals("sendturnout")) {
-      int addr = parser->getValueByKey(idx, "addr").toInt();
-      ActionSendTurnoutCommand* a = new ActionSendTurnoutCommand(controller, addr);
-      a->setName(id);
-      controller->registerSettings(a);
-      controller->registerNotify(a);
-
-    } else if (m.equals("stepper")) {
+      		controller->registerLoop(a);
+		} else if (m.equals("sendturnout")) {
+			int addr = parser->getValueByKey(idx, "addr").toInt();
+      		ActionSendTurnoutCommand* a = new ActionSendTurnoutCommand(controller, addr);
+      		a->setName(id);
+      		controller->registerSettings(a);
+      		controller->registerNotify(a);
+	    } else if (m.equals("stepper")) {
 			int child = parser->getIdxByKey(idx, "gpio");
 			boolean persistent = parser->getBooleanByKey(idx, "persistent");
 			child = parser->getFirstChild(child);

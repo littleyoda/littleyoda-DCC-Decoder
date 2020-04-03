@@ -31,24 +31,15 @@ ActionSendSensorCommand::ActionSendSensorCommand(Controller* c, int number, Link
   setModulName("Send Sensor Command");
   setConfigDescription("");
 
-  //Serial.print("ActionSendSensorCommand: initiating ");
-  //Serial.print(number);
-  //Serial.print(" : [");
   int listSize = list->size();
   for (int h = 0; h < listSize; h++) {
     SensorState s;
     s.gpio = list->get(h);
     s.address = number + h;
     s.value = -1;
-    //Serial.print("(");
-    //Serial.print(s.gpio);
-    //Serial.print(s.address);
-    //Serial.print(s.value);
     gpio.add(s);
     GPIOobj.pinMode(s.gpio, INPUT, "GPIO for Sensor");
-    //Serial.print(") , ");
   }
-  //Serial.println(" ]");
 }
 
 ActionSendSensorCommand::~ActionSendSensorCommand() {
@@ -57,10 +48,6 @@ ActionSendSensorCommand::~ActionSendSensorCommand() {
 
 
 void ActionSendSensorCommand::setSettings(String key, String value) {
-  //Serial.print("ActionSendSensorCommand: setSettings ");
-  //Serial.print(key);
-  //Serial.print(" : ");
-  //Serial.println(value);
 
   int status = value.toInt();
   int pin = GPIOobj.string2gpio(key);
@@ -68,8 +55,7 @@ void ActionSendSensorCommand::setSettings(String key, String value) {
   int listSize = gpio.size();
   for (int h = 0; h < listSize; h++) {
     SensorState sensorstate = gpio.get(h);
-    if (sensorstate.gpio == pin)
-    {
+    if (sensorstate.gpio == pin) {
       sensorstate.value = status;
       setSettings(sensorstate);
     }
@@ -77,18 +63,12 @@ void ActionSendSensorCommand::setSettings(String key, String value) {
 }
 
 void ActionSendSensorCommand::SensorCmd(int toId, int direction, int source) {
-
   if (toId != id ) {
     return;
   }
 }
 
 void ActionSendSensorCommand::setSettings(SensorState status) {
-  Serial.print("ActionSendSensorCommand: setSettings \nSet address");
-  Serial.print(status.address);
-  Serial.print(" to ");
-  Serial.println(status.value);
-
   // TODO Move to Controller
   LinkedList<CmdSenderBase*>* list = controller->getSender();
   for (int i = 0; i < list->size(); i++) {
@@ -101,8 +81,11 @@ void ActionSendSensorCommand::setSettings(SensorState status) {
   }
 }
 
+/**
+ * Polling of GBM exits. 
+ */
 int ActionSendSensorCommand::loop() {
-  // Polling of GBM exits.
+  
   
   int listSize = gpio.size();
   for (int h = 0; h < listSize; h++) {
@@ -111,16 +94,13 @@ int ActionSendSensorCommand::loop() {
 
     if (sensorstate.gpio >= 0) {
       int value = GPIOobj.digitalRead(sensorstate.gpio);
-      //Serial.print(" NewVal is " );
-      //Serial.print(sensorstate.value);
-      if (value != sensorstate.value)
-      {
+      if (value != sensorstate.value) {
         sensorstate.value = value;
         setSettings(sensorstate);
         gpio.set(h, sensorstate);
       }
     }
   }
-  return 0;
+  return 100;
 }
 
