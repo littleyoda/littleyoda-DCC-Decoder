@@ -13,12 +13,6 @@
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 
-#define OPC_INPUT_REP_CB  0x40  /* control bit, reserved otherwise      */
-#define OPC_INPUT_REP_SW  0x20  /* input is switch input, aux otherwise */
-#define OPC_INPUT_REP_HI  0x10  /* input is HI, LO otherwise            */
-#define OPC_INPUT_REP     0xb2
-
-#define LN_CHECKSUM_SEED  0xFF
 
 
 class CmdReceiverZ21Wlan: public CmdSenderBase, public z21PaketParser {
