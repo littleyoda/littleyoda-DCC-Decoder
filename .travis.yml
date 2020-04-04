@@ -17,6 +17,7 @@ before_deploy:
 - cp ./.pio/build/nodemcuv2/firmware.bin release/littleyoda-DCC-Decoder.nodemcuv2.bin
 - cp ./.pio/build/esp8285/firmware.bin release/littleyoda-DCC-Decoder.esp8285.bin
 - cp ./.pio/build/d1_mini/firmware.bin release/littleyoda-DCC-Decoder.d1_mini.bin
+- cp ./.pio/build/d1_mini_pro/firmware.bin release/littleyoda-DCC-Decoder.d1_mini_pro.bin
 - cp ./.pio/build/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
 - cp ./.pio/build/esp32dev/firmware.bin release/littleyoda-DCC-Decoder.esp32dev.bin
 - cp ./.pio/build/esp32full/firmware.bin release/littleyoda-DCC-Decoder.esp32full.bin
