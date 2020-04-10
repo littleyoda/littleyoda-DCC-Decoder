@@ -14,6 +14,11 @@
 
 DoubleBootDetection::DoubleBootDetection(Controller* c) {
 	controll = c;
+
+	// Test if DoubleBootDection is disabled by file
+	if (SPIFFS.exists(blockfilename)) {
+		status = -1;
+	}
 }
 
 DoubleBootDetection::~DoubleBootDetection() {
@@ -21,9 +26,6 @@ DoubleBootDetection::~DoubleBootDetection() {
 
 
 int DoubleBootDetection::loop() {
-	if (SPIFFS.exists(blockfilename)) {
-		return 10000;
-	}
 	if (status == 0) {
 		boolean e = SPIFFS.exists(filename);
 		Logger::log(LogLevel::TRACE, "DoubleBootDetection: " + String(e));
