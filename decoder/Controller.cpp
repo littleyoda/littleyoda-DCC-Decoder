@@ -51,15 +51,18 @@ void Controller::doLoops() {
 		nextRun.add(0);
 	}
 	// Run and save the new execute time
-	unsigned long now = millis();
+	unsigned long loopstarted = millis();
 	for (idx = 0; idx < loops.size(); idx++) {
-		if (nextRun.get(idx)  <= now) {
-			int wait = loops.get(idx)->loop();
-			nextRun.set(idx, millis() + wait);
+		if (nextRun.get(idx)  <= loopstarted) {
+//			unsigned long started = millis();
+			ILoop* loop = loops.get(idx);
+			int wait = loop ->loop();
+//			unsigned long stopped = millis();
+			nextRun.set(idx, loopstarted + wait);
 		}
 		delay(0);
 	}
-	logLoop(millis() - now);
+	logLoop(millis() - loopstarted);
 
 	if (dnsServer) {
 		dnsServer->processNextRequest();
@@ -364,25 +367,10 @@ void Controller::sendContent(String s) {
 }
 
 void Controller::logLoop(unsigned long now) {
-//	if (now > 99) {
-//		now = 99;
-//	}
-//	l[now]++;
-//	if (next <= millis()) {
-//		Serial.print(" 0: ");
-//		for (int i = 0; i < 99; i++) {
-//			Serial.printf(" %7d", l[i]);
-//			if (i % 10 == 9) {
-//				Serial.printf("\r\n%2d: ", (i + 1));
-//			}
-//		}
-//		Serial.println();
-//		next = millis() + 5000;
-//	}
-//	if (now > longestLoop) {
-//		longestLoop = now;
-//		Serial.println("Gesamt " + String(longestLoop));
-//	}
+	if (now > 99) {
+		now = 99;
+	}
+	l[now]++;
 }
 
 String Controller::getInternalStatus(String modul, String key) {
@@ -444,6 +432,13 @@ void Controller::internalStatusObjStatus(IInternalStatusCallback* cb, String mod
 				if (key.equals("*") || String(it->first).equals(key)) {
 		 			cb->send("turnout", String(it->first), String(it->second->direction));
 				}
+		}
+	}
+	if (modul.equals("timing") || modul.equals("*")) {
+		for (int idx = 0; idx < 100; idx++) {
+			if (l[idx] > 0) {
+		 		cb->send("timing", String(idx) , String(l[idx]));
+			}
 		}
 	}
 }

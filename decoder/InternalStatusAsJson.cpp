@@ -20,7 +20,7 @@ void InternalStatusAsJson::reset() {
 		delete(doc);
 	}
 	doc = new DynamicJsonDocument(2048);
-	(*doc)["Hallo"] = "Hallo";
+	(*doc)["version"] = "1";
 }
 
 void InternalStatusAsJson::send(String modul, String key, String value) {

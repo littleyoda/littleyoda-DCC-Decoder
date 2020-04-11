@@ -120,8 +120,8 @@ private:
 	void logLoop(unsigned long d);
 	InternalStatusAsString statusAsString;
 	InternalStatusAsJson statusAsJson;
-//	unsigned int l[100];
-//	unsigned long next;
+	unsigned int l[100];
+	unsigned long next;
 };
 
 #endif /* CONTROLLER_H_ */
