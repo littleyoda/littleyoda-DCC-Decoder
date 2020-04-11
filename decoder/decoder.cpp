@@ -29,6 +29,7 @@ Controller* controller;
 
 void initWifi() {
 	Serial.println("Starting Wifi...");
+	WiFi.setAutoConnect(false);
 	WiFi.persistent(false);
 	#ifdef ESP8266
 		WiFi.hostname(controller->getHostname());

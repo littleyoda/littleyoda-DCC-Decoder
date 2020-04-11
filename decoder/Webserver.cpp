@@ -164,6 +164,9 @@ void Webserver::handleFormat() {
 }
 
 void Webserver::handleDoFormat() {
+	#ifdef ESP8266
+	ESP.eraseConfig();
+	#endif
 	bool b = SPIFFS.format();
 	String output = "" + Utils::getHTMLHeader();
 	output += "Fertig, Status: " + String(b);
