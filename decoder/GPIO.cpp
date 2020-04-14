@@ -10,6 +10,7 @@
 #include "PortsESP32.h"
 #include "PortsMCP23017.h"
 #include "PortsPCA9685.h"
+#include "PortsArduino.h"
 
 GPIOClass::GPIOClass() {
 	ports = new LinkedList<Ports*>();
@@ -169,7 +170,10 @@ void GPIOClass::addPCA9685(uint8_t addr) {
 	Ports* p = new PortsPCA9685(addr, pinInfos, ports->size());
 	ports->add(p);
 }
-
+void GPIOClass::addArduinoExtender(uint8_t addr, String variant){
+  Ports* p = new PortsArduino(addr, pinInfos, ports->size(), variant);
+  ports->add(p);
+}
 
 GPIOClass GPIOobj;
 

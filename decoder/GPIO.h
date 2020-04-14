@@ -51,6 +51,7 @@ public:
 	void analogWriteFreq(uint32_t freq);
 	void addMCP23017(uint8_t addr);
 	void addPCA9685(uint8_t addr);
+  void addArduinoExtender(uint8_t addr, String variant);
 	// void add(String s, int pinNumber);
 	// void add(String s, int pinNumber, unsigned long supportedFunctions);
 	void cache(bool b);
