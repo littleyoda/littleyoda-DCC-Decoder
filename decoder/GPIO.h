@@ -43,6 +43,10 @@ public:
 	void digitalWrite(uint16_t pin, uint8_t val);
 	void digitalWrite(Pin* pin, uint8_t val);
 
+  void servoWrite(uint16_t pin, uint8_t val);
+  void servoWrite(Pin* pin, uint8_t val);
+ 
+
 	int digitalRead(uint16_t pin);
 	int digitalRead(Pin* pin);
 
@@ -51,6 +55,7 @@ public:
 	void analogWriteFreq(uint32_t freq);
 	void addMCP23017(uint8_t addr);
 	void addPCA9685(uint8_t addr);
+  void addArduinoExtender(uint8_t addr, String variant);
 	// void add(String s, int pinNumber);
 	// void add(String s, int pinNumber, unsigned long supportedFunctions);
 	void cache(bool b);

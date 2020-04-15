@@ -10,6 +10,7 @@
 #ifdef ESP32
 #include <Arduino.h>
 #include "Ports.h"
+#include "ESP32_Servo.h"
 
 class PortsESP32 : public Ports{
 public:
@@ -19,8 +20,11 @@ public:
 	virtual int digitalRead(uint16_t pin);
 	virtual void digitalWrite(uint16_t pin, uint8_t val);
 	virtual void analogWrite(uint16_t pin, int val);
+  virtual void servoWrite(uint16_t pin, uint8_t val);
 private:
 	void addESP32Pin(int x);
+  LinkedList<Servo*> servoList;
+  bool initServo(uint8_t pin);
 };
 
 #endif

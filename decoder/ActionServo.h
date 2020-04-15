@@ -8,10 +8,6 @@
 #ifndef ACTIONSERVO_H_
 #define ACTIONSERVO_H_
 
-#ifdef ESP8266
-
-#include <Servo.h>
-
 #include "INotify.h"
 #include "ISettings.h"
 
@@ -27,13 +23,6 @@ public:
 private:
 	int pin;
 	int id;
-	unsigned long lastcommand = 0;
-	Servo myservo;
-	bool isAttach = false;
-	void attach();
-	void detach();
-
 };
 
-#endif
 #endif /* ACTIONSERVO_H_ */

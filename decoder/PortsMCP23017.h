@@ -19,6 +19,7 @@ public:
 	virtual int digitalRead(uint16_t pin);
 	virtual void digitalWrite(uint16_t pin, uint8_t val);
 	virtual void analogWrite(uint16_t pin, int val);
+  virtual void servoWrite(uint16_t pin, uint8_t val);
 	virtual void cache(bool c);
 
 private:

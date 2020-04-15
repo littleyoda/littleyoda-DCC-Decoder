@@ -68,4 +68,33 @@ void PortsESP8266::analogWrite(uint16_t pin, int val) {
 	::analogWrite(pin, val);
 }
 
+bool PortsESP8266::initServo(uint8_t pin){
+  if (!servoList.get(pin)){
+    Servo* srv = new Servo();
+    servoList.add(pin, srv);
+  }
+  return true;
+}
+
+void PortsESP8266::servoWrite(uint16_t pin, uint8_t val) {
+  
+  Servo* s = servoList.get(pin);
+  if (!s){
+    bool worked = initServo(pin);
+    if (!worked){
+      return;
+    }
+    else
+    {
+      s = servoList.get(pin);
+      if (!s){
+        return;
+      }
+    }
+  }
+  s->attach(pin);
+  delay(15);
+  s->write(val);
+  delay(15);
+}
 #endif

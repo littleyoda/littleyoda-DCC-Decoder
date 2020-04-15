@@ -10,6 +10,7 @@
 #include "Logger.h"
 
 #ifdef ESP32
+#include "ESP32_Servo.h"
 
 PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinOffset) {
 	add("DISABLE", Consts::DISABLE, Consts::DISABLE, 0);
@@ -56,7 +57,35 @@ void PortsESP32::digitalWrite(uint16_t pin, uint8_t val) {
 void PortsESP32::analogWrite(uint16_t pin, int val) {
 	Serial.println("Analogwrite not supported");
 }
+bool PortsESP32::initServo(uint8_t pin){
+  if (!servoList.get(pin)){
+    Servo* srv = new Servo();
+    servoList.add(pin, srv);
+  }
+  return true;
+}
 
+void PortsESP32::servoWrite(uint16_t pin, uint8_t val) {
+  
+  Servo* s = servoList.get(pin);
+  if (!s){
+    bool worked = initServo(pin);
+    if (!worked){
+      return;
+    }
+    else
+    {
+      s = servoList.get(pin);
+      if (!s){
+        return;
+      }
+    }
+  }
+  s->attach(pin);
+  delay(15);
+  s->write(val);
+  delay(15);
+}
 
 void PortsESP32::addESP32Pin(int x)
 {

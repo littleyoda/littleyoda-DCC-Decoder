@@ -452,15 +452,20 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			String d = parser->getValueByKey(idx, "d");
 			bool isPca9685 = d.equalsIgnoreCase("pca9685");
 			bool isMcp23017 = d.equalsIgnoreCase("mcp23017");
-			if (isPca9685 || isMcp23017) {
+      bool isArduinoExtender = d.equalsIgnoreCase("arduinoextender");
+      String variant = "";
+      if (isArduinoExtender) {
+         variant = parser->getValueByKey(idx, "variant");
+      }
+      
+			if (isPca9685 || isMcp23017 || isArduinoExtender) {
 				int addridx = parser->getIdxByKey(idx, "addr");
 				addridx = parser->getFirstChild(addridx);
 				if (!parser->isArray(addridx)) {
-					Logger::log(LogLevel::ERROR, "Format für MCP23017/PC9685 Adressen falsch!");
+					Logger::log(LogLevel::ERROR, "Format für MCP23017/PC9685/ArduinoExtender Adressen falsch!");
 					idx = parser->getNextSiblings(idx);
 					continue;
-
-				}
+				} 
 				int child = parser->getFirstChild(addridx);
 				while (child != -1) {
 					int addr = parser->getString(child).toInt();
@@ -472,23 +477,30 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 					} else if (isPca9685) {
 						i2caddr = addr + 0x40; // Base + Offset
 					}
+      
 					Wire.beginTransmission(i2caddr);
 					int ret = Wire.endTransmission();
 					String tret = "Failed (" + String(ret) + ")";
 					if (ret == 0) {
 						tret = "OK";
 					}
-					Logger::getInstance()->addToLog(LogLevel::INFO, "Test MCP23017/PC9685 auf I2c/" + String(i2caddr) + ": " + tret);
+					Logger::getInstance()->addToLog(LogLevel::INFO, "Test MCP23017/PC9685/ArduinoExtender auf I2c/" + String(i2caddr) + ": " + tret);
 					if (ret == 0) {
 						if (isMcp23017) {
 							GPIOobj.addMCP23017(addr);
-						} else {
+						} else if (isArduinoExtender) {
+              GPIOobj.addArduinoExtender(i2caddr, variant);
+						} else
+						{
 							GPIOobj.addPCA9685(i2caddr);
 						}
 					}
 					child = parser->getNextSiblings(child);
 				}
-			} else {
+			} 
+      
+      
+			else {
 				Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekanntes Gerät (I2C): " + String(d));
 			}
 		// } else if (m.equals("lycontroller")) {
