@@ -137,6 +137,26 @@ void GPIOClass::digitalWrite(uint16_t pin, uint8_t val) {
 	pi->pinController->digitalWrite(pin, val);
 }
 
+void GPIOClass::servoWrite(Pin *pin, uint8_t val) {
+  
+  digitalWrite(pin->getPin(), val);
+}
+
+void GPIOClass::servoWrite(uint16_t pin, uint8_t val) {
+  if (pin == Consts::DISABLE) {
+    Logger::getInstance()->addToLog(LogLevel::ERROR,
+                    "Accessing Disabled Pin (pinMode): " + String(pin));
+    return;
+  }
+  pinInfo* pi = getPinInfoByGPin(pin);
+  if (pi == nullptr) {
+    Logger::getInstance()->addToLog(LogLevel::ERROR,
+                    "Unbekannter Pin (pinMode): " + String(pin));
+    return;
+  }
+  pi->pinController->servoWrite(pin, val);
+}
+
 void GPIOClass::analogWrite(uint16_t pin, int val) {
 	if (pin == Consts::DISABLE) {
 		Logger::getInstance()->addToLog(LogLevel::ERROR,

@@ -83,6 +83,11 @@ void PortsArduino::analogWrite(uint16_t pin, int val) {
   extender->analogWrite(pin, val);
 }
 
+void PortsArduino::servoWrite(uint16_t pin, uint8_t val) {
+  pin = pin-(offset * 100);
+  extender->servoWrite(pin, val);
+}
+
 void PortsArduino::cache(bool c) {
 
 }

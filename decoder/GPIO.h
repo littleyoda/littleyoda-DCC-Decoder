@@ -43,6 +43,10 @@ public:
 	void digitalWrite(uint16_t pin, uint8_t val);
 	void digitalWrite(Pin* pin, uint8_t val);
 
+  void servoWrite(uint16_t pin, uint8_t val);
+  void servoWrite(Pin* pin, uint8_t val);
+ 
+
 	int digitalRead(uint16_t pin);
 	int digitalRead(Pin* pin);
 

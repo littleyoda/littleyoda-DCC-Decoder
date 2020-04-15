@@ -54,6 +54,9 @@ void PortsMCP23017::analogWrite(uint16_t pin, int val) {
 
 }
 
+void PortsMCP23017::servoWrite(uint16_t pin, uint8_t val) {
+  }
+
 void PortsMCP23017::cache(bool c) {
 	Ports::cache(c);
 	if (c) {

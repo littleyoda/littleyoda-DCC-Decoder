@@ -9,7 +9,7 @@
 #include "Logger.h"
 #include "GPIO.h"
 
-#ifdef ESP8266
+//ifdef ESP8266
 
 ActionServo::ActionServo(int pin) {
 	Logger::getInstance()->addToLog(LogLevel::INFO, 
@@ -25,15 +25,7 @@ ActionServo::~ActionServo() {
 }
 
 int ActionServo::loop() {
-	if (lastcommand == 0) {
-		return 2000;
-	}
-	// Autodetach after 2 sec
-	if (millis() > lastcommand + 2000) {
-		lastcommand = 0;
-		detach();
-		return 2000;
-	}
+	
 	return 20;
 }
 
@@ -69,29 +61,10 @@ void ActionServo::setSettings(String key, String value) {
 			"Servo Value: " + value);
 	int status = value.toInt();
 	if (status == -1) {
-		detach();
+		return;
 	} else {
-		myservo.write(status);
-		attach();
-		lastcommand = millis();
-	}
+		GPIOobj.servoWrite(pin, status);	
+  } 
 }
 
-
-void ActionServo::attach() {
-	if (isAttach) {
-		return;
-	}
-	myservo.attach(pin);
-	isAttach = true;
-}
-
-void ActionServo::detach() {
-	if (!isAttach) {
-		return;
-	}
-	myservo.detach();
-	isAttach = false;
-}
-
-#endif
+//endif
