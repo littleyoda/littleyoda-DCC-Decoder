@@ -10,6 +10,7 @@ install:
 - platformio update
 script:
 - sed -i "s/env_default = .*//g"  platformio.ini 
+- sed -i "s/{NONGITVERSION}/`git describe --tags`/g" decoder/Consts.h 
 - platformio run
 
 before_deploy:
