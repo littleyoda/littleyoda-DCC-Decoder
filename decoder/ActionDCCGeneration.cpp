@@ -95,7 +95,7 @@ void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSt
 				GPIOobj.digitalWrite(enableGpio, 1); // Enable Track
 			}
 		} else {
-			trackenabled = true; // Always tre
+			trackenabled = true; // Always true
 		}
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
@@ -347,6 +347,9 @@ void ActionDCCGeneration::getInternalStatus(IInternalStatusCallback* cb, String 
 	}
 	if (key.equals("*") || key.equals("dccout")) {
 		cb->send(getName(), "dccout", String(DCC_ADRESSE));
+	}
+	if (key.equals("*") || key.equals("trackenabled")) {
+		cb->send(getName(), "trackenabled", String(trackenabled));
 	}
 }
 

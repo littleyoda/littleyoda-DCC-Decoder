@@ -16,7 +16,7 @@ const char compile_date[] = "Compiledate: "
 							" "
 							__TIME__
 							" {NONGITVERSION}";
-
+const char gitversion[] = "{NONGITVERSION}";
 
 class Consts {
 public:

@@ -303,8 +303,12 @@ int Webserver::loop() {
 		if (WiFi.status() == WL_CONNECTED) {
 			MDNS.begin(controll->getHostname().c_str());
 			MDNS.addService("http", "tcp", 80);
+            MDNS.addServiceTxt("http", "tcp", "Version", gitversion);
 		}
 	}
+	#ifdef ESP8266
+	MDNS.update();
+	#endif
 	return 2;
 }
 
