@@ -15,6 +15,7 @@ public:
 	InternalStatusWifiSys();
 	virtual ~InternalStatusWifiSys();
 	static void getInternalStatus(IInternalStatusCallback* cb, String modul, String key);
+	static void handleRequest(String key, String value);
 };
 
 #endif /* INTERNALSTATUSWIFISYS_H_ */

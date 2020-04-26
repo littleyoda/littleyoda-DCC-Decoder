@@ -84,6 +84,9 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("compile_date") || key.equals("*")) {
 			cb->send("sys", "compile_date", compile_date);
 		}
+		if (key.equals("gitversion") || key.equals("*")) {
+			cb->send("sys", "gitversion", gitversion);
+		}
 		// if (key.equals("lwip") || key.equals("*")) {
 		// 	cb->send("sys", "lwip", String(LWIP_VERSION_MAJOR) + "." + String(LWIP_VERSION_MINOR) + "." + String(LWIP_VERSION_REVISION) + "." + String(LWIP_VERSION_RC));
 		// }
@@ -126,4 +129,12 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		}
 	}
 
+}
+
+void InternalStatusWifiSys::handleRequest(String key, String value) {
+	if (key == "log" && value == "bcast") {
+		IPAddress* addr = new IPAddress(192,168,2,255);
+		Logger::getInstance()->setIPAddress(addr);
+		Logger::getInstance()->resendAll();
+	}
 }

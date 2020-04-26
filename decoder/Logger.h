@@ -35,6 +35,7 @@ public:
 	unsigned int getMemUsage();
 	virtual int loop();
 	void setIPAddress(IPAddress* ip);
+	void resendAll();
 	String format(const char * format, ...);
 
 private:

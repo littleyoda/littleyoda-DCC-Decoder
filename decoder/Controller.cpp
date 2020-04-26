@@ -62,6 +62,10 @@ void Controller::doLoops() {
 		}
 		delay(0);
 	}
+	if (next < loopstarted) {
+//		Logger::getInstance()->addToLog(LogLevel::INFO, "Running");
+		next = loopstarted + 1000;
+	}
 	logLoop(millis() - loopstarted);
 
 	if (dnsServer) {
@@ -134,6 +138,11 @@ void Controller::getHTMLCfg() {
 }
 
 void Controller::setRequest(String id, String key, String value) {
+	if (id == "sys") {
+		Serial.println("Active");
+		InternalStatusWifiSys::handleRequest(key, value);
+		return;
+	}
 	int idx = id.toInt();
 	if (idx >= settings.size()) {
 		return;

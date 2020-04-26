@@ -143,11 +143,11 @@ boolean Logger::sendUDP() {
 		return true;
 	}
 	logdata* log = logger.get(last);
-	udp->beginPacket(*logserver, 514);
+	udp->beginPacket(*logserver, 5514);
 	#ifdef ESP8266
-		udp->write(log->msg.c_str(), log->msg.length());
+		size_t ret = udp->write(log->msg.c_str(), log->msg.length());
 	#elif ESP32
-		udp->write((const uint8_t *)log->msg.c_str(), log->msg.length());
+		size_t ret = udp->write((const uint8_t *)log->msg.c_str(), log->msg.length());
 	#else
 		#error "This Arch is not supported"
 	#endif
@@ -161,7 +161,12 @@ LinkedList<Logger::logdata*>* Logger::getLogs() {
 	return &logger;
 }
 
-
+void Logger::resendAll() {
+	for (int idx = logger.size() - 1; idx >= 0; idx--) {
+		logdata* l = logger.get(idx);
+		l->send = false;
+	}
+}
 
 unsigned int Logger::getMemUsage() {
 	unsigned int usage = 0;
