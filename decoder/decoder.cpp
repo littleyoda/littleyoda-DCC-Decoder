@@ -10,6 +10,8 @@
 
 #include "Config.h"
 
+#include "Transfer.h"
+
 Controller* controller;
 
 #include "ActionLed.h"
@@ -25,6 +27,8 @@ Controller* controller;
 #ifdef ESP32
 	#include "SPIFFS.h"
 #endif
+
+Transfer* transfer;
 
 
 void initWifi() {
@@ -85,10 +89,17 @@ void loadCFG(Webserver* web) {
 bool scanRunning = false;
 const char* debugmodus="debug";
 int debugmodusPos = 0;
+bool transfermode = false;
+
 void handleSerial() {
 	if (Serial.available() > 0) {
 		int chr = Serial.read();
-		if (debugmodusPos < 5) {
+		if (transfermode) {
+			if (!(transfer->key(chr))) {
+				transfermode = false;
+				Serial.println("TRANSFER END");
+			}
+		} else if (debugmodusPos < 5) {
 			if (debugmodus[debugmodusPos] == (char) chr) {
 				debugmodusPos++;
 				if (debugmodusPos == 5) {
@@ -183,7 +194,9 @@ void handleSerial() {
 			} else {
 				Serial.println("file open failed");
 			}
-
+		} else if (chr == '_') {
+			transfermode = true;
+			Serial.println("TRANSFER ACTIVE");
 		} else if (chr == 'x') {
 			Serial.println("Debugmodus deaktiviert");
 			debugmodusPos = 0;
@@ -258,6 +271,9 @@ void handleSerial() {
 
 		} else if (chr == 'j') {
 			controller->printInternalStatusAsJon();
+		} else if (chr == 'x') {
+			// Disable Debug Modus
+			debugmodusPos = 0;
 		} else {
 			Serial.println("Key: " + String(chr));
 
@@ -333,6 +349,7 @@ void setup() {
 	Logger::getInstance()->addToLog(LogLevel::INFO, compile_date);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Controller");
 	controller = new Controller();
+	transfer = new Transfer(controller);
 	controller->registerLoop(new DoubleBootDetection(controller));
 	GPIOobj.setController(controller);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Wifi");
@@ -347,7 +364,6 @@ void setup() {
 	Serial.println(GPIOobj.getUsage("\r\n"));
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Setup finish!");
 	controller->longestLoop = 0;
-
 }
 
 void loop() {

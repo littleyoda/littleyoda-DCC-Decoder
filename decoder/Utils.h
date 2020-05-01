@@ -70,7 +70,11 @@ public:
 
 	static int getExtWifiStatus() {
 		int status = WiFi.status();
-		status = status | (wifi_get_opmode() << 4);
+                #ifdef ESP8266
+			status = status | (wifi_get_opmode() << 4);
+                #else
+			status = status | (WiFi.getMode() << 4);
+                #endif
 		return status;
 	}
 
