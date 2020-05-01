@@ -68,6 +68,12 @@ public:
 		return r;
 	}
 
+	static int getExtWifiStatus() {
+		int status = WiFi.status();
+		status = status | (wifi_get_opmode() << 4);
+		return status;
+	}
+
 	static String wifi2String(int status) {
 		switch (status) {
 		case WL_IDLE_STATUS:
@@ -142,6 +148,20 @@ public:
 
         }
 
+	static String getSubstring(String string, char separator, int index) {
+	    int found = 0;
+	    int range[] = { 0, -1 };
+	    int maxIndex = string.length() - 1;
+
+    	for (int i = 0; i <= maxIndex && found <= index; i++) {
+        	if (string.charAt(i) == separator || i == maxIndex) {
+            	found++;
+            	range[0] = range[1] + 1;
+            	range[1] = (i == maxIndex) ? i+1 : i;
+        	}
+    	}
+    	return found > index ? string.substring(range[0], range[1]) : "";
+	}
 };
 
 #endif /* UTILS_H_ */
