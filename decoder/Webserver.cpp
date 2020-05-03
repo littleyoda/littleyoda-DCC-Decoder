@@ -305,8 +305,8 @@ int Webserver::loop() {
 			Serial.println("MDNS start: " + String(mdns));
 			MDNS.addService("http", "tcp", 80);
 			MDNS.addServiceTxt("http", "tcp", "Version", gitversion);
-			MDNS.addServiceTxt("http", "tcp", "Source", "github");
-			MDNS.addServiceTxt("http", "tcp", "SourceUrl", "littleyoda/littleyoda-DCC-Decoder");
+			MDNS.addServiceTxt("http", "tcp", "Source", "github:littleyoda/littleyoda-DCC-Decoder");
+			MDNS.addServiceTxt("http", "tcp", "FlashModus", "Arduino_Esp8266_2.6");
 			
 		}
 	}
