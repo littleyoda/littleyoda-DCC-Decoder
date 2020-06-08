@@ -65,7 +65,7 @@ private:
 	uint8_t SPEED_STATE = 0;
 
 	Pin* enableGpio;
-	requestInfo* r;
+//	requestInfo* r;
 
 	uint8_t cv_sendCounter = 0;
 	uint8_t cv_value;
