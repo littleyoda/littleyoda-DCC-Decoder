@@ -274,7 +274,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
       
       		Serial.println("Processing sensor block");
 			int addr = parser->getValueByKey(idx, "addr").toInt();
-      		int gpioarray = parser->getIdxByKey(idx, "gpio");
+//      		int gpioarray = parser->getIdxByKey(idx, "gpio");
       		int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
 
 		    LinkedList<int> *list = new LinkedList<int>();
@@ -508,9 +508,17 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		// 	controller->registerNotify(a);
 		// 	controller->registerLoop(a);
 		} else if (m.equals("display")) {
+      		int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
+		    LinkedList<int> *list = new LinkedList<int>();
+      		while (element!=-1) {
+        		list->add(GPIOobj.string2gpio(parser->getString(element)));
+        		element = parser->getNextSiblings(element);
+      		}
+
 			Display* d = new Display(controller, 
 									parser->getValueByKey(idx, "text", "No Text"),
-									parser->getValueByKey(idx, "model", "")
+									parser->getValueByKey(idx, "model", ""),
+									list
 									);
 		 	controller->registerLoop(d);
 

@@ -12,28 +12,22 @@
     #include <WiFi.h>
 #endif
 #include "Utils.h"
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 #include "GPIO.h"
+#include "DisplaySSD1306.h"
+#include "DisplayHD44780.h"
  
-Display::Display(Controller* c, String text, String model) {
+Display::Display(Controller* c, String text, String model, LinkedList<int>* list) {
 	controller = c;
 	display = nullptr;
-	Serial.println(model);
 	if (model.equalsIgnoreCase("Wemos OLED Shield")) {
-
 		Serial.println("Init");
-//		pinMode(0, OUTPUT);
-		display = new Adafruit_SSD1306(-1);
-		display->begin(SSD1306_SWITCHCAPVCC, 0x3C);
-	    display->display();
-		pattern = text;
-		Serial.println(pattern);
-		pattern = "###" + pattern;
+		display = new DisplaySSD1306();
+	} else if (model.equalsIgnoreCase("HD44780")) {
+		display = new DisplayHD44780(list);
 	} else {
 		Logger::log(LogLevel::ERROR, "Model " + model + " wurde nicht gefunden!");
 	}
+	pattern = text;
 }
 
 	
@@ -47,17 +41,14 @@ int Display::loop() {
 	if (display == nullptr) {
 		return 10000;
 	}
-	display->clearDisplay();
-  	display->setTextSize(1);
-  	display->setTextColor(WHITE);
-	display->setCursor(0,0);
+	display->clear();
 	fill(pattern);
-	display->display();		  
+	display->show();		  
 	count++;
 	if (count >= maxcount) {
 		count = 1;
 	}
-	return 2000;
+	return 500;
 }
 
 String Display::fill(String s) {
@@ -104,25 +95,22 @@ String Display::fill(String s) {
 		}
 	}
 	show(out);
-	Serial.println("=====================");
 	return out;
 }
 
 void Display::show(String s) {
-	if (s.length() <= width) {
+	if (s.length() <= display->columns()) {
 		display->println(s);
-		Serial.println(s);
 	} else {
 		// Scrolle durch den Text
 		if (s.length() > maxcount) {
 			maxcount = s.length();
 		}
 		s = ">" + s + "<";
-		int toolong = (s.length() - width) + 1;
+		int toolong = (s.length() - display->columns()) + 1;
 		int idx = count % toolong;
 		String out;
-		out = s.substring(idx, width + idx);
+		out = s.substring(idx, display->columns() + idx);
 		display->println(out);
-		Serial.println(out);
 	}
 }

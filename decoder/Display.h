@@ -11,27 +11,23 @@
 #include "ILoop.h"
 	
 #include <SPI.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 #include "Controller.h"
+#include "DisplayBase.h"
 
 class Display : public ILoop {
 public:
-	Display(Controller* c, String text, String model);
+	Display(Controller* c, String text, String model, LinkedList<int>* list);
 	virtual ~Display();
 	int loop();
 private:
-	Adafruit_SSD1306* display;
 	Controller* controller;
 	int count = 0;
 	void show(String);
 	String fill(String);
-	unsigned int width = 10;
 	unsigned int maxcount = 10;
 	String pattern;
 	String model;
-
+	DisplayBase* display;
 
 };
 
