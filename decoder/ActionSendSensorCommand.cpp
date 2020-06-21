@@ -69,16 +69,7 @@ void ActionSendSensorCommand::SensorCmd(int toId, int direction, int source) {
 }
 
 void ActionSendSensorCommand::setSettings(SensorState status) {
-  // TODO Move to Controller
-  LinkedList<CmdSenderBase*>* list = controller->getSender();
-  for (int i = 0; i < list->size(); i++) {
-    CmdSenderBase* b = list->get(i);
-    if (b == NULL) {
-      Logger::log(LogLevel::ERROR, "ActionSendSensorCommand: Sender is null");
-      continue;
-    }
-    b->sendSetSensor(status.address, status.value);
-  }
+  controller->sendSetSensor(status.address, status.value);
 }
 
 /**

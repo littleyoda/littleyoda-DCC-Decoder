@@ -98,6 +98,10 @@ public:
 
 	LinkedList<INotify::requestInfo*>* getRrequestList();
 
+	void sendSetTurnout(String id, String status);
+    void sendSetSensor(uint16_t id, uint8_t status);
+
+
 private:
 	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);
 	Items items;

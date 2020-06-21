@@ -459,3 +459,34 @@ Controller::Items* Controller::getLocData() {
 LinkedList<INotify::requestInfo*>* Controller::getRrequestList() {
 	return &requestList;
 }
+
+/**
+ * Informiert andere(!) Geräte  über eine durch dieses Gerät gewünschte Änderung an einer Weiche
+ */
+void Controller::sendSetTurnout(String id, String status) {
+	LinkedList<CmdSenderBase*>* list = getSender();
+    for (int i = 0; i < list->size(); i++) {
+    	CmdSenderBase* b = list->get(i);
+    	if (b == NULL) {
+			Logger::log(LogLevel::ERROR, "ActionSendTurnoutCommand: Sender is null");
+    		continue;
+    	}
+    	b->sendSetTurnout(String(id), status);
+    }
+
+}
+
+/**
+ * Informiert andere(!) Geräte  über eine durch dieses Gerät gewünschte Änderung an einem Sensor
+ */
+void Controller::sendSetSensor(uint16_t id, uint8_t status) {
+  LinkedList<CmdSenderBase*>* list = getSender();
+  for (int i = 0; i < list->size(); i++) {
+    CmdSenderBase* b = list->get(i);
+    if (b == NULL) {
+      Logger::log(LogLevel::ERROR, "ActionSendSensorCommand: Sender is null");
+      continue;
+    }
+    b->sendSetSensor(id, status);
+  }
+}

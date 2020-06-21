@@ -48,15 +48,6 @@ void ActionSendTurnoutCommand::setSettings(int status) {
 		richtung = 1;
 	}
 	String s = String(richtung);
-	// TODO Move to Controller
-	LinkedList<CmdSenderBase*>* list = controller->getSender();
-    for (int i = 0; i < list->size(); i++) {
-    	CmdSenderBase* b = list->get(i);
-    	if (b == NULL) {
-			Logger::log(LogLevel::ERROR, "ActionSendTurnoutCommand: Sender is null");
-    		continue;
-    	}
-    	b->sendSetTurnout(String(id), s);
-    }
+	controller->sendSetTurnout(String(id), s);
 }
 
