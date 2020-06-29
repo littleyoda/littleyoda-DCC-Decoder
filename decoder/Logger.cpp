@@ -11,8 +11,8 @@
 
 Logger::Logger() {
 	startmemory = ESP.getFreeHeap();
-	udp = NULL;
-	logserver = NULL;
+	udp = nullptr;
+	logserver = nullptr;
 	#ifdef ESP8266
 	Debug.begin("xxx"); // Initialize the WiFi server
 	Debug.setResetCmdEnabled(true); // Enable the reset command
@@ -23,7 +23,7 @@ Logger::Logger() {
 }
 
 Logger* Logger::getInstance() {
-	if (theInstance == NULL) {
+	if (theInstance == nullptr) {
 		theInstance = new Logger();
 	}
 	return theInstance;
@@ -135,7 +135,7 @@ boolean Logger::sendRD() {
 }
 
 boolean Logger::sendUDP() {
-	if (udp == NULL) {
+	if (udp == nullptr) {
 		return true;
 	}
 	int last = findLastUnsend();
@@ -182,7 +182,7 @@ void Logger::setIPAddress(IPAddress* ip) {
 	udp->begin(514);
 }
 
-Logger* Logger::theInstance = NULL;
+Logger* Logger::theInstance = nullptr;
 
 void Logger::log(LogLevel loglevel, String s) {
 	getInstance()->addToLog(loglevel, s);

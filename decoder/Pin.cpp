@@ -29,9 +29,6 @@ Pin::Pin(String pindef) {
 
 }
 
-Pin::~Pin() {
-}
-
 String Pin::toString() {
 	String s = "";
 	if (invert) {

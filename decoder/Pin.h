@@ -14,7 +14,7 @@ class Pin {
 public:
 	Pin(const char* pindefinition);
 	Pin(String pindefinition);
-	virtual ~Pin();
+	virtual ~Pin() = default;
 	String toString();
 
 	uint16_t getPin() const;
