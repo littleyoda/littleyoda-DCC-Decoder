@@ -40,6 +40,9 @@ public:
 	void pinMode(uint16_t pin, uint8_t mode, String usage);
 	void pinMode(Pin* pin, uint8_t mode, String usage);
 
+	void enableInterrupt(uint16_t pin);
+	void enableInterrupt(Pin* pin);
+
 	void digitalWrite(uint16_t pin, uint8_t val);
 	void digitalWrite(Pin* pin, uint8_t val);
 
@@ -55,7 +58,7 @@ public:
 	void analogWriteFreq(uint32_t freq);
 	void addMCP23017(uint8_t addr);
 	void addPCA9685(uint8_t addr);
-  void addArduinoExtender(uint8_t addr, String variant);
+    void addArduinoExtender(uint8_t addr, String variant);
 	// void add(String s, int pinNumber);
 	// void add(String s, int pinNumber, unsigned long supportedFunctions);
 	void cache(bool b);
@@ -74,6 +77,9 @@ public:
 		SUPPORTS_DAC = 128,
 		PIN_STRAPPING_AT_STARTUP = 256,
 	};
+
+	void intCallback(uint16_t pin);
+	void intCallbackValue(uint16_t pin, int value);
 
 private:
 	LinkedList<Ports*>* ports;

@@ -5,6 +5,7 @@
  *      Author: sven
  */
 
+#include <FunctionalInterrupt.h>
 #include "GPIO.h"
 #include "PortsESP8266.h"
 #include "PortsESP32.h"
@@ -79,6 +80,33 @@ pinInfo* GPIOClass::getPinInfoByGPin(uint16_t gpin) {
 }
 int GPIOClass::string2gpio(String pin) {
 	return string2gpio(pin.c_str());
+}
+
+
+void GPIOClass::enableInterrupt(uint16_t pin) {
+	attachInterrupt(pin, std::bind(&GPIOClass::intCallbackValue,this, pin, 1), RISING );
+	attachInterrupt(pin, std::bind(&GPIOClass::intCallbackValue,this, pin, 0), FALLING );
+}
+
+void GPIOClass::enableInterrupt(Pin* pin) {
+	enableInterrupt(pin->getPin());
+}
+
+void GPIOClass::intCallbackValue(uint16_t pin, int value) {
+	int oldval = valueinputpins->getValue(pin);
+	if (value != oldval) {
+		controller->notifyGPIOChange(pin, value);
+		valueinputpins->put(pin, value);
+	}
+}
+
+void GPIOClass::intCallback(uint16_t pin) {
+	int oldval = valueinputpins->getValue(pin);
+	int val = digitalRead(pin);
+	if (val != oldval) {
+		controller->notifyGPIOChange(pin, val);
+		valueinputpins->put(pin, val);
+	}
 }
 
 void GPIOClass::pinMode(Pin *pin, uint8_t mode, String usage) {
