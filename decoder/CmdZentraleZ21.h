@@ -1,20 +1,31 @@
-/*
+/**
+ *  Simuliert eine Z21
  *      Author: sven
  */
 
 #ifndef CmdZentraleZ21_H_
 #define CmdZentraleZ21_H_
 
-#include "CmdReceiverBase.h"
-#include "CmdSenderBase.h"
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
+#include "CmdReceiverBase.h"
+#include "CmdSenderBase.h"
+#include "LinkedList.h"
+#include "LocData.h"
 
-class CmdZentraleZ21: public CmdReceiverBase {
+struct ClientsStruct {
+		IPAddress addr;
+		uint16_t port;
+} __attribute__ ((packed));
+
+class CmdZentraleZ21: public CmdReceiverBase, public CmdSenderBase {
 public:
 	CmdZentraleZ21(Controller* c);
 	virtual int loop();
 	virtual ~CmdZentraleZ21();
+	virtual void sendSetTurnout(String id, String status);
+	virtual void sendSetSensor(uint16_t id, uint8_t status);
+	virtual void sendDCCSpeed(int id, LocData* d);
 
 private:
 	void handleLocoMode();
@@ -39,6 +50,7 @@ private:
 	unsigned long timeout = 0;
 	void doReceive();
 	void resetTimeout();
+	void handleBroadcast();
 
 	void printPacketBuffer(int size);
 
@@ -47,6 +59,8 @@ private:
 
 	long int lastTime = 0;
 	static const int emergencyStopTimeout = 4200;
+	LinkedList<ClientsStruct*>* clients;
+
 };
 
 #endif /* CmdZentraleZ21_H_ */

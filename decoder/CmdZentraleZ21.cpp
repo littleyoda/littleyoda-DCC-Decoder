@@ -12,11 +12,13 @@
 #include "Consts.h"
 #include "Utils.h"
 
+
 CmdZentraleZ21::CmdZentraleZ21(Controller* c) :
 		CmdReceiverBase(c) {
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Zentrale ...");
 	udp = new WiFiUDP();
 	udp->begin(localPort);
+	clients = new LinkedList<ClientsStruct*>();
 }
 
 int CmdZentraleZ21::loop() {
@@ -289,7 +291,7 @@ void CmdZentraleZ21::doReceive() {
 
 	unsigned char SET_BROADCASTFLAGS[4] = {0x08, 0x00, 0x50, 0x00};
 	if (cb>= 4 && memcmp(SET_BROADCASTFLAGS, pb, 4) == 0) {
-		Serial.println("Brodcast-Request");
+		handleBroadcast();
 		return;
 	}
 
@@ -474,3 +476,82 @@ void CmdZentraleZ21::emergencyStop() {
 	controller->emergencyStop(Consts::SOURCE_Z21SERVER);
 }
 
+
+void CmdZentraleZ21::handleBroadcast() {
+	uint32 value = pb[7] << 24 | pb[6] << 16 | pb[5] << 8 | pb[4];
+	Serial.println("Broadcast ");
+	Serial.println(value, HEX);
+	if ((value & 0x1) > 0) {
+		bool found = false;
+		for (int idx = 0; idx < clients->size(); idx++) {
+			ClientsStruct* c = clients->get(idx);
+			if (c->addr == udp->remoteIP() && c->port == udp->remotePort()) {
+				found = true;
+				break;
+			}
+		}
+		if (found) {
+			Serial.println("Bereits aktiv");
+		} else {
+			Serial.println("Adding");
+			ClientsStruct* c = new ClientsStruct();
+			c->port = udp->remotePort();
+			c->addr = udp->remoteIP();
+			clients->add(c);
+		}
+	}
+}
+
+
+
+void CmdZentraleZ21::sendSetTurnout(String id, String status) {
+	// TODO
+}
+
+void CmdZentraleZ21::sendSetSensor(uint16_t id, uint8_t status) {
+	// TODO
+}
+
+void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
+	//TODO
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 14;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
+
+	pb[4] = 0xEF;
+	pb[5] = (addr >> 8) & 0x3F;
+	if (addr >= 128) {
+		pb[5] += 0b11000000;
+	}
+
+	pb[6] = addr & 255;
+
+	pb[7] = 4; // 128 Fahrstufen
+	unsigned int v = (data->speed & 127);
+	// Adjust to match NmraDCC Schema
+	if (v == Consts::SPEED_STOP) {
+		v = 0;
+	} else if (v == Consts::SPEED_EMERGENCY) {
+		v = 1;
+	}
+	pb[8] = v | ((data->direction == -1) ? 0 : 128);
+	pb[9] = ((data->status >> 1) & 15) | (data->status & 1) << 4;
+	pb[10] = (data->status >> 5) & 255;
+	pb[11] = (data->status >> 13) & 255;
+	pb[12] = (data->status >> 21) & 255;
+
+	pb[13] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8] ^ pb[9] ^ pb[10] ^ pb[11] ^ pb[12];
+	for (int idx = 0; idx < clients->size(); idx++) {
+			ClientsStruct* c = clients->get(idx);
+			Serial.println("Sending " + c->addr.toString());
+			Serial.println(String(addr) + " " + String(v));
+			udp->beginPacket(c->addr, c->port);
+			udp->write(pb, pb[0]);
+			int ret = udp->endPacket();
+			if (ret == 0) {
+				Serial.println("Failed");
+			}
+	}
+};

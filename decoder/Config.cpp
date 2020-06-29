@@ -367,6 +367,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		} else if (m.equals("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
 			controller->registerCmdReceiver(rec);
+			controller->registerCmdSender(rec);
 //			controller->registerNotify(rec);
 
 		// } else if (m.equals("espnow")) {
@@ -521,7 +522,6 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 									list
 									);
 		 	controller->registerLoop(d);
-
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);

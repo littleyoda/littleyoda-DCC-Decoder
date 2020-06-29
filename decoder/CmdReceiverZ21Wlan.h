@@ -24,7 +24,7 @@ public:
 	void requestLocoInfo(int addr);
 	void enableBroadcasts();
 	virtual void sendSetTurnout(String id, String status);
-  virtual void sendSetSensor(uint16_t id, uint8_t status);
+    virtual void sendSetSensor(uint16_t id, uint8_t status);
 private:
 	WiFiUDP* udp;
 	unsigned int localPort = 21105;

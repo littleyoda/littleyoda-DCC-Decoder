@@ -28,17 +28,7 @@
 #include "InternalStatusAsString.h"
 #include "InternalStatusAsJson.h"
 #include "Connectors.h"
-
-	struct LocData {
-		int16_t speed;
-		int8_t direction;
-		int8_t speedsteps;
-		unsigned long int status;
-	} __attribute__ ((packed));
-
-	struct TurnOutData {
-		int8_t direction;
-	};
+#include "LocData.h"
 
 class CmdReceiverBase;
 // forward declaration
@@ -63,7 +53,7 @@ public:
 
 	// Notifications from Outside (via DCC, WLAN, ..)
 	void notifyTurnout(int id, int direction, int source);
-	void notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
+	LocData* notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value, int source);
 	void notifyDCCFun(int id, int bit, unsigned int value, int source);
 	void notifyGPIOChange(int pin, int newvalue);
@@ -100,6 +90,7 @@ public:
 
 	void sendSetTurnout(String id, String status);
     void sendSetSensor(uint16_t id, uint8_t status);
+	void sendDCCSpeed(int id, int speed, int direction, int source);
 
 
 private:

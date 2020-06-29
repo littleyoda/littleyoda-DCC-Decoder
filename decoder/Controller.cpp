@@ -188,7 +188,7 @@ TurnOutData* Controller::getTurnOutData(int id) {
 
 
 void Controller::notifyGPIOChange(int pin, int newvalue) {
-	Logger::log(LogLevel::TRACE, "Pin changed " + String(pin) + "/" + String(newvalue));
+	//Logger::log(LogLevel::TRACE, "Pin changed " + String(pin) + "/" + String(newvalue));
 	for (int idx = 0; idx < actions.size(); idx++) {
 		actions.get(idx)->GPIOChange(pin, newvalue);
 	}
@@ -198,7 +198,7 @@ void Controller::notifyGPIOChange(int pin, int newvalue) {
  * @param speed see Consts.h
  * @param direction 1 = forward / -1 = reverse
  */
-void Controller::notifyDCCSpeed(int id, int speed, int direction,
+LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 		int SpeedSteps, int source) {
 	if (direction == 0) {
 		Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültige Richtung (0)");
@@ -215,7 +215,7 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 		data = items[id];
 		if (data->direction == direction && data->speed == speed
 				&& data->speedsteps == SpeedSteps) {
-			return;
+			return nullptr;
 		}
 	}
 
@@ -235,7 +235,9 @@ void Controller::notifyDCCSpeed(int id, int speed, int direction,
 	}
 	if (id == Consts::LOCID_ALL) {
 		delete data;
+		return nullptr;
 	}
+	return data;
 }
 
 
@@ -488,5 +490,28 @@ void Controller::sendSetSensor(uint16_t id, uint8_t status) {
       continue;
     }
     b->sendSetSensor(id, status);
+  }
+}
+
+
+/**
+ * Informiert andere(!) Geräte  über eine durch dieses Gerät gewünschte Änderung an einer Lok Geschwindigkeit
+ */
+void Controller::sendDCCSpeed(int id, int speed, int direction, int source) {
+	Serial.println("NotifyDDC");
+  LocData* d = notifyDCCSpeed(id, speed, direction, 128, Consts::SOURCE_RCKP);
+  if (d == nullptr) {
+	Serial.println("Nullptr");
+	  return;
+  }
+  LinkedList<CmdSenderBase*>* list = getSender();
+  for (int i = 0; i < list->size(); i++) {
+	Serial.println("Modul " + String(i));
+	CmdSenderBase* b = list->get(i);
+    if (b == NULL) {
+      Logger::log(LogLevel::ERROR, "ActionSendSensorCommand: Sender is null");
+      continue;
+    }
+    b->sendDCCSpeed(id, d);
   }
 }
