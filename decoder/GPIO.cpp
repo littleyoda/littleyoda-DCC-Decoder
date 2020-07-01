@@ -84,24 +84,16 @@ int GPIOClass::string2gpio(String pin) {
 
 
 void GPIOClass::enableInterrupt(uint16_t pin) {
-	attachInterrupt(pin, std::bind(&GPIOClass::intCallbackValue,this, pin, 1), RISING );
-	attachInterrupt(pin, std::bind(&GPIOClass::intCallbackValue,this, pin, 0), FALLING );
+	attachInterrupt(pin, std::bind(&GPIOClass::intCallback,this, pin), CHANGE);
 }
 
 void GPIOClass::enableInterrupt(Pin* pin) {
 	enableInterrupt(pin->getPin());
 }
 
-void GPIOClass::intCallbackValue(uint16_t pin, int value) {
-	int oldval = valueinputpins->getValue(pin);
-	if (value != oldval) {
-		controller->notifyGPIOChange(pin, value);
-		valueinputpins->put(pin, value);
-	}
-}
 
 void GPIOClass::intCallback(uint16_t pin) {
-	int oldval = valueinputpins->getValue(pin);
+	int oldval = valueinputpins->getValueByKey(pin);
 	int val = digitalRead(pin);
 	if (val != oldval) {
 		controller->notifyGPIOChange(pin, val);

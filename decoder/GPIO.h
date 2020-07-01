@@ -79,7 +79,6 @@ public:
 	};
 
 	void intCallback(uint16_t pin);
-	void intCallbackValue(uint16_t pin, int value);
 
 private:
 	LinkedList<Ports*>* ports;
