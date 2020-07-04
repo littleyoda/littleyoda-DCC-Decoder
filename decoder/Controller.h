@@ -82,7 +82,7 @@ public:
 	unsigned long longestLoop;
 	
 	String getInternalStatus(String modul, String key);
-	String getInternalStatusAsJon();
+	String getInternalStatusAsJon(String modul, String key);
 	void printInternalStatusAsJon();
 	void internalStatusObjStatus(IInternalStatusCallback* cb, String modul, String key);
 

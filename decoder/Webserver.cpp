@@ -427,7 +427,9 @@ void Webserver::handleCfg() {
 
 void Webserver::handleJsonList() {
 	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-	server->send(200, "application/json", controll->getInternalStatusAsJon());
+	String m = server->arg("m").isEmpty() ? "*" : server->arg("m");
+	String k = server->arg("k").isEmpty() ? "*" : server->arg("k");
+	server->send(200, "application/json", controll->getInternalStatusAsJon(m, k));
 }
 
 void Webserver::handleStatus() {

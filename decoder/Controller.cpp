@@ -157,6 +157,7 @@ LocData* Controller::getLocData(int id) {
 		data->status = 0;
 		data->speed = 0;
 		data->speedsteps = 0;
+		data->direction = Consts::SPEED_FORWARD;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
 		}
@@ -404,18 +405,18 @@ void Controller::collectAllInternalStatus(IInternalStatusCallback* cb, String mo
 	if (modul.equals("*") || modul.equals("moduls")) {
 		int idx = status.size();
 		cb->send("modules", String(idx++), "sys");
-		cb->send("modules", String(idx++), "log");
  		cb->send("modules", String(idx++), "wifi");
 		cb->send("modules", String(idx++), "loc");
 		cb->send("modules", String(idx++), "turnout");
+		cb->send("modules", String(idx++), "log");
 	}
  	InternalStatusWifiSys::getInternalStatus(cb, modul, key);
 	internalStatusObjStatus(cb, modul, key);
 }
 
 
-String Controller::getInternalStatusAsJon() {
-	collectAllInternalStatus(&statusAsJson, "*", "*");
+String Controller::getInternalStatusAsJon(String modul, String key) {
+	collectAllInternalStatus(&statusAsJson, modul, key);
 	String output = statusAsJson.get();
 	statusAsJson.reset();
 	return output;
@@ -498,15 +499,13 @@ void Controller::sendSetSensor(uint16_t id, uint8_t status) {
  * Informiert andere(!) Geräte  über eine durch dieses Gerät gewünschte Änderung an einer Lok Geschwindigkeit
  */
 void Controller::sendDCCSpeed(int id, int speed, int direction, int source) {
-	Serial.println("NotifyDDC");
   LocData* d = notifyDCCSpeed(id, speed, direction, 128, Consts::SOURCE_RCKP);
   if (d == nullptr) {
-	Serial.println("Nullptr");
-	  return;
+		Serial.println("Nullptr");
+		return;
   }
   LinkedList<CmdSenderBase*>* list = getSender();
   for (int i = 0; i < list->size(); i++) {
-	Serial.println("Modul " + String(i));
 	CmdSenderBase* b = list->get(i);
     if (b == NULL) {
       Logger::log(LogLevel::ERROR, "ActionSendSensorCommand: Sender is null");
