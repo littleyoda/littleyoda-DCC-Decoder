@@ -19,7 +19,13 @@ void InternalStatusAsJson::reset() {
 	if (doc != NULL) {
 		delete(doc);
 	}
-	doc = new DynamicJsonDocument(2048);
+	if (memoryCritical) {
+		memoryCritical = false;
+		if  (ESP.getFreeHeap() > 2000) {
+			bufferSize += 1024;
+		}
+	}
+	doc = new DynamicJsonDocument(bufferSize);
 	(*doc)["version"] = "1";
 }
 
@@ -29,6 +35,9 @@ void InternalStatusAsJson::send(String modul, String key, String value) {
 	}
 	JsonObject data = doc->getMember(modul);
 	data[key] = value;
+	if (doc->memoryUsage() > bufferSize - 100) {
+		memoryCritical = true;
+	}
 }
 
 String InternalStatusAsJson::get() {

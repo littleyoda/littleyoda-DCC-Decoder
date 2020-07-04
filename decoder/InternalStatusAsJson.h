@@ -22,6 +22,8 @@ public:
 	virtual void print();
 private:
 	DynamicJsonDocument* doc;
+	bool memoryCritical = false;
+	int bufferSize = 2048;
 
 };
 
