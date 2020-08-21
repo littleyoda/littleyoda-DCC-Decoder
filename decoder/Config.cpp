@@ -36,7 +36,8 @@
 #include "Config.h"
 
 #include "FilterLimitChange.h"
-
+#include "InputRotoryEncoder.h"
+#include "InputAnalog.h"
 #include "CmdReceiverDCC.h"
 #include "CmdZentraleZ21.h"
 #include "CmdReceiverZ21Wlan.h"
@@ -47,8 +48,8 @@
 #include "WebserviceWifiScanner.h"
 
 #include "ISettings.h"
-
 #include "Display.h"
+#include "LocDataController.h"
 
 #ifdef LY_FEATURE_AUDIO
 	#include "ActionAudioI2S.h"
@@ -105,7 +106,7 @@ bool Config::parse(Controller* controller, Webserver* web, String filename, bool
 void Config::parseOut(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Out-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Einträge in Out-Sektion: 0");
 		return;
 	}
 	while (idx != -1) {
@@ -319,6 +320,10 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerLoop(a);
 
 		#endif
+		} else if (m.equals("locdatacontroller")) {
+			LocDataController* l = new LocDataController(controller);
+			l->setName(id);
+			controller->registerSettings(l);
 
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
@@ -334,7 +339,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "CFG-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Einträge in CFG-Sektion: 0");
 		return;
 	}
 	while (idx != -1) {
@@ -537,7 +542,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Connector-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Einträge in Connector-Sektion: 0");
 		return;
 	}
 	while (idx != -1) {
@@ -597,7 +602,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 				controller->registerNotify(atc);
 
 				Pin* g = new Pin(pin);
-				cin = new ConnectorGPIO(atc, g, 1, 0);
+				cin = new ConnectorGPIO(atc, g, 1, 0, "sd");
 				controller->registerNotify(cin);
 
 				child = parser->getNextSiblings(child);
@@ -640,7 +645,7 @@ void Config::parseConnector(Controller* controller, Webserver* web, String n) {
 void Config::parseIn(Controller* controller, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "In-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Einträge in In-Sektion: 0");
 		return;
 	}
 	while (idx != -1) {
@@ -741,7 +746,48 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			uint16_t high = parser->getValueByKey(idx, "high", "1").toInt();
 			uint16_t low = parser->getValueByKey(idx, "low", "0").toInt();
 			ISettings* a = getSettingById(controller, conn);
-			c = new ConnectorGPIO(a, g, high, low);
+			String var = parser->getValueByKey(idx, "var", "sd");
+			c = new ConnectorGPIO(a, g, high, low, var);
+
+		} else if (m.equals("rotoryencoder")) {
+      		int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
+		    LinkedList<int> *list = new LinkedList<int>();
+      		while (element!=-1) {
+        		list->add(GPIOobj.string2gpio(parser->getString(element)));
+        		element = parser->getNextSiblings(element);
+      		}
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
+			String var = parser->getValueByKey(idx, "var", "relSpeed");
+			InputRotoryEncoder* ire = new InputRotoryEncoder(a, list, var);
+			controller->registerLoop(ire);
+			c = ire;
+
+		} else if (m.equals("analoggpio")) {
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
+			InputAnalog* ire = new InputAnalog(a);
+			controller->registerLoop(ire);
+
+      		int element = parser->getFirstChildOfArrayByKey(idx, "value2out");
+      		while (element!=-1) {
+				if (parser->isArray(element)) {
+					int e = parser->getFirstChild(element);
+					int s1 = parser->getString(e).toInt();
+					e = parser->getNextSiblings(e);
+					int s2 = parser->getString(e).toInt();
+					e = parser->getNextSiblings(e);
+					String key = parser->getString(e);
+					e = parser->getNextSiblings(e);
+					String value = parser->getString(e);
+					ire->addArea(s1, s2, key, value);
+				} else {
+					Logger::getInstance()->addToLog(LogLevel::ERROR, "Fehlerhafter Aufbau JSON");
+				}
+        		element = parser->getNextSiblings(element);
+      		}
+
+			c = ire;
 
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
@@ -776,7 +822,7 @@ ISettings* Config::getSettingById(Controller* c, String id) {
 void Config::parseFilter(Controller* c, Webserver* web, String n) {
 	int idx = parser->getFirstChildOfArrayByKey(0, n);
 	if (idx == -1) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Connector-Sektion leer oder fehlerhaft!");
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Einträge in Filter Sektion: 0");
 		return;
 	}
 	while (idx != -1) {

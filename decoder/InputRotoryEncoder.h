@@ -1,0 +1,31 @@
+/*
+ * INPUTROTORYENCODER.h
+ *
+ *  Created on: 07.06.2019
+ *      Author: sven
+ */
+
+#ifndef INPUTROTORYENCODER_H_
+#define INPUTROTORYENCODER_H_
+
+#include <Arduino.h>
+#include <LinkedList.h>
+#include "Connectors.h"
+
+class InputRotoryEncoder : public Connectors, public ILoop {
+public:
+	InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name);
+	virtual ~InputRotoryEncoder();
+	int loop();
+
+private:
+	virtual void GPIOChange(int pin, int newValue);
+	uint8_t p1def;
+	uint8_t p2def;
+	int p1;
+	int p2;
+	int count = 0;
+	String settingName;
+};
+
+#endif /* INPUTROTORYENCODER_H_ */

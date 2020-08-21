@@ -1,5 +1,11 @@
 /*
  * DISPLAYSSD1306.cpp
+ * 
+ * I²C Interface
+ * 
+ * D1 mini 	GPIO 	Shield
+ * D1 	    5 	    SCL
+ * D2 	    4 	    SDA
  *
  *  Created on: 07.06.2019
  *      Author: sven

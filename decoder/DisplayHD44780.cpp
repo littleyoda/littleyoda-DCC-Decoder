@@ -10,7 +10,7 @@
 DisplayHD44780::DisplayHD44780(LinkedList<int>* list) {
 	lcd = nullptr;
 	if (list->size() == 6) {
-		//lcd = new LiquidCrystal(D6, D5, D3, D2, D1, D0);
+		//lcd = new LiquidCrystal(D6, D5, D3, D2, D4, D0);
 		lcd = new LiquidCrystal(list->get(0), list->get(1), list->get(2), list->get(3), list->get(4), list->get(5));
 		lcd->begin(16, 2);
 		lcd->clear();
