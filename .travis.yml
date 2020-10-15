@@ -23,7 +23,7 @@ before_deploy:
 - cp ./.pio/build/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
 - cp ./.pio/build/esp32dev/firmware.bin release/littleyoda-DCC-Decoder.esp32dev.bin
 - cp ./.pio/build/esp32full/firmware.bin release/littleyoda-DCC-Decoder.esp32full.bin
-- cp ./.pio/build/mhetesp32minikit/firmware.bin release/littleyoda-DCC-Decoder.mhetesp32minikit.bin
+#- cp ./.pio/build/mhetesp32minikit/firmware.bin release/littleyoda-DCC-Decoder.mhetesp32minikit.bin
 - find release
 
 notifications:
