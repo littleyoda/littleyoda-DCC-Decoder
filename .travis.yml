@@ -9,6 +9,7 @@ install:
 - pip install -U platformio
 - platformio update
 script:
+- sed -i "s/default_envs = .*//g"  platformio.ini 
 - sed -i "s/env_default = .*//g"  platformio.ini 
 - sed -i "s/{NONGITVERSION}/`git describe --tags`/g" decoder/Consts.h 
 - platformio run

@@ -478,7 +478,7 @@ void CmdZentraleZ21::emergencyStop() {
 
 
 void CmdZentraleZ21::handleBroadcast() {
-	uint32 value = pb[7] << 24 | pb[6] << 16 | pb[5] << 8 | pb[4];
+	uint32_t value = pb[7] << 24 | pb[6] << 16 | pb[5] << 8 | pb[4];
 	Serial.println("Broadcast ");
 	Serial.println(value, HEX);
 	if ((value & 0x1) > 0) {
