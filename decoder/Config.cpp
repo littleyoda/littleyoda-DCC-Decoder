@@ -321,7 +321,14 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 
 		#endif
 		} else if (m.equals("locdatacontroller")) {
-			LocDataController* l = new LocDataController(controller);
+			int element = parser->getFirstChildOfArrayByKey(idx, "locaddr");
+		    LinkedList<int> *list = new LinkedList<int>();
+      		while (element!=-1) {
+				list->add(parser->getString(element).toInt());
+        		element = parser->getNextSiblings(element);
+      		}
+			LocDataController* l = new LocDataController(controller, list);
+			Serial.println("ID: " + id);
 			l->setName(id);
 			controller->registerSettings(l);
 
@@ -749,7 +756,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			String var = parser->getValueByKey(idx, "var", "sd");
 			c = new ConnectorGPIO(a, g, high, low, var);
 
-		} else if (m.equals("rotoryencoder")) {
+		} else if (m.equals("rotoryencoder") || m.equals("rotaryencoder")) {
       		int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
 		    LinkedList<int> *list = new LinkedList<int>();
       		while (element!=-1) {
@@ -815,7 +822,7 @@ ISettings* Config::getSettingById(Controller* c, String id) {
 		ISettings* s = c->getSettings()->get(idx);
 		out = out + s->getName() + "; ";
 	}
-	Logger::getInstance()->addToLog(LogLevel::ERROR, "Config: Unbekannte ID " + String(id) + " [" + out + "]");
+	Logger::getInstance()->addToLog(LogLevel::ERROR, "Config: Unbekannte ID: '" + String(id) + "' Verfügbar: [" + out + "]");
 	return NULL;
 }
 

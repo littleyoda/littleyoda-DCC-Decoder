@@ -13,16 +13,18 @@
 
 class LocDataController: public ISettings {
 public:
-	LocDataController(Controller* c);
+	LocDataController(Controller* c, LinkedList<int> *list);
 	virtual ~LocDataController();
 	virtual void setSettings(String key, String value);
-	void requestLocData(int id);
+	void requestLocData();
 	void getInternalStatus(IInternalStatusCallback* cb, String key);
 	
 private:
 	Controller* controller;
-	int currentID = 1;
+	int currentADDR = 1;
+	int currentIdx = 1;
 	LocData* locdata;
+	LinkedList<int> *addrlist;
 };
 
 #endif /* LOCDATACONTROLLER_H_ */

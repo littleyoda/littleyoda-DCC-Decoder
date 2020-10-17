@@ -9,17 +9,33 @@
 #include "Controller.h"
 #include "Consts.h"
 
-LocDataController::LocDataController(Controller* c) {
+LocDataController::LocDataController(Controller* c, LinkedList<int> *list) {
     controller = c;
-	requestLocData(1);
 	setModulName("Loc-Controll");
 	setConfigDescription("");
+    addrlist = list;
+    currentIdx = 0;
+    requestLocData();
 }
 
 
-void LocDataController::requestLocData(int id) {
-	currentID = id;
-	locdata = controller->getLocData(id);
+void LocDataController::requestLocData() {
+    if (addrlist->size() > 0) {
+        if (currentIdx < 0) {
+            currentIdx = addrlist->size() - 1;
+        }
+        if (currentIdx >= addrlist->size()) {
+            currentIdx = 0;
+
+        }
+        currentADDR = addrlist->get(currentIdx);
+    } else {
+        if (currentIdx < 1) {
+            currentIdx = 1;
+        }
+        currentADDR = currentIdx;
+    }
+    locdata = controller->getLocData(currentADDR);
 }
 
 LocDataController::~LocDataController() {
@@ -30,11 +46,18 @@ LocDataController::~LocDataController() {
 void LocDataController::setSettings(String key, String value) {
     Serial.println(key + "=>" + value);
     if (key.equalsIgnoreCase("chlocid")) {
-        currentID = currentID + value.toInt();
-        if (currentID < 1) {
-            currentID = 1;
-        }
-    	requestLocData(currentID);
+        currentIdx = currentIdx + value.toInt();
+    	requestLocData();
+        return;
+    }
+    if (key.equalsIgnoreCase("locid+") && value == "1") {
+        currentIdx = currentIdx + 1;
+    	requestLocData();
+        return;
+    }
+    if (key.equalsIgnoreCase("locid-") && value == "1") {
+        currentIdx = currentIdx - 1;
+    	requestLocData();
         return;
     }
     boolean changed = false;
@@ -55,7 +78,7 @@ void LocDataController::setSettings(String key, String value) {
         changed = true;
     }
     if (changed) {
-        controller->sendDCCSpeed(currentID, speed, dir, Consts::SOURCE_RCKP);
+        controller->sendDCCSpeed(currentADDR, speed, dir, Consts::SOURCE_RCKP);
     }
 
 }
@@ -63,10 +86,10 @@ void LocDataController::setSettings(String key, String value) {
 
 void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String key) {
 	if (key.equals("*") || key.equals("addr")) {
-		cb->send(getName(), "addr", String(currentID));
+		cb->send(getName(), "addr", String(currentADDR));
 	}
 	if (key.equals("*") || key.equals("status")) {
-		cb->send(getName(), "status", String(currentID) + " " + String(locdata->speed));
+		cb->send(getName(), "status", String(currentADDR) + " " + String(locdata->speed));
 	}
 	if (key.equals("*") || key.equals("speed")) {
         cb->send(getName(), "speed", String(locdata->speed));
