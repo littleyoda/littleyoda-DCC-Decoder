@@ -9,7 +9,7 @@
 
 #include "InputAnalog.h"
 #include "Arduino.h"
-
+#include "Logger.h"
 InputAnalog::InputAnalog(ISettings* a) {
 	addAction(a);
 	setModulName("InputAnalog");
@@ -35,6 +35,7 @@ int InputAnalog::loop() {
     int value = analogRead(A0);
     bool within = ((lastvalue - 8) < value) && (value < (lastvalue + 8));
     if (!within) {
+      Logger::log(LogLevel::ERROR, "Analog: " + String(value));
       lastvalue = value;
     	for (int idx = 0; idx < data.size(); idx++) {
         InputAnalogData* d = data.get(idx);
