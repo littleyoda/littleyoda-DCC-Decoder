@@ -25,7 +25,8 @@ public:
 	virtual ~CmdZentraleZ21();
 	virtual void sendSetTurnout(String id, String status);
 	virtual void sendSetSensor(uint16_t id, uint8_t status);
-	virtual void sendDCCSpeed(int id, LocData* d);
+	virtual void sendDCCSpeed(int addr, LocData* data);
+	virtual void sendDCCFun(int addr, LocData* data, int changedBit);
 
 private:
 	void handleLocoMode();

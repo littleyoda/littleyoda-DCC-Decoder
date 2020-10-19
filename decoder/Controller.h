@@ -55,7 +55,7 @@ public:
 	void notifyTurnout(int id, int direction, int source);
 	LocData* notifyDCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
 	void notifyDCCFun(int id, int startbit, int stopbit, unsigned long value, int source);
-	void notifyDCCFun(int id, int bit, unsigned int value, int source);
+	LocData* notifyDCCFun(int id, int bit, unsigned int value, int source);
 	void notifyGPIOChange(int pin, int newvalue);
 
 	void enableAPModus();
@@ -91,6 +91,7 @@ public:
 	void sendSetTurnout(String id, String status);
     void sendSetSensor(uint16_t id, uint8_t status);
 	void sendDCCSpeed(int id, int speed, int direction, int source);
+	void sendDCCFun(int id, int bit, unsigned int value, int source);
 
 
 private:

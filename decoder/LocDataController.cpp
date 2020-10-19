@@ -8,6 +8,7 @@
 #include "LocDataController.h"
 #include "Controller.h"
 #include "Consts.h"
+#include "Utils.h"
 
 LocDataController::LocDataController(Controller* c, LinkedList<int> *list) {
     controller = c;
@@ -60,10 +61,19 @@ void LocDataController::setSettings(String key, String value) {
     	requestLocData();
         return;
     }
+    if (key.startsWith("toggleF") && value == "1") {
+        int bit = key.substring(7).toInt();
+        if (bit_is_set(locdata->status, bit)) {
+            controller->sendDCCFun(currentADDR, bit, 0,Consts::SOURCE_RCKP);
+        } else {
+            controller->sendDCCFun(currentADDR, bit, 1,Consts::SOURCE_RCKP);
+        }
+        return;
+    }
     boolean changed = false;
     int16_t speed = locdata->speed;
     int8_t dir = locdata->direction;
-    if (key.equals("relSpeed")) {
+    if (key.equalsIgnoreCase("relSpeed")) {
         speed = speed + value.toInt();
         if (speed > 127) {
             speed = 127;
@@ -72,7 +82,7 @@ void LocDataController::setSettings(String key, String value) {
             speed = 0;
         }
         changed = true;
-    } else if (key.equals("toggleDir") && value == "1") {
+    } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
         speed = 0;
         dir = -dir;
         changed = true;

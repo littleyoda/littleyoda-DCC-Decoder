@@ -203,6 +203,67 @@ void CmdReceiverZ21Wlan::sendSetSensor(uint16_t id, uint8_t status) {
 	udp->endPacket();
 }
 
+void CmdReceiverZ21Wlan::sendDCCSpeed(int addr, LocData* data) {
+	memset(packetBuffer, 0, packetBufferSize);
+	packetBuffer[0] = 0X0A;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x40;
+	packetBuffer[3] = 0x00;
+
+	packetBuffer[4] = 0xE4;
+	packetBuffer[5] = 0x13;
+	packetBuffer[6] = (addr >> 8) & 0x3F;
+	if (addr >= 128) {
+		packetBuffer[6] += 0b11000000;
+	}
+
+	packetBuffer[7] = addr & 255;
+
+	unsigned int v = (data->speed & 127);
+	// Adjust to match NmraDCC Schema
+	if (v == Consts::SPEED_STOP) {
+		v = 0;
+	} else if (v == Consts::SPEED_EMERGENCY) {
+		v = 1;
+	}
+	packetBuffer[8] = v | ((data->direction == -1) ? 0 : 128);
+
+	packetBuffer[9] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6] ^ packetBuffer[7] ^ packetBuffer[8];
+	
+	printPacketBuffer("DCC Speed", packetBuffer, packetBuffer[0]);
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, packetBuffer[0]);
+	udp->endPacket();
+
+}
+
+void CmdReceiverZ21Wlan::sendDCCFun(int addr, LocData* data, unsigned int changedBit) {
+	memset(packetBuffer, 0, packetBufferSize);
+	packetBuffer[0] = 0x0A;
+	packetBuffer[1] = 0x00;
+	packetBuffer[2] = 0x40;
+	packetBuffer[3] = 0x00;
+
+	packetBuffer[4] = 0xE4;
+	packetBuffer[5] = 0xF8;
+	packetBuffer[6] = (addr >> 8) & 0x3F;
+	if (addr >= 128) {
+		packetBuffer[6] += 0b11000000;
+	}
+
+	packetBuffer[7] = addr & 255;
+
+	packetBuffer[8] = bit_is_set(data->status, changedBit) << 6 | changedBit;
+
+
+	packetBuffer[9] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6] ^ packetBuffer[7] ^ packetBuffer[8];
+	printPacketBuffer("DCC", packetBuffer, packetBuffer[0]);
+	udp->beginPacket(*z21Server, localPort);
+	udp->write(packetBuffer, packetBuffer[0]);
+	udp->endPacket();
+	
+}
+
 /**
  * Sendet einen Weichenbefehl, der über das Webinterface ausgelöst wurde, an die Z21
  */

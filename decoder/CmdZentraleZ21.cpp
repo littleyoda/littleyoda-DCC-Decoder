@@ -512,6 +512,8 @@ void CmdZentraleZ21::sendSetSensor(uint16_t id, uint8_t status) {
 	// TODO
 }
 
+
+
 void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
 	//TODO
 	memset(pb, 0, packetBufferSize);
@@ -555,3 +557,8 @@ void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
 			}
 	}
 };
+
+
+void CmdZentraleZ21::sendDCCFun(int addr, LocData* data, int changedBit) {
+	sendDCCSpeed(addr,data);
+}

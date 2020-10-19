@@ -25,6 +25,8 @@ public:
 	void enableBroadcasts();
 	virtual void sendSetTurnout(String id, String status);
     virtual void sendSetSensor(uint16_t id, uint8_t status);
+	virtual void sendDCCSpeed(int id, LocData* d);
+	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 private:
 	WiFiUDP* udp;
 	unsigned int localPort = 21105;

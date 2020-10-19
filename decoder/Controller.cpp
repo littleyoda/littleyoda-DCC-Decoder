@@ -242,7 +242,7 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 }
 
 
-void Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int source) {
+LocData* Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int source) {
 	// Get the old status ...
 	LocData* data = getLocData(id);
 	boolean changed = false;
@@ -250,7 +250,7 @@ void Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int sou
 	unsigned long int value = data->status;
 	unsigned long int oldBitValue = bit_is_set(value, bit);
 	if (oldBitValue == newBitValue) {
-		return;
+		return nullptr;
 	}
 	changed = true;
 	if (newBitValue == 0) {
@@ -267,6 +267,7 @@ void Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int sou
 			actions.get(idx)->DCCFunc(id, data->status, source);
 		}
 	}
+	return data;
 }
 
 
@@ -512,5 +513,22 @@ void Controller::sendDCCSpeed(int id, int speed, int direction, int source) {
       continue;
     }
     b->sendDCCSpeed(id, d);
+  }
+}
+
+void Controller::sendDCCFun(int id, int bit, unsigned int value, int source) {
+  LocData* d = notifyDCCFun(id, bit, value, source);
+  if (d == nullptr) {
+		Serial.println("Nullptr");
+		return;
+  }
+  LinkedList<CmdSenderBase*>* list = getSender();
+  for (int i = 0; i < list->size(); i++) {
+	CmdSenderBase* b = list->get(i);
+    if (b == NULL) {
+      Logger::log(LogLevel::ERROR, "ActionSendSensorCommand: Sender is null");
+      continue;
+    }
+    b->sendDCCFun(id, d, bit);
   }
 }
