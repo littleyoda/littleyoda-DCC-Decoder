@@ -119,6 +119,11 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("flashchipspeed") || key.equals("*")) {
 			cb->send("sys", "flashchipspeed", String(ESP.getFlashChipSpeed()));
 		}
+		#ifdef ESP8266
+		if (key.equals("A0") || key.equals("*")) {
+			cb->send("sys", "A0", String(analogRead(A0)));
+		}
+		#endif
 	}
 	if (modul.equals("log") || modul.equals("*")) {
 		LinkedList<Logger::logdata*>* l = Logger::getInstance()->getLogs();
