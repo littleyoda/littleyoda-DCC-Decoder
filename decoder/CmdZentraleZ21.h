@@ -26,7 +26,7 @@ public:
 	virtual void sendSetTurnout(String id, String status);
 	virtual void sendSetSensor(uint16_t id, uint8_t status);
 	virtual void sendDCCSpeed(int addr, LocData* data);
-	virtual void sendDCCFun(int addr, LocData* data, int changedBit);
+	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 
 private:
 	void handleLocoMode();

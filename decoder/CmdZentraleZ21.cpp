@@ -559,6 +559,7 @@ void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
 };
 
 
-void CmdZentraleZ21::sendDCCFun(int addr, LocData* data, int changedBit) {
+void CmdZentraleZ21::sendDCCFun(int addr, LocData* data, unsigned int changedBit) {
+	Serial.println("Changed Bit");
 	sendDCCSpeed(addr,data);
 }
