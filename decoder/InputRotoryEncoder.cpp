@@ -20,7 +20,6 @@ InputRotoryEncoder::InputRotoryEncoder(ISettings* a, LinkedList<int> *list, Stri
 
 	p1def = list->get(0);
 	p2def = list->get(1);
-
 	p1 = 0;
 	p2 = 0;
 	setModulName("RotoryEncoder");
@@ -30,11 +29,7 @@ InputRotoryEncoder::InputRotoryEncoder(ISettings* a, LinkedList<int> *list, Stri
 InputRotoryEncoder::~InputRotoryEncoder() {
 }
 
-
 void InputRotoryEncoder::GPIOChange(int pin, int newValue) {
-	if (pin != p1def && pin != p2def) {
-		return;
-	}
 	int lastP1 = p1;
 	int lastP2 = p2;
 	if (pin == p1def) {
@@ -43,13 +38,27 @@ void InputRotoryEncoder::GPIOChange(int pin, int newValue) {
 	if (pin == p2def) {
 		p2 = newValue;
 	}
-	if ((lastP1 == LOW) && (p1 == HIGH)) {
-    	if (p2 == LOW) {
-			count = count + 10;
-	    } else {
-			count = count - 10;
-    	}
-	}
+	count = count + table[ lastP1 + lastP2 * 2 ][ p1 + p2 * 2 ];
+
+	// Ansatz 1
+	// if (pin != p1def && pin != p2def) {
+	// 	return;
+	// }
+	// int lastP1 = p1;
+	// int lastP2 = p2;
+	// if (pin == p1def) {
+	// 	p1 = newValue;
+	// }
+	// if (pin == p2def) {
+	// 	p2 = newValue;
+	// }
+	// if ((lastP1 == LOW) && (p1 == HIGH)) {
+    // 	if (p2 == LOW) {
+	// 		count = count + 10;
+	//     } else {
+	// 		count = count - 10;
+    // 	}
+	// }
 }
 
 int InputRotoryEncoder::loop() {

@@ -26,6 +26,12 @@ private:
 	int p2;
 	int count = 0;
 	String settingName;
+	int table[4][4]={
+						{0,1,-1,0},
+						{-1,0,0,1},
+						{1,0,0,-1},
+						{0,-1,1,0}
+					};
 };
 
 #endif /* INPUTROTORYENCODER_H_ */
