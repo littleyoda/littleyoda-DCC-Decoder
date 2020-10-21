@@ -44,6 +44,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
 	server->on("/flow", std::bind(&Webserver::handleFlow, this));
 	server->on("/json", std::bind(&Webserver::handleJsonList, this));
+	server->on("/help", std::bind(&Webserver::handleHelp, this));
 	server->on("/format", std::bind(&Webserver::handleFormat, this));
 	server->on("/doformat", std::bind(&Webserver::handleDoFormat, this));
 	server->on("/editconfig", HTTP_GET,std::bind(&Webserver::handleDoConfigGet, this));
@@ -93,6 +94,23 @@ Webserver::Webserver(Controller* c) {
 #endif
 }
 
+void Webserver::handleHelp() {
+	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
+	server->send(200, "application/text", controll->getInternalStatusAsJon("*", "*"));
+	server->sendContent("\n============\n");
+	server->sendContent(controll->createDebugDiagramm());
+	server->sendContent("\n============\n");
+	File f = SPIFFS.open("/config.json", "r");
+	if (f) {
+		while (f.available() > 0) {
+			server->sendContent(f.readStringUntil('\n'));
+		}
+	} else {
+		server->sendContent("file open failed");
+	}
+	server->sendContent("\n============\n");
+
+}
 void Webserver::handleFlow() {
 	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
 	server->send(200, "text/html", 
@@ -181,9 +199,11 @@ void Webserver::handleDoConfigPost() {
 	File dataFile = SPIFFS.open("/config.json", "w");
 	dataFile.print(server->arg("content"));
 	dataFile.close();
-
 	server->sendHeader("Location", String("http://") + server->client().localIP().toString() + "/list", true);
 	server->send ( 302, "text/plain", "");
+	if (!server->arg("reboot").isEmpty()) {
+			ESP.restart();
+	}
 }
 
 void Webserver::handleDoConfigGet() {
@@ -192,7 +212,7 @@ void Webserver::handleDoConfigGet() {
 	String out = "";
 		out += "<html><body><form action = \"/editconfig\" method = \"post\"><textarea rows = \"30\" cols = \"70\" name = \"content\">"
 				 + dataFile.readString()
-				 + "</textarea><input type = \"submit\" value = \"submit\" /></form></body></html>";
+				 + "</textarea><br><input type=\"checkbox\" id=\"reboot\" name=\"reboot\"><label for=\"reboot\">Reboot</label><br><input type = \"submit\" value = \"submit\" /></form></body></html>";
     server->send(200, "text/html", out);
 }
 
