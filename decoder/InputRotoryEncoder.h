@@ -14,7 +14,7 @@
 
 class InputRotoryEncoder : public Connectors, public ILoop {
 public:
-	InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name);
+	InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name, int stepvalue);
 	virtual ~InputRotoryEncoder();
 	int loop();
 
@@ -25,6 +25,7 @@ private:
 	int p1;
 	int p2;
 	int count = 0;
+	int stepvalue;
 	String settingName;
 	int table[4][4]={
 						{0,1,-1,0},

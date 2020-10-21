@@ -9,8 +9,9 @@
 #include "GPIO.h"
 #include <FunctionalInterrupt.h>
 
-InputRotoryEncoder::InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name) {
+InputRotoryEncoder::InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name, int sv) {
 	addAction(a);
+	stepvalue = sv;
 	settingName = name;
 	GPIOobj.pinMode(list->get(0), INPUT_PULLUP, "Enocder");
 	GPIOobj.enableInterrupt(list->get(0));
@@ -38,27 +39,7 @@ void InputRotoryEncoder::GPIOChange(int pin, int newValue) {
 	if (pin == p2def) {
 		p2 = newValue;
 	}
-	count = count + table[ lastP1 + lastP2 * 2 ][ p1 + p2 * 2 ];
-
-	// Ansatz 1
-	// if (pin != p1def && pin != p2def) {
-	// 	return;
-	// }
-	// int lastP1 = p1;
-	// int lastP2 = p2;
-	// if (pin == p1def) {
-	// 	p1 = newValue;
-	// }
-	// if (pin == p2def) {
-	// 	p2 = newValue;
-	// }
-	// if ((lastP1 == LOW) && (p1 == HIGH)) {
-    // 	if (p2 == LOW) {
-	// 		count = count + 10;
-	//     } else {
-	// 		count = count - 10;
-    // 	}
-	// }
+	count = count + (table[ lastP1 + lastP2 * 2 ][ p1 + p2 * 2 ] * stepvalue);
 }
 
 int InputRotoryEncoder::loop() {
@@ -68,5 +49,5 @@ int InputRotoryEncoder::loop() {
 	int value = count;
 	count = 0;
 	send(settingName, String(value));
-	return 100;
+	return 50;
 }
