@@ -160,6 +160,7 @@ LocData* Controller::getLocData(int id) {
 		data->direction = Consts::SPEED_FORWARD;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
+			itemskeys.push_back(id);
 		}
 		return data;
 	}
@@ -211,6 +212,7 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 		data = new LocData();
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
+			itemskeys.push_back(id);
 		}
 	} else {
 		data = items[id];
@@ -460,6 +462,10 @@ Controller::Items* Controller::getLocData() {
 	return &items;
 }
 
+std::vector<int>* Controller::getLocDataKeys() {
+	return &itemskeys;
+}
+
 LinkedList<INotify::requestInfo*>* Controller::getRrequestList() {
 	return &requestList;
 }
@@ -523,6 +529,7 @@ void Controller::sendDCCFun(int id, int bit, unsigned int value, int source) {
 		return;
   }
   LinkedList<CmdSenderBase*>* list = getSender();
+	Serial.println("Found Sender " + String(list->size()));
   for (int i = 0; i < list->size(); i++) {
 	CmdSenderBase* b = list->get(i);
     if (b == NULL) {

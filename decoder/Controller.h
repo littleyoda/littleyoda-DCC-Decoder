@@ -68,6 +68,8 @@ public:
 
 	LocData* getLocData(int id);
 	Items* getLocData();
+	std::vector<int>* getLocDataKeys();
+	
 	TurnOutData* getTurnOutData(int id);
 
 	String createDebugDiagramm();
@@ -97,7 +99,7 @@ public:
 private:
 	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);
 	Items items;
-
+	std::vector<int> itemskeys;
 	typedef std::map<int, TurnOutData*> LocTurnOuts;
 	LocTurnOuts turnoutinfo;
 

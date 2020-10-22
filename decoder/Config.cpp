@@ -34,6 +34,7 @@
 #include "ConnectorLights.h"
 #include "ConnectorGPIO.h"
 #include "Config.h"
+#include "DCCZentrale.h"
 
 #include "FilterLimitChange.h"
 #include "InputRotoryEncoder.h"
@@ -123,6 +124,16 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			int locoaddr = parser->getValueByKey(idx, "addr").toInt();
 			int dccoutput = parser->getValueByKey(idx, "dccoutputaddr").toInt();
 			ActionDCCGeneration* a = new ActionDCCGeneration(gpioenable, locoaddr, dccoutput);
+			controller->registerNotify(a);
+			controller->registerLoop(a);
+			controller->registerSettings(a);
+			idx = parser->getNextSiblings(idx);
+			continue;
+		}
+
+		if (m.equals("dcczentrale")) {
+			Pin* gpioenable = new Pin(parser->getValueByKey(idx, "enable"));
+			DCCZentrale* a = new DCCZentrale(gpioenable, controller);
 			controller->registerNotify(a);
 			controller->registerLoop(a);
 			controller->registerSettings(a);
