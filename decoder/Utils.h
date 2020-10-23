@@ -166,6 +166,52 @@ public:
     	}
     	return found > index ? string.substring(range[0], range[1]) : "";
 	}
+
+	static String format(String s, Controller* controller) {
+		String out = "";
+		int status = 0;
+		String modul = "";
+		String key = "";
+		for (unsigned int i = 0; i < s.length(); i++) {
+			char c = s[i];
+			switch (status) {
+				case 0: if (c == '$') {
+							modul = "";
+							key = "";
+							status = 1;
+						} else if (c == '\\') {
+							status = 3;
+						} else {
+							out += c;
+						}
+						break;
+				case 1: if (c == '{') {
+							//
+						} else if (c == '|') {
+							status = 2;
+						} else {
+							modul += c;
+						}
+						break;
+				case 2:
+						if (c == '}') {
+							status = 0;
+							out += controller->getInternalStatus(modul, key);
+						} else {
+							key += c;
+						}
+						break;
+				case 3:
+					// if (c == 'n') {
+					// 	show(out);
+					// 	out = "";
+					// }
+					status = 0;
+					break;
+			}
+		}
+		return out;
+	}
 };
 
 #endif /* UTILS_H_ */

@@ -407,7 +407,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		} else if (m.equals("webservicewifiscanner")) {
 			web->registerWebServices(new WebserviceWifiScanner());
 
-
+		} else if (m.equals("webservicestatus")) {
+			web->setStatus(parser->getValueByKey(idx, "text", ""));
 		} else if (m.equals("webservicelog")) {
 			web->registerWebServices(new WebserviceLog());
 

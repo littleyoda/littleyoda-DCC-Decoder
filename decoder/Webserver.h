@@ -42,6 +42,7 @@ public:
 	void registerWebServices(WebserviceBase* base);
 
 	static void sendContent(String s);
+	void setStatus(String s);
 private:
 	bool loadFromSPIFFS(String filepath);
 	void handleNotFound();
@@ -70,6 +71,7 @@ private:
 	#elif ESP32
 		boolean init = false;
 	#endif
+	String status;
 };
 
 

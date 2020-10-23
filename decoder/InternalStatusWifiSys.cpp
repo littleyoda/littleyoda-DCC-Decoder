@@ -123,6 +123,9 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("A0") || key.equals("*")) {
 			cb->send("sys", "A0", String(analogRead(A0)));
 		}
+		if (key.equals("A0voltage") || key.equals("*")) {
+			cb->send("sys", "A0voltage", String((float)map(analogRead(A0), 0, 1023, 0, 330) / 100).substring(0,4));
+		}
 		#endif
 	}
 	if (modul.equals("log") || modul.equals("*")) {

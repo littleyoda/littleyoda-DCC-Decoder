@@ -18,6 +18,7 @@
 #include "WebserviceLog.h"
 #include "Utils.h"
 #include "Config.h"
+#include "Utils.h"
 
 #ifdef ESP8266
 ESP8266WebServer* Webserver::server = 0;
@@ -26,7 +27,12 @@ ESP8266HTTPUpdateServer* Webserver::httpUpdater = 0;
 WebServer* Webserver::server = 0;
 #endif
 
+void Webserver::setStatus(String s) {
+	status = s;
+}
+
 Webserver::Webserver(Controller* c) {
+	status = "";
 	controll = c;
 #ifdef ESP8266
 	server = new ESP8266WebServer(80);
@@ -284,7 +290,8 @@ void Webserver::handleRoot() {
 		message += "<a style=\"font-size: 4rem;\" class=\"button\" href=\"" + String(s->getUri()) + "\">" + linktext + "</a>";
 		message += "</div>";
 	}
-
+	message += "<hr>";
+	message += Utils::format(status, controll);
 	message += "</div>";
 	message += Utils::getHTMLFooter();
 	server->send(200, "text/html", message);
