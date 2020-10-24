@@ -253,7 +253,7 @@ void CmdReceiverZ21Wlan::sendDCCFun(int addr, LocData* data, unsigned int change
 
 	packetBuffer[7] = addr & 255;
 
-	packetBuffer[8] = bit_is_set(data->status, changedBit) << 6 | changedBit;
+	packetBuffer[8] = bit_is_set01(data->status, changedBit) << 6 | changedBit;
 
 
 	packetBuffer[9] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6] ^ packetBuffer[7] ^ packetBuffer[8];

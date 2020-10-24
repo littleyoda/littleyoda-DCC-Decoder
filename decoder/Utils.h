@@ -20,6 +20,7 @@
 
 #define set_bit(var, bitIdx) ((var) |= (1 << (bitIdx)))
 #define bit_is_set(var, bitIdx) ((var) & (1 << (bitIdx)))
+#define bit_is_set01(var, bitIdx) (bit_is_set(var, bitIdx) > 0 ? 1 : 0)
 #define clear_bit(var, bitIdx) ((var) &= (unsigned)~(1 << (bitIdx)))
 
 

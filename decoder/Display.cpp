@@ -56,7 +56,7 @@ String Display::fill(String s) {
 	String out = "";
 	String modul = "";
 	String key = "";
-	for (int i = 0; i < s.length(); i++) {
+	for (unsigned int i = 0; i < s.length(); i++) {
 		char c = s[i];
 		switch (status) {
 			case 0: if (c == '$') {

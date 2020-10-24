@@ -247,7 +247,7 @@ LocData* Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int
 	boolean changed = false;
 	// .. and send only the changed bits
 	unsigned long int value = data->status;
-	unsigned long int oldBitValue = bit_is_set(value, bit);
+	unsigned long int oldBitValue = bit_is_set01(value, bit);
 	if (oldBitValue == newBitValue) {
 		return nullptr;
 	}
@@ -278,8 +278,8 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 	// .. and send only the changed bits
 	unsigned long int value = data->status;
 	for (int i = startbit; i <= stopbit; i++) {
-		unsigned long int oldBitValue = bit_is_set(value, i);
-		unsigned long int newBitValue = bit_is_set(partValues, i);
+		unsigned long int oldBitValue = bit_is_set01(value, i);
+		unsigned long int newBitValue = bit_is_set01(partValues, i);
 		if (oldBitValue == newBitValue) {
 			continue;
 		}
