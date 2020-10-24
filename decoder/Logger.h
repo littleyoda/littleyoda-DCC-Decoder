@@ -26,6 +26,7 @@ public:
 	struct logdata { boolean send; boolean sendRD; String msg; };
 	static Logger* getInstance();
 	static void log(LogLevel loglevel, String s);
+	static void log(LogLevel loglevel, String modul, String s);
 	static void changeLogLevel(int diff);
 	void printf(LogLevel loglevel, const char * format, ...);
 	void addToLog(LogLevel loglevel, String s);

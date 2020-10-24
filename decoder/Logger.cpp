@@ -188,6 +188,10 @@ void Logger::log(LogLevel loglevel, String s) {
 	getInstance()->addToLog(loglevel, s);
 }
 
+void Logger::log(LogLevel loglevel, String modul, String s) {
+	getInstance()->addToLog(loglevel, "[" + modul + "] " + s);
+}
+
 void Logger::changeLogLevel(int diff) {
 	#ifdef ESP8266
 	getInstance()->Debug.setLogLevel(getInstance()->Debug.getLogLevel() + diff);
