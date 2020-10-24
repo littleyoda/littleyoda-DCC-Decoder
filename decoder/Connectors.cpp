@@ -9,7 +9,7 @@
 
 #include "Connectors.h"
 #include <Arduino.h>
-
+#include "Logger.h"
 Connectors::Connectors() {
 }
 
@@ -25,10 +25,10 @@ void Connectors::addAction(ISettings* a) {
 
 
 
-void Connectors::send(String key, String value) {
-    Serial.println("Sending " + key + " " + value);
+void Connectors::send(String key, String value) { 
+    Logger::log(LogLevel::INFO, "PIPE", "Received (" + key + "/" + value + ")");
     for (int idx = 0; idx < actions.size(); idx++) {
-        Serial.println("Sending " + key + " " + value + " to " + actions.get(idx)->getName());
+        Logger::log(LogLevel::INFO, "PIPE", "Forward (" + key + "/" + value + ") to " + actions.get(idx)->getName());
         actions.get(idx)->setSettings(key, value);
     }
 }

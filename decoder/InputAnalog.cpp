@@ -35,7 +35,7 @@ int InputAnalog::loop() {
     int value = analogRead(A0);
     bool within = ((lastvalue - 8) < value) && (value < (lastvalue + 8));
     if (!within) {
-      Logger::log(LogLevel::ERROR, "Analog: " + String(value));
+      Logger::log(LogLevel::TRACE, "INP", "Analog-Value: " + String(value));
       lastvalue = value;
     	for (int idx = 0; idx < data.size(); idx++) {
         InputAnalogData* d = data.get(idx);

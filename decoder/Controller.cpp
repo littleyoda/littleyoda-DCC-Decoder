@@ -31,7 +31,7 @@ Controller::Controller() {
 	#else
 		if (!SPIFFS.begin()) {
 	#endif
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "SPIFFS konnte nicht genutzt werden!");
+		Logger::log(LogLevel::ERROR, "CNT", "SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
 }
@@ -63,7 +63,7 @@ void Controller::doLoops() {
 		delay(0);
 	}
 	if (next < loopstarted) {
-//		Logger::getInstance()->addToLog(LogLevel::INFO, "Running");
+//		Logger::log(LogLevel::INFO, "Running");
 		next = loopstarted + 1000;
 	}
 	logLoop(millis() - loopstarted);
@@ -75,7 +75,7 @@ void Controller::doLoops() {
 
 void Controller::registerNotify(INotify* base) {
 	if (base == NULL) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerNotify");
+		Logger::log(LogLevel::ERROR, "CNT", "Null in registerNotify");
 		return;
 	}
 	actions.add(base);
@@ -83,7 +83,7 @@ void Controller::registerNotify(INotify* base) {
 
 void Controller::registerConnectors(Connectors* base) {
 	if (base == NULL) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerConnectors");
+		Logger::log(LogLevel::ERROR, "CNT", "Null in registerConnectors");
 		return;
 	}
 	connectors.add(base);
@@ -91,7 +91,7 @@ void Controller::registerConnectors(Connectors* base) {
 
 void Controller::registerLoop(ILoop* loop) {
 	if (loop == NULL) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registeryLoop");
+		Logger::log(LogLevel::ERROR, "CNT", "Null in registeryLoop");
 		return;
 	}
 	loops.add(loop);
@@ -107,7 +107,7 @@ void Controller::notifyTurnout(int id, int direction, int source) {
 	}
 	TurnOutData* data = getTurnOutData(id);
 	data->direction = direction;
-	Logger::log(LogLevel::TRACE, 
+	Logger::log(LogLevel::TRACE, "CNT", 
 			"Turnout-CMD [ID:" + String(id) + "/ D:" + String(direction) + "]");
 	lastTurnoutCmd[0] = id;
 	lastTurnoutCmd[1] = direction;
@@ -203,7 +203,7 @@ void Controller::notifyGPIOChange(int pin, int newvalue) {
 LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 		int SpeedSteps, int source) {
 	if (direction == 0) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültige Richtung (0)");
+		Logger::log(LogLevel::ERROR, "CNT", "DCC-Speed: Ungültige Richtung (0)");
 	}
 	EMERGENCYActive = speed == Consts::SPEED_EMERGENCY;
 	// Filter out known commands
@@ -226,10 +226,7 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 	data->direction = direction;
 	data->speed = speed;
 	data->speedsteps = SpeedSteps;
-	// Logger::getInstance()->printf(Logger::DEBUG, 
-	// 		("DCC-Speed: " + String(id) + " D: " + String(direction) + " "
-	// 				+ String(speed) + " " + String(SpeedSteps)).c_str());
-	Logger::getInstance()->printf(LogLevel::TRACE, "DCC-Speed: %d D: %d  %d %d", id, direction, speed, SpeedSteps);
+	Logger::getInstance()->printf(LogLevel::TRACE, "[CNT] DCC-Speed: %d D: %d  %d/%d", id, direction, speed, SpeedSteps);
 
 	// Send the information to the actions
 	int idx;
@@ -264,7 +261,7 @@ LocData* Controller::notifyDCCFun(int id, int bit, unsigned int newBitValue, int
 		actions.get(idx)->DCCFunc(id, bit, (newBitValue == 0) ? 0 : 1, source);
 	}
 	if (changed) {
-		Logger::log(LogLevel::TRACE, "Func " + String(id) + " " + String(data->status));
+		Logger::log(LogLevel::TRACE, "CNT", "Func changed: ID:" + String(id) + " V:" + String(data->status));
 		for (int idx = 0; idx < actions.size(); idx++) {
 			actions.get(idx)->DCCFunc(id, data->status, source);
 		}
@@ -297,7 +294,7 @@ void Controller::notifyDCCFun(int id, int startbit, int stopbit, unsigned long p
 		}
  	}
 	if (changed) {
-		Logger::log(LogLevel::TRACE, "Func " + String(id) + " " + String(data->status));
+		Logger::log(LogLevel::TRACE, "CNT", "Func changed: ID:" + String(id) + " V:" + String(data->status));
 		for (int idx = 0; idx < actions.size(); idx++) {
 			actions.get(idx)->DCCFunc(id, data->status, source);
 		}
@@ -333,20 +330,20 @@ void Controller::emergencyStop(int source) {
 }
 
 void Controller::enableAPModus() {
-	Logger::getInstance()->addToLog(LogLevel::INFO, "Aktiviere Access Point!");
+	Logger::log(LogLevel::INFO, "CNT", "Aktiviere Access Point!");
  	WiFiMode_t mode = WiFi.getMode();
 	if (mode == WIFI_AP || mode == WIFI_AP_STA) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Access Point bereits aktiv!");
+		Logger::log(LogLevel::INFO, "CNT", "Access Point bereits aktiv!");
 		return;
 	}
 	int status = WiFi.status();
 	if (status == WL_NO_SSID_AVAIL || status == WL_DISCONNECTED) {
-		Logger::log(LogLevel::TRACE, "Station Modus abgeschalten");
+		Logger::log(LogLevel::TRACE, "CNT", "Station Modus wird deaktiviert");
 		WiFi.disconnect();
 	}
 	WiFi.softAP("Hallo World");
 	WiFi.enableAP(true);
-	Logger::log(LogLevel::TRACE, "IP für AP: " + WiFi.softAPIP().toString());
+	Logger::log(LogLevel::TRACE, "CNT", "IP für AP: " + WiFi.softAPIP().toString());
 	dnsServer.reset(new DNSServer());
 	dnsServer->start(53, "*", WiFi.softAPIP());
 }
@@ -361,7 +358,7 @@ LinkedList<ISettings*>* Controller::getSettings() {
 
 void Controller::registerSettings(ISettings* loop) {
 	if (loop == NULL) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registerySettings");
+		Logger::log(LogLevel::ERROR, "Null in registerySettings");
 		return;
 	}
 	Serial.println("Adding Settings " + loop->getName());
@@ -371,7 +368,7 @@ void Controller::registerSettings(ISettings* loop) {
 
 void Controller::registerStatus(IStatus* loop) {
 	if (loop == NULL) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Null in registeryStatus");
+		Logger::log(LogLevel::ERROR, "Null in registeryStatus");
 		return;
 	}
 	status.add(loop);
