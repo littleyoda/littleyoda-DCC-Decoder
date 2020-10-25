@@ -113,6 +113,10 @@ public:
 	}
 
 
+	static bool isWifiConnected() {
+		return WiFi.status() == WL_CONNECTED || WiFi.getMode() == WIFI_AP || WiFi.getMode() == WIFI_AP_STA;
+	}
+
 	static int hextoint(char c) {
 		unsigned int value = (unsigned int) c;
 		if (isdigit(c)) {

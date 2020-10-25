@@ -23,10 +23,12 @@ CmdZentraleZ21::CmdZentraleZ21(Controller* c) :
 
 int CmdZentraleZ21::loop() {
 	// Check for UDP
-	int cb = udp->parsePacket();
-	if (cb > 0) {
-		while (udp->available() > 0)  {
-			doReceive();
+	if (Utils::isWifiConnected()) {
+		int cb = udp->parsePacket();
+		if (cb > 0) {
+			while (udp->available() > 0)  {
+				doReceive();
+			}
 		}
 	}
 	long int time = millis();
