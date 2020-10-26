@@ -344,8 +344,12 @@ void handleSerial() {
 
 void setup() {
 	Serial.begin(115200);
+	Serial.println("-------------------------------------------------");
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup");
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Started!");
+	#ifdef ARDUINO_MH_ET_LIVE_ESP32MINIKIT
+		Logger::getInstance()->addToLog(LogLevel::INFO, "Sonderfall ESP32 Minikit: Bei der Eingabe von Befehlen über die Serielle Schnittstelle RTS/CTS deaktivieren.");
+	#endif
 	Logger::getInstance()->addToLog(LogLevel::INFO, compile_date);
 	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Controller");
 	controller = new Controller();
