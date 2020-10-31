@@ -34,7 +34,7 @@ PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinO
 
 	#endif
 	for (int i = 0; i < len; i++) {
-			addESP32Pin(i);
+			addESP32Pin(pins[i]);
 	}
 }
 
@@ -109,6 +109,13 @@ void PortsESP32::addESP32Pin(int x)
 		break;
 	case 5:
 		add("IO05", 5, F::UNSTABLE_AT_STARTUP | F::PIN_STRAPPING_AT_STARTUP);
+		break;
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
+	case 11:
 		break;
 	// add("IO06", 6);
 	// add("IO07", 7);
