@@ -22,13 +22,27 @@ z21PaketParser(c) {
 		z21Server->fromString(ip);
 
 	}
-	Logger::getInstance()->addToLog(LogLevel::INFO, "Using: " + String(z21Server->toString()));
 	udp = new WiFiUDP();
-	udp->begin(localPort);
-	enableBroadcasts();
+	Logger::getInstance()->addToLog(LogLevel::INFO, "Using " + String(z21Server->toString()) + " as Z21 Adress");
 }
 
 int CmdReceiverZ21Wlan::loop() {
+	long int time = millis();
+	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
+		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
+		controller->emergencyStop(Consts::SOURCE_INTERNAL);
+		timeout = 0;
+	}
+
+	if (!Utils::isWifiConnected()) {
+		return 40;
+	}
+	if (!udpSetup) {
+		udp->begin(localPort);
+		udpSetup = true;
+		enableBroadcasts();
+	}
+
 	// Check for UDP
 	int cb = udp->parsePacket();
 	if (cb > 0) {
@@ -36,12 +50,7 @@ int CmdReceiverZ21Wlan::loop() {
 			doReceive();
 		}
 	}
-	long int time = millis();
-	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
-		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
-		controller->emergencyStop(Consts::SOURCE_INTERNAL);
-		timeout = 0;
-	}
+
 
 	// Scheduler for Requests
 	if (time - lastTime > (cmdSendTime)) {

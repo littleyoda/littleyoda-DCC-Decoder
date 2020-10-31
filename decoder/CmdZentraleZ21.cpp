@@ -16,14 +16,17 @@
 CmdZentraleZ21::CmdZentraleZ21(Controller* c) :
 		CmdReceiverBase(c) {
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Zentrale ...");
-	udp = new WiFiUDP();
-	udp->begin(localPort);
 	clients = new LinkedList<ClientsStruct*>();
+	udp = new WiFiUDP();
 }
 
 int CmdZentraleZ21::loop() {
 	// Check for UDP
 	if (Utils::isWifiConnected()) {
+		if (!udpSetup) {
+			udp->begin(localPort);
+			udpSetup = true;
+		}
 		int cb = udp->parsePacket();
 		if (cb > 0) {
 			while (udp->available() > 0)  {

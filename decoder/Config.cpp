@@ -51,6 +51,7 @@
 #include "ISettings.h"
 #include "Display.h"
 #include "LocDataController.h"
+#include "WifiCheck.h"
 
 #ifdef LY_FEATURE_AUDIO
 	#include "ActionAudioI2S.h"
@@ -447,7 +448,10 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			if (kanal.length() > 0) {
 				ch = kanal.toInt();
 			}
+			WiFi.setAutoReconnect(true);
 			WiFi.begin(ssid.c_str(), pwd.c_str(), ch);
+			controller->registerLoop(new WifiCheck(controller));
+
 		} else if (m.equals("ap")) {
 			IPAddress Ip(192, 168, 0, 111);
 			IPAddress NMask(255, 255, 255, 0);
@@ -464,7 +468,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			}
 			WiFi.enableAP(true);
 			Serial.println("AP-IP: " + WiFi.softAPIP().toString());
-			// TODO DNS -Server
+			controller->registerLoop(new WifiCheck(controller));
 
 
 		} else if (m.equals("i2c")) {
@@ -477,11 +481,11 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			String d = parser->getValueByKey(idx, "d");
 			bool isPca9685 = d.equalsIgnoreCase("pca9685");
 			bool isMcp23017 = d.equalsIgnoreCase("mcp23017");
-      bool isArduinoExtender = d.equalsIgnoreCase("arduinoextender");
-      String variant = "";
-      if (isArduinoExtender) {
-         variant = parser->getValueByKey(idx, "variant");
-      }
+			bool isArduinoExtender = d.equalsIgnoreCase("arduinoextender");
+			String variant = "";
+			if (isArduinoExtender) {
+				variant = parser->getValueByKey(idx, "variant");
+			}
       
 			if (isPca9685 || isMcp23017 || isArduinoExtender) {
 				int addridx = parser->getIdxByKey(idx, "addr");
@@ -514,7 +518,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 						if (isMcp23017) {
 							GPIOobj.addMCP23017(addr);
 						} else if (isArduinoExtender) {
-              GPIOobj.addArduinoExtender(i2caddr, variant);
+            			GPIOobj.addArduinoExtender(i2caddr, variant);
 						} else
 						{
 							GPIOobj.addPCA9685(i2caddr);
@@ -785,8 +789,10 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("analoggpio")) {
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			Serial.println("GPIO " + parser->getValueByKey(idx, "gpio", "A0"));
+			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio", "A0"));
 			ISettings* a = getSettingById(controller, conn);
-			InputAnalog* ire = new InputAnalog(a);
+			InputAnalog* ire = new InputAnalog(a, gpio);
 			controller->registerLoop(ire);
 
       		int element = parser->getFirstChildOfArrayByKey(idx, "value2out");

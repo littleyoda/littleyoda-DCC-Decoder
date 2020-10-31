@@ -27,8 +27,9 @@ public:
     virtual void sendSetSensor(uint16_t id, uint8_t status);
 	virtual void sendDCCSpeed(int id, LocData* d);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
+	bool udpSetup = false;
 private:
-	WiFiUDP* udp;
+	WiFiUDP* udp = nullptr;
 	unsigned int localPort = 21105;
 	const int packetBufferSize = 30;
 	unsigned char packetBuffer[30];

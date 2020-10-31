@@ -13,10 +13,8 @@
 #ifdef ESP8266
 	#include <ESP8266WebServer.h>
 	#include <ESP8266HTTPUpdateServer.h>
-	#include <ESP8266mDNS.h>
 #elif ESP32
 	#include <WebServer.h>
-	#include <ESPmDNS.h>
 	#include <Update.h>
 #else
 	#error "This Arch is not supported"

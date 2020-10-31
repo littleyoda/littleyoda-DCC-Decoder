@@ -69,6 +69,11 @@ public:
 		return r;
 	}
 
+	/**
+	 * 
+	 * Kombination aus dem Wifi Status (Connected, Disconnected) und Mode (STA, AP, STA_SP)
+	 * 
+	 */
 	static int getExtWifiStatus() {
 		int status = WiFi.status();
                 #ifdef ESP8266
@@ -77,6 +82,28 @@ public:
 			status = status | (WiFi.getMode() << 4);
                 #endif
 		return status;
+	}
+
+	static String extwifi2String(int status) {
+		String out = wifi2String(status & 15);
+		if (status > 15) {
+			status = status >> 4;
+			switch (status) {
+				case 0x01: // STATION_MODE
+					out += " [STA]";
+					break;
+				case 0x02: // SOFTAP_MODE
+					out += " [AP]";
+					break;
+				case 0x03: // STATIONAP_MODE
+					out += " [STA/AÜ]";
+					break;
+				default:
+					out += " [unknown]";
+					break;
+			}
+		}
+		return out;
 	}
 
 	static String wifi2String(int status) {
@@ -214,6 +241,9 @@ public:
 					status = 0;
 					break;
 			}
+			Serial.println("=====");
+			Serial.println(s.substring(0,i));
+			Serial.println(out);
 		}
 		return out;
 	}

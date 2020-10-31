@@ -319,27 +319,6 @@ int Webserver::loop() {
 		}
 	#endif
 	server->handleClient();
-	if (lastWifiStatus != Utils::getExtWifiStatus()) {
-		Logger::getInstance()->addToLog(LogLevel::INFO, 
-				"Wifi status changed: " + Utils::wifi2String(lastWifiStatus)
-		+ " => " + Utils::wifi2String(WiFi.status()) + " IP:"
-		+ WiFi.localIP().toString());
-		Serial.printf("Connection to: %s (Q:%d)\r\n", WiFi.BSSIDstr().c_str(), WiFi.RSSI());
-		lastWifiStatus = Utils::getExtWifiStatus();
-		if (WiFi.status() == WL_CONNECTED || WiFi.getMode() == WIFI_AP || WiFi.getMode() == WIFI_AP_STA) {
-			Serial.println("MDNS start");
-			bool mdns = MDNS.begin(controll->getHostname().c_str());
-			Serial.println("MDNS start: " + String(mdns));
-			MDNS.addService("http", "tcp", 80);
-			MDNS.addServiceTxt("http", "tcp", "Version", gitversion);
-			MDNS.addServiceTxt("http", "tcp", "Source", "github:littleyoda/littleyoda-DCC-Decoder");
-			MDNS.addServiceTxt("http", "tcp", "FlashModus", "Arduino_Esp8266_2.6");
-			
-		}
-	}
-	#ifdef ESP8266
-	MDNS.update();
-	#endif
 	return 2;
 }
 

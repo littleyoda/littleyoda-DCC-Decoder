@@ -45,6 +45,7 @@ private:
 
 
 	WiFiUDP* udp;
+	bool udpSetup = false;
 	unsigned int localPort = 21105;
 	const int packetBufferSize = 30;
 	unsigned char pb[30];
