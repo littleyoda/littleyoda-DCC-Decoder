@@ -74,16 +74,18 @@ int WifiCheck::loop() {
 	default:
 		break;
 	};
+	#ifdef ESP32
 	switch (todo) {
 		case 1:
 			Serial.println("Reconnect");
-			WiFi.reconnect();
+			WiFi.begin();
 			return 300;
 		case 2:
-			Serial.println("Begin");
+		Serial.println("Wifi Begin");
 			WiFi.begin();
 			return 300;
 		default:
 			return 100;
 	}
+	#endif
 }
