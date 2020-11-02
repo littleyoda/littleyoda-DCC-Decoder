@@ -10,10 +10,18 @@
 #include "InputAnalog.h"
 #include "Arduino.h"
 #include "Logger.h"
-InputAnalog::InputAnalog(ISettings* a) {
+#include "GPIO.h"
+InputAnalog::InputAnalog(ISettings* a, int pin) {
 	addAction(a);
 	setModulName("InputAnalog");
-	setConfigDescription("Input: A0");
+	setConfigDescription("Input: " + GPIOobj.gpio2string(pin));
+  gpio = pin;
+  #ifdef ESP8266
+  epsilon = 8;
+  #endif
+  #ifdef ESP32
+  epsilon = 40;
+  #endif
 }
 
 InputAnalog::~InputAnalog() {
@@ -32,10 +40,10 @@ void InputAnalog::addArea(int b, int e, String k, String v) {
  * 
  */
 int InputAnalog::loop() {
-    int value = analogRead(A0);
-    bool within = ((lastvalue - 8) < value) && (value < (lastvalue + 8));
+    int value = analogRead(gpio);
+    bool within = ((lastvalue - epsilon) < value) && (value < (lastvalue + epsilon));
     if (!within) {
-      Logger::log(LogLevel::TRACE, "INP", "Analog-Value: " + String(value));
+      Logger::log(LogLevel::TRACE, "INP", getName() + " Analog-Value: " + String(value));
       lastvalue = value;
     	for (int idx = 0; idx < data.size(); idx++) {
         InputAnalogData* d = data.get(idx);
@@ -44,5 +52,5 @@ int InputAnalog::loop() {
         }
       }
     }
-    return 200;
+    return 50;
 }

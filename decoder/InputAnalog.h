@@ -21,13 +21,15 @@ struct InputAnalogData{
 
 class InputAnalog : public ILoop, public Connectors {
 public:
-	InputAnalog(ISettings* a);
+	InputAnalog(ISettings* a, int pin);
 	virtual ~InputAnalog();
 	int loop();
 	void addArea(int b, int e, String key, String value);
 private:
+	int gpio;
 	int lastvalue = 0;
 	LinkedList<InputAnalogData*> data;
+	int epsilon;
 
 };
 
