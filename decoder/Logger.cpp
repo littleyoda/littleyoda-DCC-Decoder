@@ -127,7 +127,7 @@ boolean Logger::sendRD() {
 	}
 	logdata* log = logger.get(last);
 	log->sendRD = true;
-	Serial.println("Sending: " + log->msg);
+//	Serial.println("Sending: " + log->msg);
 	#ifdef ESP8266
 	Debug.println(log->msg.c_str());
 	#endif
