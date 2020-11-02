@@ -83,6 +83,15 @@ void LocDataController::setSettings(String key, String value) {
             speed = 0;
         }
         changed = true;
+    } else if (key.equalsIgnoreCase("setSpeed")) {
+        speed = value.toInt();
+        if (speed > 127) {
+            speed = 127;
+        }
+        if (speed < 0) {
+            speed = 0;
+        }
+        changed = true;
     } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
         speed = 0;
         dir = -dir;
