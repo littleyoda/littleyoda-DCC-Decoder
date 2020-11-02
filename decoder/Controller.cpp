@@ -34,6 +34,9 @@ Controller::Controller() {
 		Logger::log(LogLevel::ERROR, "CNT", "SPIFFS konnte nicht genutzt werden!");
 	}
 	EMERGENCYActive = false;
+	for (int i = 0; i < 100; i++) {
+		l[i] = 0;
+	}
 }
 
 Controller::~Controller() {
@@ -67,10 +70,10 @@ void Controller::doLoops() {
 		next = loopstarted + 1000;
 	}
 	logLoop(millis() - loopstarted);
-
 	if (dnsServer) {
 		dnsServer->processNextRequest();
 	}
+
 }
 
 void Controller::registerNotify(INotify* base) {
@@ -156,7 +159,7 @@ LocData* Controller::getLocData(int id) {
 		data = new LocData();
 		data->status = 0;
 		data->speed = 0;
-		data->speedsteps = 0;
+		data->speedsteps = 128;
 		data->direction = Consts::SPEED_FORWARD;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
@@ -210,6 +213,7 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 	LocData* data;
 	if (items.find(id) == items.end()) {
 		data = new LocData();
+		data->status = 0;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
 			itemskeys.push_back(id);
@@ -222,7 +226,6 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 		}
 	}
 
-	// Save new state
 	data->direction = direction;
 	data->speed = speed;
 	data->speedsteps = SpeedSteps;
@@ -453,6 +456,17 @@ void Controller::internalStatusObjStatus(IInternalStatusCallback* cb, String mod
 			}
 		}
 	}
+
+    if (key == "requestlist" || key == "*") {
+        LinkedList<INotify::requestInfo*>* l = getRrequestList();
+		if (l != NULL) {
+        	for (int i =0; i < l->size(); i++) {
+            	INotify::requestInfo* d = l->get(i);
+				cb->send("requestlist", (d->art == d->LOCO) ? "Lok" : "Weiche", String(d->id));
+        	}
+		}
+	}
+
 }
 
 Controller::Items* Controller::getLocData() {

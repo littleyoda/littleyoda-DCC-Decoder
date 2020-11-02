@@ -11,7 +11,7 @@
 	struct LocData {
 		int16_t speed;
 		int8_t direction;
-		int8_t speedsteps;
+		int16_t speedsteps;
 		unsigned long int status;
 	} __attribute__ ((packed));
 
