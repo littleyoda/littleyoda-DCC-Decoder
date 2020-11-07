@@ -15,7 +15,6 @@
 #include "ActionLed.h"
 #include "ActionPWMOutput.h"
 #include "ActionPWMDirect.h"
-#include "ActionDFPlayerMP3.h"
 #include "ActionDCCGeneration.h"
 #include "ActionSUSIGeneration.h"
 #include "ActionSendTurnoutCommand.h"
@@ -53,6 +52,8 @@
 #include "LocDataController.h"
 #include "WifiCheck.h"
 
+#include "CmdReceiverESPNOW.h"
+
 #ifdef LY_FEATURE_AUDIO
 	#include "ActionAudioI2S.h"
 #endif
@@ -61,7 +62,6 @@
 #ifdef ESP32
 	#include "FS.h"
 	#include "SPIFFS.h"
-//	#include "CmdReceiverESPNOW.h"
 #endif
 
 
@@ -386,22 +386,35 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, parser->getValueByKey(idx, "ip"));
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);
+			controller->registerStatus(rec);
 
 
-		} else if (m.equals("simulateZ21")) {
+		} else if (m.equalsIgnoreCase("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);
-//			controller->registerNotify(rec);
+			controller->registerStatus(rec);
+			controller->registerNotify(rec);
 
-		// } else if (m.equals("espnow")) {
-		// 	#ifdef ESP32
-		// 		String role = parser->getValueByKey(idx, "role");
-		// 		CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, role);
-		// 		controller->registerCmdReceiver(rec);
-		// 	#else
-		// 		Logger::log(LogLevel::ERROR, "ESPNOW not supported on ESP8266");
-		// 	#endif
+		} else if (m.equals("espnow")) {
+			String role = parser->getValueByKey(idx, "role");
+			String key = parser->getValueByKey(idx, "key");
+			bool err = false;
+			if (key.length() != 32) {
+				Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültiger Verschlüsselungskey");
+				err = true;
+			} 
+			int kanal = parser->getValueByKey(idx, "kanal").toInt();
+			if (kanal < 1 || kanal > 12) {
+				Logger::getInstance()->addToLog(LogLevel::ERROR, "Ungültiger Kanal für espnow");
+				err = true;
+			}
+			if (!err) {
+				CmdReceiverESPNOW* rec = new CmdReceiverESPNOW(controller, role, key, kanal);
+				controller->registerCmdReceiver(rec);
+				controller->registerCmdSender(rec);
+				controller->registerStatus(rec);
+			}
 		} else if (m.equals("rocnetovermqtt")) {
 			controller->registerCmdReceiver(new CmdReceiverRocnetOverMQTT(controller));
 
@@ -414,10 +427,10 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			web->registerWebServices(new WebserviceLog());
 
 		} else if (m.equals("mp3")) {
-			//			int  addr = value["addr").toInt();
-			//			int tx = GPIOobj.string2gpio(value["tx"].as<const char*>());
-			//			int rx = GPIOobj.string2gpio(value["rx"].as<const char*>());
-			//			controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
+						// int  addr = value["addr").toInt();
+						// int tx = GPIOobj.string2gpio(value["tx"].as<const char*>());
+						// int rx = GPIOobj.string2gpio(value["rx"].as<const char*>());
+						// controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
 
 		} else if (m.equals("wlan")) {
 			WiFi.enableSTA(true);
@@ -443,13 +456,13 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			} else {
 				Logger::log(LogLevel::INFO, "Netzwerkkonfiguration per DHCP");
 			}
-			int ch = 1;
-			String kanal = parser->getValueByKey(idx, "kanal");
-			if (kanal.length() > 0) {
-				ch = kanal.toInt();
-			}
+			// int ch = 1;
+			// String kanal = parser->getValueByKey(idx, "kanal");
+			// if (kanal.length() > 0) {
+			// 	ch = kanal.toInt();
+			// }
 			WiFi.setAutoReconnect(true);
-			WiFi.begin(ssid.c_str(), pwd.c_str(), ch);
+			WiFi.begin(ssid.c_str(), pwd.c_str());
 			controller->registerLoop(new WifiCheck(controller));
 
 		} else if (m.equals("ap")) {

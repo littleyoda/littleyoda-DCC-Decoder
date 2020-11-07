@@ -13,7 +13,7 @@
 #include "Utils.h"
 
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, String ip) :
-z21PaketParser(c) {
+ Z21Format(c) {
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {
 		z21Server = new IPAddress(192, 168, 0, 111);
@@ -84,88 +84,18 @@ int CmdReceiverZ21Wlan::loop() {
 
 }
 
-void CmdReceiverZ21Wlan::requestRailcom() {
-	memset(packetBuffer, 0, packetBufferSize);
-
-	packetBuffer[0] = 0x07;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x89;
-	packetBuffer[3] = 0x00;
-
-	packetBuffer[4] = 0x01;
-	packetBuffer[5] = 0;
-	packetBuffer[6] = 0;
-	packetBuffer[7] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6];
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, 8);
-	udp->endPacket();
-}
 
 void CmdReceiverZ21Wlan::doReceive() {
-
-	udp->read(packetBuffer, 1);
-	int cb = (int) packetBuffer[0];
+	udp->read(pb, 1);
+	int cb = (int) pb[0];
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
 	}
-	int ret = udp->read(&packetBuffer[1], cb - 1);
-	parser(packetBuffer, cb);
+	int ret = udp->read(&pb[1], cb - 1);
+	parseServer2Client(pb, cb);
 	resetTimeout();
-
-	//
 }
 
-/**
- * Fragt den Weichenstatus der Weiche bei der Z21 an
- */
-void CmdReceiverZ21Wlan::requestTurnoutInfo(int addr) {
-	if (addr == -1) {
-		return;
-	}
-	//Serial.println("Sending Turnout-Info Request");
-	memset(packetBuffer, 0, packetBufferSize);
-
-	packetBuffer[0] = 0x08;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
-	packetBuffer[3] = 0x00;
-
-	packetBuffer[4] = 0x43;
-	packetBuffer[5] = addr >> 8;
-	packetBuffer[6] = addr & 255;
-	packetBuffer[7] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6];
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, 8);
-	udp->endPacket();
-}
-
-/**
- * Sendet der Z21 einen BroadcastRequest
- */
-void CmdReceiverZ21Wlan::enableBroadcasts() {
-	//  Serial.println("Sending Broadcast Request");
-	memset(packetBuffer, 0, packetBufferSize);
-
-	// 0x08 0x00 0x50 0x00 0x01 0x00 0x01 0x00
-	// 2.16 LAN_SET_BROADCASTFLAGS
-	packetBuffer[0] = 0x08;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x50;
-	packetBuffer[3] = 0x00;
-
-	// Flags = 0x00 01 00 01 (Little Endian)
-	// 0x01 and 0x01 00 00
-	packetBuffer[4] = 0x01;
-	packetBuffer[5] = 0x00;
-	packetBuffer[6] = 0x01;
-	packetBuffer[7] = 0x00;
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
 
 /**
  * Sendet einen Gleis besetzt-Signal, der über ein GBM ausgelöst wurde, an die Z21 Loconet
@@ -195,38 +125,35 @@ void CmdReceiverZ21Wlan::sendSetSensor(uint16_t id, uint8_t status) {
 	if (id % 2) bitSet(AddrH, 5);
 	bitSet(AddrH, 6);
   
-	memset(packetBuffer, 0, 8);
+	memset(pb, 0, 8);
 
-	packetBuffer[0] = 0x08;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0xa2;
-	packetBuffer[3] = 0x00;
+	pb[0] = 0x08;
+	pb[1] = 0x00;
+	pb[2] = 0xa2;
+	pb[3] = 0x00;
 
-	packetBuffer[4] = 0xb2;
-	packetBuffer[5] = AddrL;
-	packetBuffer[6] = AddrH;  
-  	packetBuffer[7] = 0xFF ^ packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6];
-  
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
+	pb[4] = 0xb2;
+	pb[5] = AddrL;
+	pb[6] = AddrH;  
+  	pb[7] = 0xFF ^ pb[4] ^ pb[5] ^ pb[6];
+	send();
+ }
 
 void CmdReceiverZ21Wlan::sendDCCSpeed(int addr, LocData* data) {
-	memset(packetBuffer, 0, packetBufferSize);
-	packetBuffer[0] = 0X0A;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
-	packetBuffer[3] = 0x00;
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 0X0A;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
 
-	packetBuffer[4] = 0xE4;
-	packetBuffer[5] = 0x13;
-	packetBuffer[6] = (addr >> 8) & 0x3F;
+	pb[4] = 0xE4;
+	pb[5] = 0x13;
+	pb[6] = (addr >> 8) & 0x3F;
 	if (addr >= 128) {
-		packetBuffer[6] += 0b11000000;
+		pb[6] += 0b11000000;
 	}
 
-	packetBuffer[7] = addr & 255;
+	pb[7] = addr & 255;
 
 	unsigned int v = (data->speed & 127);
 	// Adjust to match NmraDCC Schema
@@ -235,42 +162,37 @@ void CmdReceiverZ21Wlan::sendDCCSpeed(int addr, LocData* data) {
 	} else if (v == Consts::SPEED_EMERGENCY) {
 		v = 1;
 	}
-	packetBuffer[8] = v | ((data->direction == -1) ? 0 : 128);
+	pb[8] = v | ((data->direction == -1) ? 0 : 128);
 
-	packetBuffer[9] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6] ^ packetBuffer[7] ^ packetBuffer[8];
+	pb[9] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8];
 	
-	printPacketBuffer("DCC Speed", packetBuffer, packetBuffer[0]);
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
+	printPacketBuffer("DCC Speed", pb, pb[0]);
+	send();
 
 }
 
 void CmdReceiverZ21Wlan::sendDCCFun(int addr, LocData* data, unsigned int changedBit) {
-	memset(packetBuffer, 0, packetBufferSize);
-	packetBuffer[0] = 0x0A;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
-	packetBuffer[3] = 0x00;
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 0x0A;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
 
-	packetBuffer[4] = 0xE4;
-	packetBuffer[5] = 0xF8;
-	packetBuffer[6] = (addr >> 8) & 0x3F;
+	pb[4] = 0xE4;
+	pb[5] = 0xF8;
+	pb[6] = (addr >> 8) & 0x3F;
 	if (addr >= 128) {
-		packetBuffer[6] += 0b11000000;
+		pb[6] += 0b11000000;
 	}
 
-	packetBuffer[7] = addr & 255;
+	pb[7] = addr & 255;
 
-	packetBuffer[8] = bit_is_set01(data->status, changedBit) << 6 | changedBit;
+	pb[8] = bit_is_set01(data->status, changedBit) << 6 | changedBit;
 
 
-	packetBuffer[9] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6] ^ packetBuffer[7] ^ packetBuffer[8];
-	printPacketBuffer("DCC", packetBuffer, packetBuffer[0]);
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-	
+	pb[9] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8];
+	printPacketBuffer("DCC", pb, pb[0]);
+	send();
 }
 
 /**
@@ -283,24 +205,21 @@ void CmdReceiverZ21Wlan::sendSetTurnout(String id, String status) {
   if (status == "1") {
     statuscode = 1;
   }
-  memset(packetBuffer, 0, packetBufferSize);
+  memset(pb, 0, packetBufferSize);
 
   // 5.2 LAN_X_SET_TURNOUT
-  packetBuffer[0] = 0x09;
-  packetBuffer[1] = 0x00;
-  packetBuffer[2] = 0x40;
-  packetBuffer[3] = 0x00;
+  pb[0] = 0x09;
+  pb[1] = 0x00;
+  pb[2] = 0x40;
+  pb[3] = 0x00;
 
-  packetBuffer[4] = 0x53;
-  packetBuffer[5] = 0x00;
-  packetBuffer[6] = id.toInt();
-  packetBuffer[7] = 0xA8 | statuscode;
-  packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
-                                     ^ packetBuffer[7];
-
-  udp->beginPacket(*z21Server, localPort);
-  udp->write(packetBuffer, packetBuffer[0]);
-  udp->endPacket();
+  pb[4] = 0x53;
+  pb[5] = 0x00;
+  pb[6] = id.toInt();
+  pb[7] = 0xA8 | statuscode;
+  pb[8] = pb[4] ^ pb[5] ^ pb[6]
+                                     ^ pb[7];
+  send();
 }
 
 
@@ -314,119 +233,8 @@ void CmdReceiverZ21Wlan::resetTimeout() {
 	timeout = millis();
 }
 
-void CmdReceiverZ21Wlan::sendLanGetSerialNumber() {
-	memset(packetBuffer, 0, packetBufferSize);
-
-	// 5.2 LAN_X_SET_TURNOUT
-	packetBuffer[0] = 0x04;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x10;
-	packetBuffer[3] = 0x00;
-
+void CmdReceiverZ21Wlan::send() {
 	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
-
-void CmdReceiverZ21Wlan::sendCfg12Request() {
-	memset(packetBuffer, 0, packetBufferSize);
-	// undokumentiert;	04:00:12:00
-	packetBuffer[0] = 0x04;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x12;
-	packetBuffer[3] = 0x00;
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
-
-void CmdReceiverZ21Wlan::sendCfg16Request() {
-	memset(packetBuffer, 0, packetBufferSize);
-	//	undokumentiert; 04:00:16:00
-	packetBuffer[0] = 0x04;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x16;
-	packetBuffer[3] = 0x00;
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
-
-void CmdReceiverZ21Wlan::sendXGetStatus() {
-	memset(packetBuffer, 0, packetBufferSize);
-
-	// 2.4 LAN_X_GET_STATUS
-	packetBuffer[0] = 0x07;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
-	packetBuffer[3] = 0x00;
-
-	packetBuffer[4] = 0x21;
-	packetBuffer[5] = 0x24;
-	packetBuffer[6] = 0x05;
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
-
-void CmdReceiverZ21Wlan::sendGetBroadcastFlags() {
-	memset(packetBuffer, 0, packetBufferSize);
-
-	// 4.1 LAN_X_GET_LOCO_INFO
-	packetBuffer[0] = 0x04;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x51;
-	packetBuffer[3] = 0x00;
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-
-}
-
-void CmdReceiverZ21Wlan::sendFrimwareVersionRequest() {
-	memset(packetBuffer, 0, packetBufferSize);
-
-	// 4.1 LAN_X_GET_LOCO_INFO
-	packetBuffer[0] = 0x07;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
-	packetBuffer[3] = 0x00;
-
-	packetBuffer[4] = 0xF1;
-	packetBuffer[5] = 0x0A;
-	packetBuffer[6] = 0xFB;
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
-	udp->endPacket();
-}
-
-void CmdReceiverZ21Wlan::requestLocoInfo(int addr) {
-	memset(packetBuffer, 0, packetBufferSize);
-
-	// 4.1 LAN_X_GET_LOCO_INFO
-	packetBuffer[0] = 0x09;
-	packetBuffer[1] = 0x00;
-	packetBuffer[2] = 0x40;
-	packetBuffer[3] = 0x00;
-
-	packetBuffer[4] = 0xE3;
-	packetBuffer[5] = 0xF0;
-
-	packetBuffer[6] = addr >> 8;
-	if (addr >= 128) {
-		packetBuffer[6] += 0b11000000;
-	}
-
-	packetBuffer[7] = addr & 0xFF;
-	packetBuffer[8] = packetBuffer[4] ^ packetBuffer[5] ^ packetBuffer[6]
-																	   ^ packetBuffer[7];
-
-	udp->beginPacket(*z21Server, localPort);
-	udp->write(packetBuffer, packetBuffer[0]);
+	udp->write(pb, pb[0]);
 	udp->endPacket();
 }

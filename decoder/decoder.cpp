@@ -69,7 +69,7 @@ void loadCFG(Webserver* web) {
 	Config* c = new Config();
 	bool b = c->parse(controller, web, "/config.json", false);
 	delete(c);
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " Post Config");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " Post Config");
 	if (!b) {
 		Logger::getInstance()->addToLog(LogLevel::ERROR,
 				"Config-File konnte nicht geparst werden. Fehlerhafter Syntax? Nicht genug Memory?");
@@ -125,8 +125,8 @@ void handleSerial() {
 							"\r\n"
 							"Memory:\r\n"
 							"==================\r\n"
-							"Free start memory: %d \r\n"
-							"Free (Heap)memory: %d \r\n"
+							"Free start Memory: %d \r\n"
+							"Free (Heap) Memory: %d \r\n"
 							"Free Sketch Space: %d \r\n"
 							"\r\n"
 							"Logger:\r\n"
@@ -147,7 +147,7 @@ void handleSerial() {
 					WiFi.localIP().toString().c_str()
 			);
 			//			if (controller->cmdlogger != NULL) {
-			//				Serial.println("Commandlogger: " + String(controller->cmdlogger->getMemUsage()));
+			//				Serial.println("Commandlogger: " + String(controller->cmdlogger->get[MEM]Usage()));
 			//			}
 			WiFi.printDiag(Serial);
 			Serial.printf_P(
@@ -345,26 +345,26 @@ void handleSerial() {
 void setup() {
 	Serial.begin(115200);
 	Serial.println("-------------------------------------------------");
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Setup");
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Started!");
 	#ifdef ARDUINO_MH_ET_LIVE_ESP32MINIKIT
 		Logger::getInstance()->addToLog(LogLevel::INFO, "Sonderfall ESP32 Minikit: Bei der Eingabe von Befehlen über die Serielle Schnittstelle RTS/CTS deaktivieren.");
 	#endif
 	Logger::getInstance()->addToLog(LogLevel::INFO, compile_date);
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Controller");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Controller");
 	controller = new Controller();
 	transfer = new Transfer(controller);
 	controller->registerLoop(new DoubleBootDetection(controller));
 	GPIOobj.setController(controller);
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Wifi");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Wifi");
 	initWifi();
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Webserver");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Webserver");
 	Webserver* web = new Webserver(controller);
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Serial");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Serial");
 	handleSerial();
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Cfg");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Cfg");
 	loadCFG(web);
-	Serial.println("MEM "  + String(ESP.getFreeHeap()) + " / Setup Finish");
+	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Setup Finish");
 	Serial.println(GPIOobj.getUsage("\r\n"));
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Setup finish!");
 	controller->longestLoop = 0;

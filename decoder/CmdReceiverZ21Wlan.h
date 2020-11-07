@@ -9,20 +9,20 @@
 #define CMDRECEIVERZ21WLAN_H_
 
 #include "CmdSenderBase.h"
-#include "z21PaketParser.h"
+#include "Z21Format.h"
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 
 
 
-class CmdReceiverZ21Wlan: public CmdSenderBase, public z21PaketParser {
+class CmdReceiverZ21Wlan:  public Z21Format {
 public:
 	CmdReceiverZ21Wlan(Controller* c, String ip);
 	virtual int loop();
 	virtual ~CmdReceiverZ21Wlan();
-	void requestTurnoutInfo(int addr);
+/*	void requestTurnoutInfo(int addr);
 	void requestLocoInfo(int addr);
-	void enableBroadcasts();
+	void enableBroadcasts();*/
 	virtual void sendSetTurnout(String id, String status);
     virtual void sendSetSensor(uint16_t id, uint8_t status);
 	virtual void sendDCCSpeed(int id, LocData* d);
@@ -31,23 +31,18 @@ public:
 private:
 	WiFiUDP* udp = nullptr;
 	unsigned int localPort = 21105;
-	const int packetBufferSize = 30;
-	unsigned char packetBuffer[30];
-	unsigned char packetcfg12[30];
-	unsigned char packetcfg16[30];
+//	unsigned char packetcfg12[30];
+//	unsigned char packetcfg16[30];
 	unsigned long timeout = 0;
 	IPAddress* z21Server;
 	void doReceive();
 	void resetTimeout();
 
-	void sendLanGetSerialNumber();
-	void sendCfg12Request();
-	void sendCfg16Request();
-	void sendFrimwareVersionRequest();
-	void sendXGetStatus();
+//	void sendLanGetSerialNumber();
+//	void sendCfg16Request();
 	void sendGetBroadcastFlags();
+	virtual void send();
 
-	void requestRailcom();
 
 	long int lastTime = 0;
 	static const int emergencyStopTimeout = 1000;
