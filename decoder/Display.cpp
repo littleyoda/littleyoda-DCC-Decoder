@@ -15,7 +15,8 @@
 #include "GPIO.h"
 #include "DisplaySSD1306.h"
 #include "DisplayHD44780.h"
- 
+#include "DisplayLCD1602_PCF8574.h"
+
 Display::Display(Controller* c, String text, String model, LinkedList<int>* list) {
 	controller = c;
 	display = nullptr;
@@ -24,6 +25,9 @@ Display::Display(Controller* c, String text, String model, LinkedList<int>* list
 		display = new DisplaySSD1306();
 	} else if (model.equalsIgnoreCase("HD44780")) {
 		display = new DisplayHD44780(list);
+
+	} else if (model.equalsIgnoreCase("LCD1602_PCF8574")) {
+		display = new DisplayLCD1602_PCF8574();
 	} else {
 		Logger::log(LogLevel::ERROR, "Model " + model + " wurde nicht gefunden!");
 	}

@@ -8,6 +8,7 @@
 #ifndef DISPLAYHD44780_H_
 #define DISPLAYHD44780_H_
 #include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 
 #include "DisplayBase.h"
 #include "LinkedList.h"
@@ -22,7 +23,7 @@ public:
 	virtual int columns() { return 16; };
 	virtual int rows() { return 2; };
 private:
-	LiquidCrystal* lcd;
+	LCD* lcd;
 	int y = 0;
 	String empty = "                ";
 
