@@ -78,12 +78,12 @@ int WifiCheck::loop() {
 	switch (todo) {
 		case 1:
 			Serial.println("Reconnect");
-			WiFi.begin();
-			return 300;
+			WiFi.reconnect();
+			return 3000;
 		case 2:
 		Serial.println("Wifi Begin");
 			WiFi.begin();
-			return 300;
+			return 3000;
 		default:
 			return 100;
 	}
