@@ -416,7 +416,9 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 				controller->registerStatus(rec);
 			}
 		} else if (m.equals("rocnetovermqtt")) {
-			controller->registerCmdReceiver(new CmdReceiverRocnetOverMQTT(controller));
+			CmdReceiverRocnetOverMQTT* c = new CmdReceiverRocnetOverMQTT(controller);
+			controller->registerCmdReceiver(c);
+			controller->registerCmdSender(c);
 
 		} else if (m.equals("webservicewifiscanner")) {
 			web->registerWebServices(new WebserviceWifiScanner());
@@ -803,6 +805,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 		} else if (m.equals("analoggpio")) {
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
 			Serial.println("GPIO " + parser->getValueByKey(idx, "gpio", "A0"));
+
 			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio", "A0"));
 			ISettings* a = getSettingById(controller, conn);
 			InputAnalog* ire = new InputAnalog(a, gpio);

@@ -23,8 +23,10 @@
 #include "Controller.h"
 #include "Consts.h"
 #include "Logger.h"
+#include "CmdSenderBase.h"
+#include "Utils.h"
 
-CmdReceiverRocnetOverMQTT::CmdReceiverRocnetOverMQTT(Controller* c) : CmdReceiverBase(c) {
+CmdReceiverRocnetOverMQTT::CmdReceiverRocnetOverMQTT(Controller* c) : CmdReceiverBase(c), CmdSenderBase() {
 	client = new PubSubClient(espClient);
 	client->setCallback(rocnetovermqttcallback);
 	_instance = this;
@@ -44,12 +46,14 @@ int CmdReceiverRocnetOverMQTT::loop() {
 			Logger::log(LogLevel::INFO, "Connecting to MQTT Server...");
 			String clientId = "ESP8266Client-";
 			clientId += String(random(0xffff), HEX);
+			client->setServer(host.c_str(), port);
 			if (client->connect(clientId.c_str())) {
 				Logger::log(LogLevel::INFO, "Connected to MQTT Server");
 				client->subscribe("rocrail/service/info/lc", 1);
 				client->subscribe("rocrail/service/info/fn", 1);
 			} else {
 				Logger::log(LogLevel::INFO, "Connection to MQTT Server failed! "  + String(client->state()));
+				return 2000;
 			}
 		} else {
 			client->loop();
@@ -69,17 +73,18 @@ int CmdReceiverRocnetOverMQTT::loop() {
 			}
 			String out = "";
 			out = out + incomingPacket + "\n";
-			String host = extractString(out, "BROKER-HOST:", "\n" );
-			String port = extractString(out, "BROKER-PORT:", "\n" );
+			host = extractString(out, "BROKER-HOST:", "\n" );
+			String portstring = extractString(out, "BROKER-PORT:", "\n" );
 
 			// Fix Localhost with IP from sender
 			if (host.equals("localhost") || host.equals("127.0.0.1")) {
 				Logger::getInstance()->addToLog(LogLevel::WARNING, "Rocrail MTQQ localhost oder 127.0.0.1! Benutze stattdessen " + Udp.remoteIP().toString() + ":" + port);
 				host = Udp.remoteIP().toString();
 			}
-			if (host.length() > 0  && port.length() > 0) {
-				Logger::log(LogLevel::INFO, "Rocnet-Server detected: " + host + " " + String(port.toInt()));
-				client->setServer(host.c_str(), port.toInt());
+			if (host.length() > 0  && portstring.length() > 0) {
+				port = portstring.toInt();
+				Logger::log(LogLevel::INFO, "Rocnet-Server detected: " + host + " " + String(port));
+				client->setServer(host.c_str(), port);
 				discoveryModus = 1;
 				return 0;
 			}
@@ -152,4 +157,16 @@ String CmdReceiverRocnetOverMQTT::extractString(String payloads, String prefix, 
 
 String CmdReceiverRocnetOverMQTT::extractXMLAttribute(String payloads, String attrname) {
 	return extractString(payloads, attrname + "=\"", "\"");
+}
+
+void CmdReceiverRocnetOverMQTT::sendDCCSpeed(int id, LocData* d) {
+	String out = "<lc addr=\"" + String(id) + "\" V=\"" + (int)(100.0f * d->speed / (float)d->speedsteps)+ "\"  dir=\"" + String(d->direction == 1 ? "true" : "false")+ "\"  />";
+	Serial.println(out);
+	client->publish("rocrail/service/client", out.c_str());
+}
+
+void CmdReceiverRocnetOverMQTT::sendDCCFun(int id, LocData* d,  unsigned int changedBit) {
+	String out = "<fn addr=\""  + String(id) + "\" f"+ String(changedBit) + "=\"" + String(bit_is_set(d->status, changedBit) ? "true" :"false")+ "\" fnchanged=\"" + String(changedBit) + "\"  throttleid=\"ly\" />";
+	Serial.println(out);
+	client->publish("rocrail/service/client", out.c_str());
 }
