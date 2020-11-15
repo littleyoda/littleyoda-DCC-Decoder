@@ -37,15 +37,17 @@ public:
 	virtual void add(String s, int pinNumber,  unsigned long supportedFunctions);
 	virtual void cache(bool c);
 	enum F {
-		DIGITAL_INPUT = 1,
-		DIGITAL_OUTPUT = 2,
-		SUPPORTS_PULLUP = 4,
-		SUPPORTS_PULLDOWN = 8,
-		UNSTABLE_AT_STARTUP = 16,
-		SUPPORTS_PWM = 32,
-		SUPPORTS_ADC = 64,
-		SUPPORTS_DAC = 128,
-		PIN_STRAPPING_AT_STARTUP = 256,
+		DIGITAL_INPUT = 1 << 0,
+		DIGITAL_OUTPUT = 1 << 1,
+		SUPPORTS_PULLUP = 1 << 2,
+		SUPPORTS_PULLDOWN = 1 << 3,
+		UNSTABLE_AT_STARTUP = 1 << 4,
+		SUPPORTS_PWM = 1 << 5,
+		SUPPORTS_ADC = 1 << 6,
+		SUPPORTS_DAC = 1 << 7,
+		PIN_STRAPPING_AT_STARTUP = 1 << 8, // Konfigurations-Pins
+		PULL_UP = 1 << 9,
+		PULL_DOWN = 1 << 10,
 	};
 
 protected:
