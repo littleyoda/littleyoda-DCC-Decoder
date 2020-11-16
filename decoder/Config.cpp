@@ -883,7 +883,8 @@ void Config::parseFilter(Controller* c, Webserver* web, String n) {
 		}
 		if (m.equalsIgnoreCase("limitchange")) {
 			String rate = parser->getValueByKey(idx, "rate", "100");
-			FilterLimitChange* f = new FilterLimitChange(rate.toInt());
+			String value = parser->getValueByKey(idx, "value", "sd");
+			FilterLimitChange* f = new FilterLimitChange(rate.toInt(), value);
 			f->setName(id);
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
 			ISettings* a = getSettingById(c, conn);

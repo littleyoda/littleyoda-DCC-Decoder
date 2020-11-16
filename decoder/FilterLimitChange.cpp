@@ -7,19 +7,18 @@
 
 #include "FilterLimitChange.h"
 
-FilterLimitChange::FilterLimitChange(int r) {
+FilterLimitChange::FilterLimitChange(int r, String n) {
 	value = 0;
 	current = 0;
-	name = "";
+	name = n;
 	rate = fabs(r) / 10.0f;
 	setModulName("Limit Change");
 	setConfigDescription("Rate: " + String(abs(r)) + "/sec");
 }
 
 void FilterLimitChange::setSettings(String key, String val) {
-	if (key.equals("sd")) {
+	if (key.equals(name)) {
 		value = val.toInt();
-		name = key;
 	} else {
 		send(key, val);
 	}

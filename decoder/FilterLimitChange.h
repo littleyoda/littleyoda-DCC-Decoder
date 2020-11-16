@@ -13,7 +13,7 @@
 
 class FilterLimitChange : public IFilter, public ILoop {
 public:
-	FilterLimitChange(int rate);
+	FilterLimitChange(int rate, String name);
 	virtual ~FilterLimitChange();
 	virtual int loop();
 	virtual void setSettings(String key, String value);
