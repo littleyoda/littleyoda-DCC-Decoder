@@ -58,7 +58,7 @@ int CmdZentraleZ21::loop() {
 			c->broadcastIdx++;
 		}
 		broadcastClientIdx++;
-		
+		lastBroadcastTime = time;
 	}
 	return 2;
 
@@ -188,7 +188,7 @@ void CmdZentraleZ21::send() {
 		return;
 	}
 	udp->beginPacket(currentDestIP, currentDestPort);
-	printPacketBuffer(pb[0]);
+//	printPacketBuffer(pb[0]);
 	udp->write(pb, pb[0]);
 	udp->endPacket();
 }
@@ -299,8 +299,40 @@ String CmdZentraleZ21::getInternalStatus(String key) {
 
 
 
-void CmdZentraleZ21::sendSetTurnout(String id, String status) {
-	// TODO
+void CmdZentraleZ21::sendSetTurnout(String sid, String status) {
+	int id = sid.toInt();
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 0x09;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
+
+	pb[4] = 0x43;
+	pb[5] = id >> 8;
+	pb[6] = id & 255;
+	unsigned char out = 0;
+	TurnOutData* data = controller->getTurnOutData(id);
+	if (data->direction == 0) {
+		out = 1;
+	} else if (data->direction == 1) {
+		out = 2;
+	} else {
+		out = 0;
+	}
+	Serial.println("Richtung: " + String(data->direction));
+	pb[7] = out;
+	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7];
+	for (int idx = 0; idx < clients.size(); idx++) {
+			Z21Clients* c = clients.get(idx);
+			Serial.println("Sending " + c->ip.toString());
+	//		Serial.println(String(addr) + " " + String(v));
+			udp->beginPacket(c->ip, c->port);
+			udp->write(pb, pb[0]);
+			int ret = udp->endPacket();
+			if (ret == 0) {
+				Serial.println("Failed");
+			}
+	}
 }
 
 void CmdZentraleZ21::sendSetSensor(uint16_t id, uint8_t status) {
