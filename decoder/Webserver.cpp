@@ -50,6 +50,7 @@ Webserver::Webserver(Controller* c) {
 	server->on("/list", std::bind(&Webserver::handleFilelist, this));
 	server->on("/flow", std::bind(&Webserver::handleFlow, this));
 	server->on("/json", std::bind(&Webserver::handleJsonList, this));
+	server->on("/pipefilter", std::bind(&Webserver::handlepipefiltercmd, this));
 	server->on("/help", std::bind(&Webserver::handleHelp, this));
 	server->on("/format", std::bind(&Webserver::handleFormat, this));
 	server->on("/doformat", std::bind(&Webserver::handleDoFormat, this));
@@ -98,6 +99,24 @@ Webserver::Webserver(Controller* c) {
       }
 	});	
 #endif
+}
+
+void Webserver::handlepipefiltercmd() {
+	String dest = server->arg("dest").isEmpty() ? "" : server->arg("dest");
+	String key = server->arg("key").isEmpty() ? "" : server->arg("key");
+	String value = server->arg("value").isEmpty() ? "" : server->arg("value");
+	if (!dest.isEmpty()) {
+		controll->sendPipeFilter(dest,key,value);
+	}
+	Serial.println(dest + " " + key + " " + value);
+	String dataType = "text/html";
+	String out = "";
+		out += (String() + "<html><body><form action = \"/pipefilters\" method = \"post\">" +
+		        "<input type=\"text\" id=\"dest\" name=\"dest\" value=\"" + dest + "\"><br><br>"+
+		        "<input type=\"text\" id=\"key\" name=\"key\" value=\"" + key + "\"><br><br>"+
+		        "<input type=\"text\" id=\"value\" name=\"value\" value=\"" + value + "\"><br><br>" +
+				 "<input type = \"submit\" value = \"submit\" /></form></body></html>");
+    server->send(200, "text/html", out);
 }
 
 void Webserver::handleHelp() {
@@ -205,9 +224,11 @@ void Webserver::handleDoConfigPost() {
 	File dataFile = SPIFFS.open("/config.json", "w");
 	dataFile.print(server->arg("content"));
 	dataFile.close();
+	dataFile.flush();
 	server->sendHeader("Location", String("http://") + server->client().localIP().toString() + "/list", true);
 	server->send ( 302, "text/plain", "");
 	if (!server->arg("reboot").isEmpty()) {
+			delay(2000);
 			ESP.restart();
 	}
 }

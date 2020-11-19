@@ -43,6 +43,7 @@ public:
 	void setStatus(String s);
 private:
 	bool loadFromSPIFFS(String filepath);
+	void handlepipefiltercmd();
 	void handleNotFound();
 	void handleRoot();
 	void handleDel();
