@@ -21,22 +21,24 @@
 #include "LocData.h"
 #include "LinkedList.h"
 #include "INotify.h"
+#include "IStatus.h"
 
 #ifndef CMDRECEIVERROCNETOVERMQTT_H_
 #define CMDRECEIVERROCNETOVERMQTT_H_
 
-class CmdReceiverRocnetOverMQTT: public CmdReceiverBase, public CmdSenderBase {
+class CmdReceiverRocnetOverMQTT: public CmdReceiverBase, public CmdSenderBase, public IStatus  {
 public:
 	static CmdReceiverRocnetOverMQTT* _instance; // Hack for access from PubSubClient
 	CmdReceiverRocnetOverMQTT(Controller* c);
 	virtual ~CmdReceiverRocnetOverMQTT();
 	virtual int loop();
 	void parse(String s);
-	virtual void sendSetTurnout(String id, String status) {};
-	virtual void sendSetSensor(uint16_t id, uint8_t status) {};
+	virtual void sendSetTurnout(String id, String status) { /* TODO */ };
+	virtual void sendSetSensor(uint16_t id, uint8_t status) { /* TODO */  };
 	virtual void sendDCCSpeed(int id, LocData* d);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list) {requestList = list;};
+	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
 
 private:
 	WiFiClient espClient;

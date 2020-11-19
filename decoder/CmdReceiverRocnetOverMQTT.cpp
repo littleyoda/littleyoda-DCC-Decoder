@@ -61,7 +61,7 @@ int CmdReceiverRocnetOverMQTT::loop() {
 		}
 	}
 
-	// Phase 1: Request MTQQ Data from rocrail
+	// Phase 1: Request MQTT Data from rocrail
 	if  (discoveryModus == 0) {
 		int packetSize = Udp.parsePacket();
 		if (packetSize) {
@@ -169,4 +169,16 @@ void CmdReceiverRocnetOverMQTT::sendDCCFun(int id, LocData* d,  unsigned int cha
 	String out = "<fn addr=\""  + String(id) + "\" f"+ String(changedBit) + "=\"" + String(bit_is_set(d->status, changedBit) ? "true" :"false")+ "\" fnchanged=\"" + String(changedBit) + "\"  throttleid=\"ly\" />";
 	Serial.println(out);
 	client->publish("rocrail/service/client", out.c_str());
+}
+
+void CmdReceiverRocnetOverMQTT::getInternalStatus(IInternalStatusCallback* cb, String key) {
+	if (key.equals("host") || key.equals("*")) {
+		cb->send("rocrail", "host", host);
+	}
+	if (key.equals("port") || key.equals("*")) {
+		cb->send("rocrail", "port", String(port));
+	}
+	if (key.equals("mqtt") || key.equals("*")) {
+		cb->send("rocrail", "mqtt", String(client->state()));
+	}
 }
