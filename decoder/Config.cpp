@@ -921,15 +921,16 @@ void Config::parseFilter(Controller* c, Webserver* web, String n) {
 				}
 				int array = parser->getFirstChild(child);
 
-				if (parser->getNumberOfSiblings(array) != 3) {
+				if (parser->getNumberOfSiblings(array) != 4) {
 					Logger::log(LogLevel::ERROR, "Format im Polynom falsch! 3 Werte für Polynom erwartet!");
 	 				child = parser->getNextSiblings(child);
 					continue;
 				}
 				p->addPolynom(
-					parser->getString(parser->getChildAt(child, 0)).toFloat(),
+					parser->getString(parser->getChildAt(child, 0)),
 					parser->getString(parser->getChildAt(child, 1)).toFloat(),
-					parser->getString(parser->getChildAt(child, 2)).toFloat()
+					parser->getString(parser->getChildAt(child, 2)).toFloat(),
+					parser->getString(parser->getChildAt(child, 3)).toFloat()
 				);
  				child = parser->getNextSiblings(child);
 			}
