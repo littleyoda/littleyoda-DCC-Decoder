@@ -36,6 +36,7 @@
 #include "DCCZentrale.h"
 
 #include "FilterLimitChange.h"
+#include "FilterPolynom.h"
 #include "InputRotoryEncoder.h"
 #include "InputAnalog.h"
 #include "CmdReceiverDCC.h"
@@ -334,13 +335,20 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 		#endif
 		} else if (m.equals("locdatacontroller")) {
 			int element = parser->getFirstChildOfArrayByKey(idx, "locaddr");
-		    LinkedList<int> *list = new LinkedList<int>();
+		    LinkedList<int> *loclist = new LinkedList<int>();
       		while (element!=-1) {
-				list->add(parser->getString(element).toInt());
+				loclist->add(parser->getString(element).toInt());
         		element = parser->getNextSiblings(element);
       		}
-			LocDataController* l = new LocDataController(controller, list);
-			Serial.println("ID: " + id);
+
+			element = parser->getFirstChildOfArrayByKey(idx, "turnoutaddr");
+		    LinkedList<int> *tolist = new LinkedList<int>();
+      		while (element!=-1) {
+				tolist->add(parser->getString(element).toInt());
+        		element = parser->getNextSiblings(element);
+      		}
+
+			LocDataController* l = new LocDataController(controller, loclist, tolist);
 			l->setName(id);
 			controller->registerSettings(l);
 
@@ -883,14 +891,53 @@ void Config::parseFilter(Controller* c, Webserver* web, String n) {
 		}
 		if (m.equalsIgnoreCase("limitchange")) {
 			String rate = parser->getValueByKey(idx, "rate", "100");
-			String value = parser->getValueByKey(idx, "value", "sd");
-			FilterLimitChange* f = new FilterLimitChange(rate.toInt(), value);
+			String key = parser->getValueByKey(idx, "key", "sd");
+			FilterLimitChange* f = new FilterLimitChange(rate.toInt(), key);
 			f->setName(id);
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
 			ISettings* a = getSettingById(c, conn);
 			f->addAction(a);
 			c->registerSettings(f);
 			c->registerLoop(f);
+
+		} else if (m.equalsIgnoreCase("polynom")) {
+
+			int addridx = parser->getFirstChild(parser->getIdxByKey(idx, "values"));
+			if (!parser->isArray(addridx)) {
+				Logger::log(LogLevel::ERROR, "Format im Polynom falsch!");
+				idx = parser->getNextSiblings(idx);
+				continue;
+
+			}
+			String key = parser->getValueByKey(idx, "key", "sd");
+			FilterPolynom* p = new FilterPolynom(key);
+			int child = parser->getFirstChild(addridx);
+			while (child != -1) {
+				if (!parser->isArray(addridx)) {
+					Logger::log(LogLevel::ERROR, "Format im Polynom falsch!");
+	 				child = parser->getNextSiblings(child);
+					continue;
+
+				}
+				int array = parser->getFirstChild(child);
+
+				if (parser->getNumberOfSiblings(array) != 3) {
+					Logger::log(LogLevel::ERROR, "Format im Polynom falsch! 3 Werte für Polynom erwartet!");
+	 				child = parser->getNextSiblings(child);
+					continue;
+				}
+				p->addPolynom(
+					parser->getString(parser->getChildAt(child, 0)).toFloat(),
+					parser->getString(parser->getChildAt(child, 1)).toFloat(),
+					parser->getString(parser->getChildAt(child, 2)).toFloat()
+				);
+ 				child = parser->getNextSiblings(child);
+			}
+			p->setName(id);
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(c, conn);
+			p->addAction(a);
+			c->registerSettings(p);
 
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 

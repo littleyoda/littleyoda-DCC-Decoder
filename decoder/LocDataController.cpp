@@ -10,16 +10,38 @@
 #include "Consts.h"
 #include "Utils.h"
 
-LocDataController::LocDataController(Controller* c, LinkedList<int> *list) {
+	
+LocDataController::LocDataController(Controller* c, LinkedList<int> *loclist, LinkedList<int> *tolist) {
     controller = c;
 	setModulName("Loc-Controll");
 	setConfigDescription("");
-    addrlist = list;
+    addrlist = loclist;
+    turnoutaddrlist = tolist;
     currentIdx = 0;
+    currentTurnOutIdx = 0;
     requestLocData();
+    requestTurnoutData();
 }
 
+void LocDataController::requestTurnoutData() {
+    if (turnoutaddrlist->size() > 0) {
+        if (currentTurnOutIdx < 0) {
+            currentTurnOutIdx = turnoutaddrlist->size() - 1;
+        }
+        if (currentTurnOutIdx >= turnoutaddrlist->size()) {
+            currentTurnOutIdx = 0;
 
+        }
+        currentTurnOutIdx = turnoutaddrlist->get(currentTurnOutIdx);
+    } else {
+        if (currentTurnOutIdx < 1) {
+            currentTurnOutIdx = 1;
+        }
+        currentTurnOutAddr = currentTurnOutIdx;
+    }
+    turnoutdata = controller->getTurnOutData(currentTurnOutAddr);
+
+}
 void LocDataController::requestLocData() {
     if (addrlist->size() > 0) {
         if (currentIdx < 0) {
@@ -51,6 +73,11 @@ void LocDataController::setSettings(String key, String value) {
     	requestLocData();
         return;
     }
+    if (key.equalsIgnoreCase("setlocid")) {
+        currentIdx = value.toInt();
+    	requestLocData();
+        return;
+    }
     if (key.equalsIgnoreCase("locid+") && value == "1") {
         currentIdx = currentIdx + 1;
     	requestLocData();
@@ -61,6 +88,28 @@ void LocDataController::setSettings(String key, String value) {
     	requestLocData();
         return;
     }
+
+    if (key.equalsIgnoreCase("chturnoutid")) {
+        currentTurnOutIdx = currentTurnOutIdx + value.toInt();
+    	requestTurnoutData();
+        return;
+    }
+    if (key.equalsIgnoreCase("setturnoutid")) {
+        currentTurnOutIdx = value.toInt();
+    	requestTurnoutData();
+        return;
+    }
+    if (key.equalsIgnoreCase("turnoutid+") && value == "1") {
+        currentTurnOutIdx = currentTurnOutIdx + 1;
+    	requestTurnoutData();
+        return;
+    }
+    if (key.equalsIgnoreCase("turnoutid-") && value == "1") {
+        currentTurnOutIdx = currentTurnOutIdx - 1;
+    	requestTurnoutData();
+        return;
+    }
+
     if (key.startsWith("toggleF") && value == "1") {
         int bit = key.substring(7).toInt();
         Logger::log(LogLevel::INFO, "LCNT", "ToggleF parsed: " + String(bit) + "/" + String(key.substring(7).toInt()));
@@ -72,35 +121,52 @@ void LocDataController::setSettings(String key, String value) {
         return;
     }
     boolean changed = false;
-    int16_t speed = locdata->speed;
-    int8_t dir = locdata->direction;
-    if (key.equalsIgnoreCase("relSpeed")) {
-        speed = speed + value.toInt();
-        if (speed > 127) {
-            speed = 127;
-        }
-        if (speed < 0) {
-            speed = 0;
-        }
-        changed = true;
-    } else if (key.equalsIgnoreCase("setSpeed")) {
-        speed = value.toInt();
-        if (speed > 127) {
-            speed = 127;
-        }
-        if (speed < 0) {
-            speed = 0;
-        }
-        changed = true;
-    } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
-        speed = 0;
-        dir = -dir;
-        changed = true;
+    if (key.equalsIgnoreCase("relSpeed") || key.equalsIgnoreCase("setSpeed") || key.equalsIgnoreCase("toggleDir")) {
+            int16_t speed = locdata->speed;
+            int8_t dir = locdata->direction;
+            if (key.equalsIgnoreCase("relSpeed")) {
+                speed = speed + value.toInt();
+                if (speed > 127) {
+                    speed = 127;
+                }
+                if (speed < 0) {
+                    speed = 0;
+                }
+                changed = true;
+            } else if (key.equalsIgnoreCase("setSpeed")) {
+                speed = value.toInt();
+                if (speed > 127) {
+                    speed = 127;
+                }
+                if (speed < 0) {
+                    speed = 0;
+                }
+                changed = true;
+            } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
+                speed = 0;
+                dir = -dir;
+                changed = true;
+            }
+            if (changed) {
+                controller->sendDCCSpeed(currentADDR, speed, dir, Consts::SOURCE_RCKP);
+            }
+            return;
     }
-    if (changed) {
-        controller->sendDCCSpeed(currentADDR, speed, dir, Consts::SOURCE_RCKP);
+    if (key.equalsIgnoreCase("toggleTO") || key.equalsIgnoreCase("toggleTurnOut")) {
+        if (key.equalsIgnoreCase("toggleTO") || key.equalsIgnoreCase("toggleTurnOut")) {
+            if (turnoutdata->direction == 0) {
+                turnoutdata->direction = 1;
+            } else {
+                turnoutdata->direction = 0;
+            }
+            changed = true;
+        }
+        if (changed) {
+            controller->sendSetTurnout(String(currentTurnOutAddr), String(turnoutdata->direction));
+        }
+        return;
     }
-
+    Logger::log(LogLevel::ERROR,"Unbekannter Befehl für LocDataController: " + key);
 }
 
 
@@ -133,6 +199,18 @@ void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String ke
             cb->send(getName(), "direction", "<");
         } else {
             cb->send(getName(), "direction", " ");
+        }
+	}
+	if (key.equals("*") || key.equals("turnoutaddr")) {
+		cb->send(getName(), "turnoutaddr", String(currentTurnOutAddr));
+	}
+	if (key.equals("*") || key.equals("turnoutdirection")) {
+        if (turnoutdata->direction == 0) {
+            cb->send(getName(), "turnoutdirection", ">");
+        } else  if (turnoutdata->direction == 1) { 
+            cb->send(getName(), "turnoutdirection", "<");
+        } else {
+            cb->send(getName(), "turnoutdirection", " ");
         }
 	}
 }
