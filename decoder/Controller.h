@@ -94,7 +94,7 @@ public:
     void sendSetSensor(uint16_t id, uint8_t status);
 	void sendDCCSpeed(int id, int speed, int direction, int source);
 	void sendDCCFun(int id, int bit, unsigned int value, int source);
-
+	void sendPipeFilter(String dest, String key, String value);
 
 private:
 	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);

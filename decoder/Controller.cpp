@@ -359,6 +359,16 @@ LinkedList<ISettings*>* Controller::getSettings() {
 	return &settings;
 }
 
+void Controller::sendPipeFilter(String dest, String key, String value) {
+	for (int idx = 0; idx < getSettings()->size(); idx++) {
+		ISettings* s = getSettings()->get(idx);
+		if (s->getName().equals(dest)) {
+			Serial.println("Sending " + key + " with  " + value + " to " + dest);
+			s->setSettings(key, value);
+		}
+	}
+}
+
 void Controller::registerSettings(ISettings* loop) {
 	if (loop == NULL) {
 		Logger::log(LogLevel::ERROR, "Null in registerySettings");
