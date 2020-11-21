@@ -12,7 +12,6 @@ InternalStatusAsJson::InternalStatusAsJson() {
 }
 
 InternalStatusAsJson::~InternalStatusAsJson() {
-	// TODO Auto-generated destructor stub
 }
 
 void InternalStatusAsJson::reset() {
@@ -21,7 +20,9 @@ void InternalStatusAsJson::reset() {
 	}
 	if (memoryCritical) {
 		memoryCritical = false;
-		if  (ESP.getFreeHeap() > 2000) {
+		if  (ESP.getFreeHeap() > 4000) {
+			bufferSize += 2024;
+		} else if  (ESP.getFreeHeap() > 2000) {
 			bufferSize += 1024;
 		}
 	}
