@@ -17,12 +17,12 @@
 #include "DisplayHD44780.h"
 #include "DisplayLCD1602_PCF8574.h"
 
-Display::Display(Controller* c, String text, String model, LinkedList<int>* list, int rows, int cols) {
+Display::Display(Controller* c, String text, String model, LinkedList<int>* list, int rows, int cols, int rotation) {
 	controller = c;
 	display = nullptr;
 	if (model.equalsIgnoreCase("Wemos OLED Shield")) {
 		Serial.println("Init");
-		display = new DisplaySSD1306();
+		display = new DisplaySSD1306(rotation);
 	} else if (model.equalsIgnoreCase("HD44780")) {
 		display = new DisplayHD44780(list);
 

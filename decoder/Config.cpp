@@ -572,7 +572,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 									parser->getValueByKey(idx, "model", ""),
 									list,
 									parser->getValueByKey(idx, "cols", "0").toInt(),
-									parser->getValueByKey(idx, "rows", "0").toInt()
+									parser->getValueByKey(idx, "rows", "0").toInt(),
+									parser->getValueByKey(idx, "rotation", "0").toInt()
 									);
 		 	controller->registerLoop(d);
 		} else {

@@ -16,9 +16,16 @@
 #include <Adafruit_GFX.h>
 
 
-DisplaySSD1306::DisplaySSD1306() {
+DisplaySSD1306::DisplaySSD1306(int rotation) {
 		display = new Adafruit_SSD1306(-1);
 		display->begin(SSD1306_SWITCHCAPVCC, 0x3C);
+		switch (rotation) {
+			case 0: display->setRotation(0); break;
+			case 90: display->setRotation(1); break;
+			case 180: display->setRotation(2); break;
+			case 270: display->setRotation(3); break;
+
+		}
 	    display->display();
 }
 

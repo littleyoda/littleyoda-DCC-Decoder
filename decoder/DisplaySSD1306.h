@@ -13,7 +13,7 @@
 
 class DisplaySSD1306 : public DisplayBase {
 public:
-	DisplaySSD1306();
+	DisplaySSD1306(int rotation);
 	virtual ~DisplaySSD1306();
 	virtual void clear();
 	virtual void println(String s);
