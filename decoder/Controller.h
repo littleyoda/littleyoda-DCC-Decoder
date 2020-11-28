@@ -95,9 +95,9 @@ public:
 	void sendDCCSpeed(int id, int speed, int direction, int source);
 	void sendDCCFun(int id, int bit, unsigned int value, int source);
 	void sendPipeFilter(String dest, String key, String value);
+	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);
 
 private:
-	void collectAllInternalStatus(IInternalStatusCallback* cb, String modul, String key);
 	Items items;
 	std::vector<int> itemskeys;
 	typedef std::map<int, TurnOutData*> LocTurnOuts;

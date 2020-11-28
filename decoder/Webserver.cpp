@@ -19,6 +19,7 @@
 #include "Utils.h"
 #include "Config.h"
 #include "Utils.h"
+#include "InternalStatusToFile.h"
 
 #ifdef ESP8266
 ESP8266WebServer* Webserver::server = 0;
@@ -120,20 +121,28 @@ void Webserver::handlepipefiltercmd() {
 }
 
 void Webserver::handleHelp() {
-	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
-	server->send(200, "application/text", controll->getInternalStatusAsJon("*", "*"));
-	server->sendContent("\n============\n");
-	server->sendContent(controll->createDebugDiagramm());
-	server->sendContent("\n============\n");
-	File f = SPIFFS.open("/config.json", "r");
-	if (f) {
-		while (f.available() > 0) {
-			server->sendContent(f.readStringUntil('\n'));
+	File f = SPIFFS.open("/help.txt", "w");
+ 	InternalStatusToFile callback;
+	callback.setFile(&f);
+ 	controll->collectAllInternalStatus(&callback, "*", "*");
+	f.print("\n============\n");
+	f.print(controll->createDebugDiagramm());
+	f.print("\n============\n");
+ 	File g = SPIFFS.open("/config.json", "r");
+	if (g) {
+		while (g.available() > 0) {
+			String s = g.readStringUntil('\n');
+			f.print(s);
+			f.print("\n");
+			delay(0);
 		}
+		g.close();
 	} else {
-		server->sendContent("file open failed");
+		f.print("file open failed");
 	}
-	server->sendContent("\n============\n");
+	f.close();
+	f.print("\n============\n");
+	loadFromSPIFFS("/help.txt");
 
 }
 void Webserver::handleFlow() {
@@ -219,6 +228,10 @@ void Webserver::handleDoFormat() {
 
 
 void Webserver::handleDoConfigPost() {
+	Serial.println("PostConfig: " + String(server->arg("content").length()));
+	if (String(server->arg("content").length())) {
+		server->send(500, "text/html", "Fehler bei der Übertragung. Keine Daten erhalten.");
+	}
 	SPIFFS.remove("/config.json.old");
 	SPIFFS.rename("/config.json", "/config.json.old");
 	File dataFile = SPIFFS.open("/config.json", "w");
