@@ -121,6 +121,13 @@ void LocDataController::setSettings(String key, String value) {
         }
         return;
     }
+    if (key.startsWith("setF")) {
+        int bit = key.substring(4).toInt();
+        Logger::log(LogLevel::INFO, "LCNT", "ToggleF set: " + String(bit) + "/" + String(key.substring(7).toInt()));
+        controller->sendDCCFun(currentADDR, bit, value.toInt(),Consts::SOURCE_RCKP);
+        return;
+    }
+
     boolean changed = false;
     if (key.equalsIgnoreCase("relSpeed") || key.equalsIgnoreCase("setSpeed") || key.equalsIgnoreCase("toggleDir")) {
             int16_t speed = locdata->speed;
@@ -144,7 +151,7 @@ void LocDataController::setSettings(String key, String value) {
                 }
                 changed = true;
             } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
-                speed = 0;
+                speed = Consts::SPEED_STOP;
                 dir = -dir;
                 changed = true;
             }
@@ -154,7 +161,7 @@ void LocDataController::setSettings(String key, String value) {
             return;
     }
     if (key.equalsIgnoreCase("toggleTO") || key.equalsIgnoreCase("toggleTurnOut")) {
-        if (key.equalsIgnoreCase("toggleTO") || key.equalsIgnoreCase("toggleTurnOut")) {
+        if ((key.equalsIgnoreCase("toggleTO") || key.equalsIgnoreCase("toggleTurnOut")) && value == "1") {
             if (turnoutdata->direction == 0) {
                 turnoutdata->direction = 1;
             } else {

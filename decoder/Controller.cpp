@@ -158,7 +158,7 @@ LocData* Controller::getLocData(int id) {
 	if (items.find(id) == items.end()) {
 		data = new LocData();
 		data->status = 0;
-		data->speed = 0;
+		data->speed = Consts::SPEED_STOP;
 		data->speedsteps = 128;
 		data->direction = Consts::SPEED_FORWARD;
 		if (id != Consts::LOCID_ALL) {
@@ -398,6 +398,7 @@ void Controller::logLoop(unsigned long now) {
 	l[now]++;
 }
 
+
 String Controller::getInternalStatus(String modul, String key) {
 	statusAsString.reset();
 	collectAllInternalStatus(&statusAsString, modul, key);
@@ -529,7 +530,6 @@ void Controller::sendSetSensor(uint16_t id, uint8_t status) {
 void Controller::sendDCCSpeed(int id, int speed, int direction, int source) {
   LocData* d = notifyDCCSpeed(id, speed, direction, 128, Consts::SOURCE_RCKP);
   if (d == nullptr) {
-		Serial.println("Nullptr");
 		return;
   }
   LinkedList<CmdSenderBase*>* list = getSender();
@@ -546,7 +546,6 @@ void Controller::sendDCCSpeed(int id, int speed, int direction, int source) {
 void Controller::sendDCCFun(int id, int bit, unsigned int value, int source) {
   LocData* d = notifyDCCFun(id, bit, value, source);
   if (d == nullptr) {
-		Serial.println("Nullptr");
 		return;
   }
   LinkedList<CmdSenderBase*>* list = getSender();
