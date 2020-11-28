@@ -9,6 +9,7 @@
 #include "Controller.h"
 #include "Consts.h"
 #include "Utils.h"
+#include "SpeedKonverter.h"
 
 	
 LocDataController::LocDataController(Controller* c, LinkedList<int> *loclist, LinkedList<int> *tolist) {
@@ -129,8 +130,8 @@ void LocDataController::setSettings(String key, String value) {
                 if (speed > 127) {
                     speed = 127;
                 }
-                if (speed < 0) {
-                    speed = 0;
+                if (speed < Consts::SPEED_STOP) {
+                    speed = Consts::SPEED_STOP;
                 }
                 changed = true;
             } else if (key.equalsIgnoreCase("setSpeed")) {
@@ -138,8 +139,8 @@ void LocDataController::setSettings(String key, String value) {
                 if (speed > 127) {
                     speed = 127;
                 }
-                if (speed < 0) {
-                    speed = 0;
+                if (speed < Consts::SPEED_STOP) {
+                    speed = Consts::SPEED_STOP;
                 }
                 changed = true;
             } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
@@ -190,7 +191,10 @@ void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String ke
 		cb->send(getName(), "fstatus", out);
     }
 	if (key.equals("*") || key.equals("speed")) {
-        cb->send(getName(), "speed", String(locdata->speed));
+        cb->send(getName(), "speed", SpeedKonverter::fromInternal(locdata->speed));
+	}
+	if (key.equals("*") || key.equals("internalspeed")) {
+        cb->send(getName(), "internalspeed", String(locdata->speed));
 	}
 	if (key.equals("*") || key.equals("direction")) {
         if (locdata->direction == Consts::SPEED_FORWARD) {
