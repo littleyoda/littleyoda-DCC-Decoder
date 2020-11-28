@@ -7,9 +7,19 @@
 
 #include "DisplayLCD1602_PCF8574.h"
 
-DisplayLCD1602_PCF8574::DisplayLCD1602_PCF8574() {
-	lcd = new  LCDIC2(0x27, 16, 2);
-	Serial.println("LCD1602 " + String(lcd->begin()));
+DisplayLCD1602_PCF8574::DisplayLCD1602_PCF8574(int r, int c) {
+	_cols = c;
+	_rows = r;
+	if (_rows == 0) {
+		_rows = 2;
+	}
+	if (_cols == 0) {
+		_cols = 16;
+	}
+	lcd = new  LCDIC2(0x27, _cols, _rows);
+	bool ret = lcd->begin();
+	String out = (ret ? "connected" : "failed");
+	Serial.println("LCD1602 " + String(_rows) + "/" + String(_cols) + " " + out); 
 }
 
 
@@ -25,7 +35,7 @@ void DisplayLCD1602_PCF8574::clear() {
 
 void DisplayLCD1602_PCF8574::println(String s) {
 	lcd->setCursor(0, y);
-	String out = s + empty.substring(0, 16 - s.length());
+	String out = s + empty.substring(0, columns() - s.length());
 	lcd->print(out);
 	y++;
 }

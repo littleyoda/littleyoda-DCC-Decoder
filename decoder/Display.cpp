@@ -17,7 +17,7 @@
 #include "DisplayHD44780.h"
 #include "DisplayLCD1602_PCF8574.h"
 
-Display::Display(Controller* c, String text, String model, LinkedList<int>* list) {
+Display::Display(Controller* c, String text, String model, LinkedList<int>* list, int rows, int cols) {
 	controller = c;
 	display = nullptr;
 	if (model.equalsIgnoreCase("Wemos OLED Shield")) {
@@ -27,7 +27,7 @@ Display::Display(Controller* c, String text, String model, LinkedList<int>* list
 		display = new DisplayHD44780(list);
 
 	} else if (model.equalsIgnoreCase("LCD1602_PCF8574")) {
-		display = new DisplayLCD1602_PCF8574();
+		display = new DisplayLCD1602_PCF8574(rows, cols);
 	} else {
 		Logger::log(LogLevel::ERROR, "Model " + model + " wurde nicht gefunden!");
 	}

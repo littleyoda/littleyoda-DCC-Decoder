@@ -17,8 +17,11 @@ public:
 	virtual void clear() {};
 	virtual void println(String s) {};
 	virtual void show() {};
-	virtual int columns() { return 0; };
-	virtual int rows() { return 0; };
+	virtual int rows() { return _rows; };
+	virtual int columns() { return _cols; };
+public:
+	int _rows = 0;
+	int _cols = 0;
 };
 
 #endif /* DISPLAYBASE_H_ */

@@ -570,7 +570,9 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			Display* d = new Display(controller, 
 									parser->getValueByKey(idx, "text", "No Text"),
 									parser->getValueByKey(idx, "model", ""),
-									list
+									list,
+									parser->getValueByKey(idx, "cols", "0").toInt(),
+									parser->getValueByKey(idx, "rows", "0").toInt()
 									);
 		 	controller->registerLoop(d);
 		} else {
@@ -797,7 +799,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("rotoryencoder") || m.equals("rotaryencoder")) {
       		int stepvalue = parser->getValueByKey(idx, "stepvalue", "1").toInt();
-      		int samplerate = parser->getValueByKey(idx, "samplerate", "0").toInt();
+      		int samplerate = parser->getValueByKey(idx, "sampletime", "0").toInt();
 			int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
 		    LinkedList<int> *list = new LinkedList<int>();
       		while (element!=-1) {

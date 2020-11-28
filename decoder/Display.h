@@ -16,7 +16,7 @@
 
 class Display : public ILoop {
 public:
-	Display(Controller* c, String text, String model, LinkedList<int>* list);
+	Display(Controller* c, String text, String model, LinkedList<int>* list, int rows, int cols);
 	virtual ~Display();
 	int loop();
 private:
