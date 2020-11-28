@@ -44,10 +44,6 @@ public:
 	void enableBroadcasts();
 	void sendSetTurnout(String id, String status);
 	void requestLocoInfo(int addr);
-
-
-
-
 	virtual void setName(String s) {};
 	virtual String getName();
 	virtual String getInternalStatus(String key);

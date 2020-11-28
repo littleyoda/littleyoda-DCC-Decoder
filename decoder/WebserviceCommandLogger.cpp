@@ -18,7 +18,7 @@ WebserviceCommandLogger::~WebserviceCommandLogger() {
 
 
 void WebserviceCommandLogger::TurnoutCmd(int id, int direction, int source) {
-//	addToLog("Turnout</td><td>" + String(id) + "</td><td>" + String(direction) + "</td><td>" + String(source));
+	addToLog("Turnout</td><td>" + String(id) + "</td><td>" + String(direction) + "</td><td>" + String(source));
 }
 
 void WebserviceCommandLogger::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
@@ -42,7 +42,7 @@ void WebserviceCommandLogger::setSettings(String key, String value) {
 }
 
 void WebserviceCommandLogger::addToLog(String s) {
-	Serial.println(s);
+//	Serial.println(s);
 	logger.add(String(millis() / 1000) + "</td><td>" + s);
 	if (logger.size() > maxLog) {
 		logger.shift();

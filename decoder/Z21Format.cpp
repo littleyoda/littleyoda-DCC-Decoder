@@ -156,7 +156,7 @@ bool Z21Format::parseServer2Client(unsigned char pb[], int cb) {
 			&& pb[3] == 0x00 && pb[4] == 0xF3
 			&& pb[5] == 0x0A;
 	if (firmware) {
-		printPacketBuffer("Firmware", pb, cb);
+		// TODO printPacketBuffer("Firmware", pb, cb);
 		handleFirmware(pb);
 		return true;
 	}
@@ -393,7 +393,7 @@ void Z21Format::handleFirmware(unsigned char pb[]) {
 	unsigned int lsbB = v & 15;
 	if (firmwareVersion == 0) {
 		firmwareVersion = msb * 100 + lsbA * 10 + lsbB;
-		Logger::getInstance()->addToLog(LogLevel::INFO, "Fimrware Version: " + String(firmwareVersion));
+		//Logger::getInstance()->addToLog(LogLevel::INFO, "Fimrware Version: " + String(firmwareVersion));
 	}
 }
 
