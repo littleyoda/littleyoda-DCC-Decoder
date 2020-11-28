@@ -797,6 +797,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 
 		} else if (m.equals("rotoryencoder") || m.equals("rotaryencoder")) {
       		int stepvalue = parser->getValueByKey(idx, "stepvalue", "1").toInt();
+      		int samplerate = parser->getValueByKey(idx, "samplerate", "0").toInt();
 			int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
 		    LinkedList<int> *list = new LinkedList<int>();
       		while (element!=-1) {
@@ -806,7 +807,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
 			ISettings* a = getSettingById(controller, conn);
 			String var = parser->getValueByKey(idx, "var", "relSpeed");
-			InputRotoryEncoder* ire = new InputRotoryEncoder(a, list, var, stepvalue);
+			InputRotoryEncoder* ire = new InputRotoryEncoder(a, list, var, stepvalue, samplerate);
 			controller->registerLoop(ire);
 			c = ire;
 

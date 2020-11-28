@@ -14,7 +14,7 @@
 
 class InputRotoryEncoder : public Connectors, public ILoop {
 public:
-	InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name, int stepvalue);
+	InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name, int stepvalue, int samplerate);
 	virtual ~InputRotoryEncoder();
 	int loop();
 
@@ -26,6 +26,7 @@ private:
 	int p2;
 	int count = 0;
 	int stepvalue;
+	int samplerate; // Samplerate or 0 for interrupt driven approach
 	String settingName;
 	int table[4][4]={
 						{0,1,-1,0},
