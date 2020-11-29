@@ -27,6 +27,7 @@
 #include "Utils.h"
 
 CmdReceiverRocnetOverMQTT::CmdReceiverRocnetOverMQTT(Controller* c) : CmdReceiverBase(c), CmdSenderBase() {
+	setModulName("RocnetMQTT");
 	client = new PubSubClient(espClient);
 	client->setCallback(rocnetovermqttcallback);
 	_instance = this;
@@ -181,4 +182,9 @@ void CmdReceiverRocnetOverMQTT::getInternalStatus(IInternalStatusCallback* cb, S
 	if (key.equals("mqtt") || key.equals("*")) {
 		cb->send("rocrail", "mqtt", String(client->state()));
 	}
+}
+
+String CmdReceiverRocnetOverMQTT::createDebugDiagramm(String parent) {
+	return getName() + "[label =\" " + getModulName() + "\\n" + getConfigDescription() + "\"];\r\n"
+		      + getName()  + " -> " + parent + ";\r\n";
 }

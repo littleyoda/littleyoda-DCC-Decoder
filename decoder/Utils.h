@@ -42,6 +42,63 @@ public:
 
 	}
 
+	static String wifiscan() {
+		WiFi.scanNetworks(false, true);
+		String out = "";
+		int n = WiFi.scanComplete();
+		for (int i = 0; i < n; ++i) {
+			String message = "";
+			String ssid_scan;
+			int32_t rssi_scan;
+			uint8_t sec_scan;
+			uint8_t* BSSID_scan;
+			int32_t chan_scan;
+			bool hidden_scan = false;
+
+			#ifdef ESP8266
+				WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan, hidden_scan);
+			#elif ESP32
+				WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan);
+			#endif
+
+			message +="[";
+			for (int i = 0; i < 6; i++) {
+				if (BSSID_scan[i] < 16) {
+					message += "0";
+				}
+				message += String(BSSID_scan[i], HEX);
+				if (i < 5) {
+					message +=":";
+				}
+
+			}
+			message +="] CH:";
+			if (chan_scan < 10) {
+				message += "0";
+			}
+			message += String(chan_scan);
+			message += " ";
+			#ifdef ESP8266
+				message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? "OPEN" : "ENC ";
+			#elif ESP32
+				message += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "OPEN" : "ENC ";
+			#endif
+			message += "  Q:";
+			message += String(WiFi.RSSI(i));
+			message += "  --- ";
+			message += ssid_scan;
+			message += "  ";
+			if (hidden_scan) {
+				message += " (HIDDEN)";
+			}
+			message += "\r\n";
+			out += message;
+		}
+		WiFi.scanDelete();
+		out += "Connected to " + WiFi.BSSIDstr();
+		return out;
+	}
+
 	static String repeatString(String rep, int number) {
 		String s;
 		s.reserve(rep.length() * number);

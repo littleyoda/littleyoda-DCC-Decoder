@@ -109,7 +109,6 @@ void Webserver::handlepipefiltercmd() {
 	if (!dest.isEmpty()) {
 		controll->sendPipeFilter(dest,key,value);
 	}
-	Serial.println(dest + " " + key + " " + value);
 	String dataType = "text/html";
 	String out = "";
 		out += (String() + "<html><body><form action = \"/pipefilters\" method = \"post\">" +
@@ -121,17 +120,74 @@ void Webserver::handlepipefiltercmd() {
 }
 
 void Webserver::handleHelp() {
-	File f = SPIFFS.open("/help.txt", "w");
+	bool download = !server->arg("dl").isEmpty();
+	String filename = (download) ? "/help.dat" : "/help.html";
+	int status = Utils::getExtWifiStatus();
+	bool wifiscan = ((status >> 4) == 1);
+	String url = "vis-network.min.js.gz";
+	if (download) {
+		url = "https://unpkg.com/vis-network/standalone/umd/vis-network.min.js";
+	}
+	File f = SPIFFS.open(filename, "w");
+	f.print( 
+	"<!doctype html>\n"
+	"<html><head>\n");
+	if (!download) {
+		f.print("<a href=\"/help?dl=true\">Download</a><br>");
+	}
+	f.print("<script type=\"text/javascript\" src=\"" + url + "\"></script>\n"
+	"<link href=\"vis-network.min.css\" rel=\"stylesheet\" type=\"text/css\" />\n"
+	"<style type=\"text/css\">    #mynetwork {      width: 90%;      height: 600px;      border: 1px solid lightgray;    }  </style>\n"
+	"</head><body>\n"
+	"<div id=\"mynetwork\"></div>\n"
+	"<script type=\"text/javascript\">\n");
+	f.print("var DOTstring = `dinetwork {" + controll->createDebugDiagramm() +  " }`;");
+	f.print("  var container = document.getElementById(\"mynetwork\");");
+	f.print("var data = vis.parseDOTNetwork(DOTstring);");
+	f.print("var options = {"
+"layout: {"
+"hierarchical: {"
+"direction: \"UD\","
+"sortMethod: \"directed\","
+"},"
+"},"
+"physics: {"
+"hierarchicalRepulsion: {"
+"avoidOverlap: 1,"
+"},"
+"},"
+"};");
+	f.print("      var network = new vis.Network(container, data, options);");
+	f.print("</script><hr><pre>");
+
  	InternalStatusToFile callback;
 	callback.setFile(&f);
  	controll->collectAllInternalStatus(&callback, "*", "*");
-	f.print("\n============\n");
-	f.print(controll->createDebugDiagramm());
-	f.print("\n============\n");
+	f.print("</pre><hr/><pre>");
  	File g = SPIFFS.open("/config.json", "r");
 	if (g) {
 		while (g.available() > 0) {
 			String s = g.readStringUntil('\n');
+			if (s.indexOf("pwd") >= 0 && s.indexOf(":") >=0) {
+				// Mask Password
+				for (int i = s.indexOf(":") + 1; i < s.length(); i++) {
+					char c = s[i];
+					if (c == '"' || c == ' ') {
+						continue;
+					}
+					if (isAlpha(c) && isLowerCase(c)) {
+						c = 'x';
+					} else if (isAlpha(c) && isUpperCase(c)) {
+						c = 'X';
+					} else if (isDigit(c)) {
+						c = '0';
+					} else {
+						c = '#';
+					}
+					s.setCharAt(i, c);
+				}
+			}
+			// }
 			f.print(s);
 			f.print("\n");
 			delay(0);
@@ -140,11 +196,24 @@ void Webserver::handleHelp() {
 	} else {
 		f.print("file open failed");
 	}
+	f.print("</pre><hr/>");
+	if (wifiscan) {
+		f.print("<pre>");
+		f.print(Utils::wifiscan());
+		f.print("</pre>");
+	}
+	f.print("</body></html>");
+
 	f.close();
-	f.print("\n============\n");
-	loadFromSPIFFS("/help.txt");
+	f.print("</pre><hr/>");
+	if (download) {
+		server->sendHeader("Content-Disposition", "attachment; filename=help.html");
+	}
+	loadFromSPIFFS(filename);
+	SPIFFS.remove(filename);
 
 }
+
 void Webserver::handleFlow() {
 	server->setContentLength(CONTENT_LENGTH_UNKNOWN);
 	server->send(200, "text/html", 
@@ -162,7 +231,22 @@ server->sendContent("var parsedData = vis.network.convertDot(DOTstring);"
 "var data = { nodes: parsedData.nodes, edges: parsedData.edges };"
 "var container = document.getElementById('mynetwork');"
 
-"var options = {  manipulation: false,  height: '90%',  layout: {    hierarchical: {      enabled: true,      levelSeparation: 150    }  },  physics: {    hierarchicalRepulsion: {      nodeDistance: 30    }  }};"
+//"var options = {  manipulation: false,  height: '90%',  layout: {    hierarchical: {      enabled: true,      levelSeparation: 150    }  },  physics: {    hierarchicalRepulsion: {      nodeDistance: 30    }  }};"
+"var options = {"
+"layout: {"
+"hierarchical: {"
+"direction: \"UD\","
+"sortMethod: \"directed\","
+"},"
+"},"
+"physics: {"
+"hierarchicalRepulsion: {"
+"avoidOverlap: 1,"
+"},"
+"},"
+"};"
+
+
 "var network = new vis.Network(container, data, options);"
 "</script>"
 "</body>"
@@ -397,6 +481,8 @@ bool Webserver::loadFromSPIFFS(String path) {
 		dataType = "application/pdf";
 	else if (path.endsWith(".zip"))
 		dataType = "application/zip";
+	else if (path.endsWith(".dat"))
+		dataType = "application/octet-stream";
 	File dataFile = SPIFFS.open(path.c_str(), "r");
 	int transmit = server->streamFile(dataFile, dataType);
 	Serial.println(

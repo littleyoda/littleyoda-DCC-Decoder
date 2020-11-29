@@ -11,7 +11,7 @@
  */
 
 
-class IStatus : public INamed{
+class IStatus : virtual public INamed{
 public:
 	IStatus();
 	virtual ~IStatus();

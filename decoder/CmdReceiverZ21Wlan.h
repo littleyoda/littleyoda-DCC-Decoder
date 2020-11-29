@@ -12,10 +12,10 @@
 #include "Z21Format.h"
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
+#include <IStatus.h>
 
 
-
-class CmdReceiverZ21Wlan:  public Z21Format {
+class CmdReceiverZ21Wlan:  public Z21Format  {
 public:
 	CmdReceiverZ21Wlan(Controller* c, String ip);
 	virtual int loop();
@@ -28,12 +28,16 @@ public:
 	virtual void sendDCCSpeed(int id, LocData* d);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 	bool udpSetup = false;
+	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
+	virtual String createDebugDiagramm(String parent);
 private:
 	WiFiUDP* udp = nullptr;
 	unsigned int localPort = 21105;
 //	unsigned char packetcfg12[30];
 //	unsigned char packetcfg16[30];
-	unsigned long timeout = 0;
+	unsigned long timeout = 1;
+	unsigned long timeouts = 0;
+
 	IPAddress* z21Server;
 	void doReceive();
 	void resetTimeout();

@@ -39,7 +39,7 @@ public:
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list) {requestList = list;};
 	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
-
+	virtual String createDebugDiagramm(String parent);
 private:
 	WiFiClient espClient;
 	PubSubClient* client;
