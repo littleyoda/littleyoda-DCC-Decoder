@@ -58,6 +58,11 @@ int InputRotoryEncoder::loop() {
 
 		value = GPIOobj.digitalRead(p2def);
 		GPIOChange(p2def, value);
+
+		if (count != 0) {
+			send(settingName, String(count));
+		}
+		count = 0;
 		return samplerate;
 	}
 }
