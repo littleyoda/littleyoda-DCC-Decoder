@@ -99,6 +99,7 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("freesketchspace") || key.equals("*")) {
 			cb->send("sys", "freesketchspace", String(ESP.getFreeSketchSpace()));
 		}
+		#ifdef ESP8266
 		uint32_t heap_free;
   		uint16_t heap_max;
   		uint8_t heap_frag;
@@ -112,6 +113,7 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("heapfrag") || key.equals("*")) {
 			cb->send("sys", "heapfrag", String(ESP.getHeapFragmentation()));
 		}
+		#endif
 
 		if (key.equals("loggermemory") || key.equals("*")) {
 			cb->send("sys", "loggermemory", String(Logger::getInstance()->getMemUsage()));
