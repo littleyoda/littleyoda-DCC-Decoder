@@ -61,7 +61,7 @@ protected:
 	void handleFirmware(unsigned char packetBuffer[]);
 	int turnoutOffset = -1;
 	int firmwareVersion = 0;
-	Controller* controller;
+//	Controller* controller;
 	virtual void adjustBroadcast(int addr);
 	void debugMsg(String s);
 

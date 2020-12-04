@@ -93,12 +93,26 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("startfreememory") || key.equals("*")) {
 			cb->send("sys", "startfreememory", String(Logger::getInstance()->startmemory));
 		}
-		if (key.equals("startfreeheap") || key.equals("*")) {
-			cb->send("sys", "startfreeheap", String(ESP.getFreeHeap()));
+		if (key.equals("freeheap") || key.equals("*")) {
+			cb->send("sys", "freeheap", String(ESP.getFreeHeap()));
 		}
 		if (key.equals("freesketchspace") || key.equals("*")) {
 			cb->send("sys", "freesketchspace", String(ESP.getFreeSketchSpace()));
 		}
+		uint32_t heap_free;
+  		uint16_t heap_max;
+  		uint8_t heap_frag;
+  		ESP.getHeapStats(&heap_free, &heap_max, &heap_frag);
+		if (key.equals("heapfree") || key.equals("*")) {
+			cb->send("sys", "heapfree", String(heap_free));
+		}
+		if (key.equals("heapmax") || key.equals("*")) {
+			cb->send("sys", "heapmax", String(heap_max));
+		}
+		if (key.equals("heapfrag") || key.equals("*")) {
+			cb->send("sys", "heapfrag", String(ESP.getHeapFragmentation()));
+		}
+
 		if (key.equals("loggermemory") || key.equals("*")) {
 			cb->send("sys", "loggermemory", String(Logger::getInstance()->getMemUsage()));
 		}

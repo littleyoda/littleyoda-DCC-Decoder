@@ -9,7 +9,7 @@
 #include "INamed.h"
 
 INamed::INamed() {
-	id = new String(Utils::getRnd());
+	id = String(Utils::getRnd());
 	modulname = "Unbekannt";
 	cfgDesc = "";
 }
@@ -18,14 +18,14 @@ INamed::~INamed() {
 }
 
 void INamed::setName(String s) {
-	id = new String(s);
+	id = String(s);
 }
 
 String INamed::getName() {
 	if (id == NULL) {
 		return "";
 	}
-	return "" + (*id);
+	return id;
 }
 
 void INamed::setModulName(String name) {

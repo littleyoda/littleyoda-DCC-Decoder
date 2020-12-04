@@ -24,7 +24,7 @@ public:
 
 private:
 	Adafruit_MCP23017* mcp;
-	uint16_t cachedValue;
+	uint16_t cachedValue = 0;
 };
 
 #endif /* PORTSMCP23017_H_ */

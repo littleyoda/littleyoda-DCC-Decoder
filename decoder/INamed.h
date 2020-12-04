@@ -22,9 +22,9 @@ public:
 	virtual void setConfigDescription(String desc);
 	virtual String createDebugDiagramm(String parent);
 private:	
-	String* id;
-	String modulname;
-	String cfgDesc;
+	String id = "0";
+	String modulname = "unbekannt";
+	String cfgDesc = "";
 
 };
 

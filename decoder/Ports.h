@@ -51,7 +51,7 @@ public:
 	};
 
 protected:
-	bool doCaching;
+	bool doCaching = false;
 private:
 	LinkedList<pinInfo*>* pi;
 	int pinOffset;

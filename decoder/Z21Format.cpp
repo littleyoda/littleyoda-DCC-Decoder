@@ -12,7 +12,9 @@
 #include "Utils.h"
 
 Z21Format::Z21Format(Controller* c) :  CmdReceiverBase(c), CmdSenderBase() {
-	controller = c;
+//	controller = c;
+	for (int i = 0; i < 30; i++)
+		pb[i] = 0;
 
 }
 

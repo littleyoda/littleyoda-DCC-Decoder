@@ -15,7 +15,7 @@
 class InputRotoryEncoder : public Connectors, public ILoop {
 public:
 	InputRotoryEncoder(ISettings* a, LinkedList<int> *list, String name, int stepvalue, int samplerate);
-	virtual ~InputRotoryEncoder();
+	virtual ~InputRotoryEncoder() override;
 	int loop();
 
 private:
