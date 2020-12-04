@@ -20,7 +20,7 @@ InputAnalog::InputAnalog(ISettings* a, int pin) {
   epsilon = 8;
   #endif
   #ifdef ESP32
-  epsilon = 40;
+  epsilon = 20;
   #endif
 }
 
@@ -45,11 +45,15 @@ int InputAnalog::loop() {
     if (!within) {
       Logger::log(LogLevel::TRACE, "INP", getName() + " Analog-Value: " + String(value));
       lastvalue = value;
-    	for (int idx = 0; idx < data.size(); idx++) {
-        InputAnalogData* d = data.get(idx);
-        if ((d->beginValue <= value) && (value <= d->endValue)) {
-            send(d->key, d->value);
-        }
+      if (data.size() == 0) {
+        send("analog", String(value));
+      } else {
+          for (int idx = 0; idx < data.size(); idx++) {
+            InputAnalogData* d = data.get(idx);
+            if ((d->beginValue <= value) && (value <= d->endValue)) {
+                send(d->key, d->value);
+            }
+          }
       }
     }
     return 50;
