@@ -19,7 +19,7 @@
  */
 
 
-class Connectors: public INotify/*, public INamed*/ {
+class Connectors: public INotify, public INamed {
 public:
 	Connectors();
 	virtual ~Connectors();

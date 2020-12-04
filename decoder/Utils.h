@@ -62,11 +62,11 @@ public:
 			#endif
 
 			message +="[";
-			for (int i = 0; i < 6; i++) {
-				if (BSSID_scan[i] < 16) {
+			for (int j = 0; j < 6; j++) {
+				if (BSSID_scan[j] < 16) {
 					message += "0";
 				}
-				message += String(BSSID_scan[i], HEX);
+				message += String(BSSID_scan[j], HEX);
 				if (i < 5) {
 					message +=":";
 				}

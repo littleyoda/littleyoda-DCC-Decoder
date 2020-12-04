@@ -12,7 +12,6 @@
 #include "Utils.h"
 
 CmdReceiverESPNOW::CmdReceiverESPNOW(Controller* c, String rollenName, String masterkey, int kanal) : Z21Format(c) {
-	setModulName("ESPNOW");
 	oldstatus = "";
 	status = "";
 	setName("ESPNOW");
@@ -225,10 +224,6 @@ void CmdReceiverESPNOW::sendEchoRequest() {
  * Will be called from the z21 submodul
  */
 void CmdReceiverESPNOW::send() {
-	if (pb[0] > 22) {
-		Logger::log(LogLevel::ERROR, "Oversized Message detected");
-		return;
-	}
 	msg* m = new msg;
    	memset(m, 0, sizeof(msg));
 	m->hops = 0;
@@ -289,7 +284,6 @@ void CmdReceiverESPNOW::handleEchoReply(msg* m) {
 		String id = String(m->msg[idx * 4], HEX) + String(m->msg[idx * 4 + 1], HEX) + String(m->msg[idx * 4 + 2], HEX) + String(m->msg[idx * 4 + 3], HEX);
 		status += "\"" + hop + "\" -> \"" + id + "\";";
 		hop = id;
-		setModulName("DCC Decoder");
 	}
 }
 
@@ -297,13 +291,6 @@ void CmdReceiverESPNOW::getInternalStatus(IInternalStatusCallback* cb, String ke
 	if (key.equals("status") || key.equals("*")) {
 		cb->send("espnow", "status", status);
 	}
-}
-
-
-String CmdReceiverESPNOW::createDebugDiagramm(String parent) {
-	return getName() + "[label =\" " + getModulName() + "\\n" + getConfigDescription() + "\"];\r\n"
-		      + parent + " -- " + getName() + ";\r\n";
-
 }
 
 int  CmdReceiverESPNOW::msgsize = sizeof(CmdReceiverESPNOW::msg);

@@ -32,7 +32,6 @@ void notifyDccAccTurnoutOutput(uint16_t Addr, uint8_t Direction,
 CmdReceiverDCC::CmdReceiverDCC(Controller* c, uint8_t ExtIntNum,
 		uint8_t ExtIntPinNum) :
 		CmdReceiverBase(c) {
-	setModulName("DCC Decoder");
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting DCC Receiver (PIN: " + String(ExtIntNum) + ")...");
 	CmdReceiverDCC::_instance = this;
 	Dcc.pin(ExtIntNum, ExtIntPinNum, false);
@@ -129,10 +128,4 @@ void CmdReceiverDCC::handleDccFun(uint16_t Addr, FN_GROUP FuncGrp,
 		break;
 	}
 	controller->notifyDCCFun(Addr, startbit, stopbit, value, 0);
-}
-
-String CmdReceiverDCC::createDebugDiagramm(String parent) {
-	return getName() + "[label =\" " + getModulName() + "\\n" + getConfigDescription() + "\"];\r\n"
-		    + getName()  + " -> " + parent + ";\r\n";
-
 }

@@ -14,7 +14,6 @@
 
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, String ip) :
  Z21Format(c) {
-	setModulName("Z21 Client");
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {
 		z21Server = new IPAddress(192, 168, 0, 111);
@@ -33,7 +32,6 @@ int CmdReceiverZ21Wlan::loop() {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
 		controller->emergencyStop(Consts::SOURCE_INTERNAL);
 		timeout = 0;
-		timeouts++;
 	}
 
 	if (!Utils::isWifiConnected()) {
@@ -149,25 +147,14 @@ void CmdReceiverZ21Wlan::sendDCCSpeed(int addr, LocData* data) {
 	pb[3] = 0x00;
 
 	pb[4] = 0xE4;
-	if (data->speedsteps == 128) {
-		pb[5] = 0x13;
-	} else if (data->speedsteps == 28) {
-		pb[5] = 0x12;
-	} else if (data->speedsteps == 14) {
-		pb[5] = 0x10;
-	} else {
-		Logger::log(LogLevel::ERROR, "Unsupported Speedstaps " + (data->speedsteps));
-		return;
-	}
-
-	// Addr
+	pb[5] = 0x13;
 	pb[6] = (addr >> 8) & 0x3F;
 	if (addr >= 128) {
 		pb[6] += 0b11000000;
 	}
+
 	pb[7] = addr & 255;
 
-	// Speed
 	unsigned int v = (data->speed & 127);
 	// Adjust to match NmraDCC Schema
 	if (v == Consts::SPEED_STOP) {
@@ -243,9 +230,6 @@ void CmdReceiverZ21Wlan::resetTimeout() {
 	if (timeout == 0) {
 		Logger::log(LogLevel::INFO, "Message after Timeout from Z21 received!");
 	}
-	if (timeout == 1) {
-		Logger::log(LogLevel::INFO, "First Command from Z21 received!");
-	}
 	timeout = millis();
 }
 
@@ -254,44 +238,3 @@ void CmdReceiverZ21Wlan::send() {
 	udp->write(pb, pb[0]);
 	udp->endPacket();
 }
-
-void CmdReceiverZ21Wlan::getInternalStatus(IInternalStatusCallback* cb, String key) {
-	if (key.equals("status") || key.equals("*")) {
-		if (timeout == 1) {
-			cb->send("z21", "status", "never connected");
-		} else if (timeout == 0) {
-			cb->send("z21", "status", "Timeout");
-		} else {
-			cb->send("z21", "status", "Connected (" + String(millis() - timeout) + " msec ago)");
-		}
-	}
-	if (key.equals("timeouts") || key.equals("*")) {
-		cb->send("z21", "timeouts", String(timeouts));
-	}
-}
-
-String CmdReceiverZ21Wlan::createDebugDiagramm(String parent) {
-	return getName() + "[label =\" " + getModulName() + "\\n" + getConfigDescription() + "\"];\r\n"
-			  + getName() + " -- " + parent + ";\r\n"
-			  + "z21cnt[label =\"Z21 Zentrale\\n" + z21Server->toString() + "\"];\r\n"
-			  + getName() + " -- z21cnt;\r\n";
-
-}
-
-// String CmdReceiverZ21Wlan::getInternalStatus(String key) {
-// 	String out = Z21Format::getInternalStatus(key);
-// 	if (key == "clients" || key == "*") {
-// 		out += "clients\n";
-// 		for (int i = 0; i < clients.size(); i++) {
-// 			Z21Clients* c = clients[i];
-// 			out += c->ip.toString() + ":" + String(c->port);
-// 			for (int idx = 0; idx < c->ids.size(); idx++) {
-// 				int id = c->ids[idx];
-// 				out += "," + String(id);
-// 			}
-// 			out += "\n";
-// 		}
-// 	}
-// 	Serial.println(out);
-// 	return out;
-// }

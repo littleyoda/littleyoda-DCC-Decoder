@@ -15,7 +15,6 @@
 
 CmdZentraleZ21::CmdZentraleZ21(Controller* c) : Z21Format(c) {
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Zentrale ...");
-	setModulName("Z21 (simulated)");
 	cnt = c;
 	udp = new WiFiUDP();
 }
@@ -38,7 +37,7 @@ int CmdZentraleZ21::loop() {
 		currentDestPort = 0;
 	}
 	long int time = millis();
-	if ((timeout > 1) && ((time - timeout) > emergencyStopTimeout)) {
+	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 Zentrale Timeout");
 		cnt->emergencyStop(Consts::SOURCE_Z21SERVER);
 		timeout = 0;
@@ -389,9 +388,4 @@ void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
 void CmdZentraleZ21::sendDCCFun(int addr, LocData* data, unsigned int changedBit) {
 	Serial.println("Changed Bit");
 	sendDCCSpeed(addr,data);
-}
-
-String CmdZentraleZ21::createDebugDiagramm(String parent) {
-	return getName() + "[label =\" " + getModulName() + "\\n" + getConfigDescription() + "\"];\r\n"
-		      + getName() + " -- " + parent + ";\r\n";
 }

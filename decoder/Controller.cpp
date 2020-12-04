@@ -172,28 +172,10 @@ LocData* Controller::getLocData(int id) {
 
 String Controller::createDebugDiagramm() {
 	String out = "";
-	out.reserve(2000);
 	for (int i = 0; i < connectors.size(); i++) {
 		Connectors* a = connectors.get(i);
-		out += a->createDebugDiagramm("");
+		out = out + a->createDebugDiagramm("");
 	}
-	for (int i = 0; i < actions.size(); i++) {
-		INotify* a = actions.get(i);
-		String m = a->getName() + "[label =\" " + a->getModulName() + "\\n" + a->getConfigDescription() + "\"];\r\n"
-		      + "ESP -> " + a->getName() + ";\r\n";
-		out += m;
-	}
-	for (int i = 0; i < sender.size(); i++) {
-		INamed* a = sender.get(i);
-		out += a->createDebugDiagramm("ESP");
-	}
-	for (int i = 0; i < receiver.size(); i++) {
-		INamed* a = receiver.get(i);
-		if (out.indexOf(a->getName()) == -1) {
-			out += a->createDebugDiagramm("ESP");
-		}
-	}
-	Serial.println("OUT: " + String(out.length()));
 	return out;
 }
 

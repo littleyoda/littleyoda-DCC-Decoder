@@ -36,7 +36,6 @@ public:
 	virtual void sendDCCSpeed(int addr, LocData* data);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 	String getInternalStatus(String key);
-	virtual String createDebugDiagramm(String parent);
 protected:
 	virtual void adjustBroadcast(int addr);
 

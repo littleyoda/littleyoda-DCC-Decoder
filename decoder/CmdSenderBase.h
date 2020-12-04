@@ -13,9 +13,8 @@
 
 #include "INotify.h"
 #include "LocData.h"
-#include "INamed.h"
 
-class CmdSenderBase : virtual public INamed {
+class CmdSenderBase {
 public:
 	CmdSenderBase() {};
 	virtual ~CmdSenderBase() {};
@@ -24,6 +23,7 @@ public:
 	virtual void sendDCCSpeed(int id, LocData* d) {};
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit) {};
 	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list) {requestList = list;};
+
 protected:
 	LinkedList<INotify::requestInfo*>* requestList = 0;
 };

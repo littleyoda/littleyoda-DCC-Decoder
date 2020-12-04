@@ -28,7 +28,6 @@ public:
 			DCC_SPEED_STEPS SpeedSteps);
 	virtual void handleDccFun(uint16_t Addr, FN_GROUP FuncGrp,
 			uint8_t FuncState);
-	virtual String createDebugDiagramm(String parent);
 //	static void handleTurnOut(uint16_t Addr, uint8_t Direction, uint8_t OutputPower);
 };
 

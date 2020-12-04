@@ -9,11 +9,11 @@
 #define CMDRECEIVERBASE_H_
 
 #include "ILoop.h"
-#include "INamed.h"
+
 class Controller;
 // forward declaration
 
-class CmdReceiverBase : public ILoop, virtual public INamed {
+class CmdReceiverBase : public ILoop {
 public:
 	CmdReceiverBase(Controller* c);
 	virtual ~CmdReceiverBase();

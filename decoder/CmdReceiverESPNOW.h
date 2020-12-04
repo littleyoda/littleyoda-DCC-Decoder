@@ -32,11 +32,6 @@ public:
 	CmdReceiverESPNOW(Controller* c, String rolle,String key, int kanal);
 	virtual ~CmdReceiverESPNOW();
 	virtual int loop();
-	virtual void sendSetTurnout(String id, String status) {};
-	virtual void sendSetSensor(uint16_t id, uint8_t status) {};
-	virtual void sendDCCSpeed(int id, LocData* d) {};
-	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit) {};
-	virtual String createDebugDiagramm(String parent);
 
 private:
 	static CmdReceiverESPNOW* instance;

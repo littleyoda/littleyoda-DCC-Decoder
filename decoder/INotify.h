@@ -11,7 +11,7 @@
  * Author: sven
  */
 
-class INotify : virtual public INamed {
+class INotify /*: public INamed*/{
 public:
 	INotify();
 	virtual ~INotify();

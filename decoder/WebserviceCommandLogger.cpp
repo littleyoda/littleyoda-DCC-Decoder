@@ -11,7 +11,6 @@
 #include "Utils.h"
 
 WebserviceCommandLogger::WebserviceCommandLogger() {
-	setModulName("Cmd Logger");
 }
 
 WebserviceCommandLogger::~WebserviceCommandLogger() {
