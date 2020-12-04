@@ -135,6 +135,9 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("flashchipspeed") || key.equals("*")) {
 			cb->send("sys", "flashchipspeed", String(ESP.getFlashChipSpeed()));
 		}
+		if (key.equals("uptime") || key.equals("*")) {
+			cb->send("sys", "uptime", String(millis() / 1000));
+		}
 		#ifdef ESP8266
 		if (key.equals("A0") || key.equals("*")) {
 			cb->send("sys", "A0", String(analogRead(A0)));
