@@ -19,7 +19,7 @@ public:
 	virtual void TurnoutCmd(int id, int direction, int source);
 
 	// Reports the Loco Speed and Direction
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
+	virtual void DCCSpeed(int id, int speed, int direction, int source);
 
 	// Reports just the changed Bit
 	virtual void DCCFunc(int id, int bit, int newvalue, int source);

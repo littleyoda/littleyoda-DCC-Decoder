@@ -9,6 +9,7 @@
 #include "Controller.h"
 #include "Logger.h"
 #include "Consts.h"
+#include "SpeedKonverter.h"
 #include "Utils.h"
 
 Z21Format::Z21Format(Controller* c) :  CmdReceiverBase(c), CmdSenderBase() {
@@ -360,14 +361,11 @@ void Z21Format::handleDCCSpeed(unsigned int locoid, unsigned char pb[]) {
 	}
 
 	int richtung = (pb[8] & 128) == 0 ? -1 : 1;
-	unsigned int v = (pb[8] & 127);
-	// Adjust to match NmraDCC Schema
-	if (v == 0) {
-		v = Consts::SPEED_STOP;
-	} else if (v == 1) {
-		v = Consts::SPEED_EMERGENCY;
-	}
-	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen, 1);
+	unsigned int origv = pb[8] & 127;
+	unsigned int v = SpeedKonverter::fromExternal(fahrstufen, origv);
+//	Serial.println("z21 handleDCCSpeed Loc:" + String(locoid) + " FS " + String(fahrstufen) + " Orig: " + String(origv) + " V: " + String(v));
+	controller->notifySpeeSteps(locoid, fahrstufen);
+	controller->notifyDCCSpeed(locoid, v, richtung, 1);
 }
 
 void Z21Format::handleFunc(unsigned int locoid, unsigned char pb[]) {
@@ -571,39 +569,11 @@ void Z21Format::handleSetLocoFunc(unsigned int locoid) {
 void Z21Format::handleSetLoco(int locoid) {
 	unsigned int fahrstufen = pb[5] & 7;
 	int richtung = (pb[8] & 128) == 0 ? -1 : 1;	
-	int v = 0;
-	if (fahrstufen == 0) {
-		fahrstufen = 14;
-	} else if (fahrstufen == 2) {
-		fahrstufen = 28;
-		v = (pb[8] & 15);
-		Serial.println("Raw: " + String(v));
-		if (v == 0) {
-			v = Consts::SPEED_STOP;
-		} else if (v == 1) {
-			v = Consts::SPEED_EMERGENCY;
-		} else {
-			v = v * 2;
-			if (bit_is_set(pb[8], 4)) {
-				v++;
-			}
-			v = v * 4;
-		}
-	} else if (fahrstufen == 3) {
-		fahrstufen = 128;
-		v = (pb[8] & 127);
-		if (v == 0) {
-			v = Consts::SPEED_STOP;
-		} else if (v == 1) {
-			v = Consts::SPEED_EMERGENCY;
-		}
-	} else {
-		fahrstufen = 999;
-	}
-
-	// Adjust to match NmraDCC Schema
-	Serial.println(String(richtung) + " " + String(v) + "/" + String(fahrstufen));
-	controller->notifyDCCSpeed(locoid, v, richtung, fahrstufen, 1);
+	int v = (pb[8] & 15);
+	v = SpeedKonverter::fromExternal(fahrstufen, v);
+//	Serial.println("[z21] Received: " + String(richtung) + " " + String(v) + "/" + String(fahrstufen));
+	controller->notifySpeeSteps(locoid, fahrstufen);
+	controller->notifyDCCSpeed(locoid, v, richtung, 1);
 	sendLocoInfoToClient(locoid);
 	adjustBroadcast(locoid);
 }
@@ -613,9 +583,10 @@ void Z21Format::adjustBroadcast(int addr) {
 }
 
 void Z21Format::sendLocoInfoToClient(int addr) {
+	// TODO
 	LocData* data = controller->getLocData(addr);
 	if (data->speedsteps == 0) {
-		data->speedsteps = 128;
+		data->speedsteps = Consts::DEFAULTSPEEDSTEPS;
 	}
 	debugMsg("Send Loco Info ID: " + String(addr) + " " + String(data->direction) + " " + String(data->speed) + "/" + String(data->speedsteps) + " F:" + String(data->status));
 
@@ -630,9 +601,8 @@ void Z21Format::sendLocoInfoToClient(int addr) {
 	if (addr >= 128) {
 		pb[5] += 0b11000000;
 	}
-
 	pb[6] = addr & 255;
-
+	// TODO
 	pb[7] = 4; // 128 Fahrstufen
 	unsigned int v = (data->speed & 127);
 	// Adjust to match NmraDCC Schema
@@ -656,13 +626,13 @@ String Z21Format::getName() {
 	return "z21";
 }
 
-String Z21Format::getInternalStatus(String key) {
-	String out = "";
-	// if (key == "clients" || key == "*") {
-	// 	out += "clients\n";
-	// }
-	return out;
-}
+// String Z21Format::getInternalStatus(String key) {
+// 	String out = "";
+// 	// if (key == "clients" || key == "*") {
+// 	// 	out += "clients\n";
+// 	// }
+// 	return out;
+// }
 
 
 void Z21Format::sendCfg12Request() {

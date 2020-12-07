@@ -11,9 +11,11 @@
 #include "Logger.h"
 #include "Consts.h"
 #include "Utils.h"
+#include "SpeedKonverter.h"
 
 CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, String ip) :
  Z21Format(c) {
+	setModulName("Z21 Client");
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Starting Z21 Wlan Receiver ...");
 	if (ip == NULL) {
 		z21Server = new IPAddress(192, 168, 0, 111);
@@ -32,6 +34,7 @@ int CmdReceiverZ21Wlan::loop() {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
 		controller->emergencyStop(Consts::SOURCE_INTERNAL);
 		timeout = 0;
+		timeouts++;
 	}
 
 	if (!Utils::isWifiConnected()) {
@@ -147,26 +150,30 @@ void CmdReceiverZ21Wlan::sendDCCSpeed(int addr, LocData* data) {
 	pb[3] = 0x00;
 
 	pb[4] = 0xE4;
-	pb[5] = 0x13;
+	
+	unsigned int speed = 0;
+	if (data->speedsteps == 128) {
+		pb[5] = 0x13;
+		speed = SpeedKonverter::fromInternal(SpeedKonverter::repDCC128, data->speed);
+	} else if (data->speedsteps == 28) {
+		pb[5] = 0x12;
+		speed = SpeedKonverter::fromInternal(SpeedKonverter::repDCC28, data->speed);
+	} else if (data->speedsteps == 14) {
+		pb[5] = 0x10;
+		speed = SpeedKonverter::fromInternal(SpeedKonverter::repDCC14, data->speed);
+	} else {
+		Logger::log(LogLevel::ERROR, "Unsupported Speedstaps " + (data->speedsteps));
+		return;
+	}
+
+	// Addr
 	pb[6] = (addr >> 8) & 0x3F;
 	if (addr >= 128) {
 		pb[6] += 0b11000000;
 	}
-
 	pb[7] = addr & 255;
-
-	unsigned int v = (data->speed & 127);
-	// Adjust to match NmraDCC Schema
-	if (v == Consts::SPEED_STOP) {
-		v = 0;
-	} else if (v == Consts::SPEED_EMERGENCY) {
-		v = 1;
-	}
-	pb[8] = v | ((data->direction == -1) ? 0 : 128);
-
+	pb[8] = speed | ((data->direction == -1) ? 0 : 128);
 	pb[9] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8];
-	
-	printPacketBuffer("DCC Speed", pb, pb[0]);
 	send();
 
 }
@@ -229,6 +236,9 @@ CmdReceiverZ21Wlan::~CmdReceiverZ21Wlan() {
 void CmdReceiverZ21Wlan::resetTimeout() {
 	if (timeout == 0) {
 		Logger::log(LogLevel::INFO, "Message after Timeout from Z21 received!");
+	}
+	if (timeout == 1) {
+		Logger::log(LogLevel::INFO, "First Command from Z21 received!");
 	}
 	timeout = millis();
 }

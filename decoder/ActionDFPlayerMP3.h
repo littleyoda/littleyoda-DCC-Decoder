@@ -13,17 +13,18 @@
 #include <SoftwareSerial.h>
 
 #include "INotify.h"
+#include "ISettings.h"
 
-class ActionDFPlayerMP3: public INotify {
+class ActionDFPlayerMP3: public INotify,ISettings {
 public:
 	ActionDFPlayerMP3(int addr, int rx, int tx);
 	virtual int loop();
 	virtual ~ActionDFPlayerMP3();
-	virtual String getHTMLCfg(String urlprefix);
-	virtual String getHTMLController(String urlprefix);
-	virtual void setSettings(String key, String value);
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
-	virtual void DCCFunc(int id, int bit, int newvalue, int source);
+	virtual String getHTMLCfg(String urlprefix) override;
+	virtual String getHTMLController(String urlprefix) override;
+	virtual void setSettings(String key, String value) override;
+	virtual void DCCSpeed(int id, int speed, int direction, int source) override;
+	virtual void DCCFunc(int id, int bit, int newvalue, int source) override;
 
 private:
 	virtual void cmdSelectSDCard();

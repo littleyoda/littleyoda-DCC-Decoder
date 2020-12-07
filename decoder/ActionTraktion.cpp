@@ -30,12 +30,12 @@ ActionTraktion::~ActionTraktion() {
 }
 
 
-void ActionTraktion::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void ActionTraktion::DCCSpeed(int id, int speed, int direction, int source) {
 	if (id == normalAddr && isNormal) {
-		controller->notifyDCCSpeed(virtuelAddr, speed, direction, SpeedSteps, source);
+		controller->notifyDCCSpeed(virtuelAddr, speed, direction, source);
 	}
 	if (id == normalTraktion && !isNormal) {
-		controller->notifyDCCSpeed(virtuelAddr, speed, direction, SpeedSteps, source);
+		controller->notifyDCCSpeed(virtuelAddr, speed, direction, source);
 	}
 }
 

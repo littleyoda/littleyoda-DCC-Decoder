@@ -17,9 +17,9 @@ class ActionSUSIGeneration: public INotify, public ILoop {
 public:
 	ActionSUSIGeneration(int locoaddr);
 	virtual ~ActionSUSIGeneration();
-	virtual int loop();
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
-	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
+	virtual int loop() override;
+	virtual void DCCSpeed(int id, int speed, int direction, int source) override;
+	virtual void DCCFunc(int id, unsigned long int newvalue, int source) override;
 
 private:
 	void send();

@@ -33,7 +33,8 @@ private:
 	unsigned int localPort = 21105;
 //	unsigned char packetcfg12[30];
 //	unsigned char packetcfg16[30];
-	unsigned long timeout = 0;
+	unsigned long timeout = 1;
+	unsigned long timeouts = 0;
 	IPAddress* z21Server;
 	void doReceive();
 	void resetTimeout();

@@ -7,6 +7,7 @@
 
 #include "SpeedKonverter.h"
 #include "Logger.h"
+#include "Consts.h"
 SpeedKonverter::SpeedKonverter() {
 	// TODO Auto-generated constructor stub
 
@@ -27,9 +28,9 @@ int SpeedKonverter::fromInternal(representations rep, int value) {
 			return value; 
 		case repDCC128:
 			return dcc128[value];
-		case repDCC28:break;
+		case repDCC28:
 			return dcc28[value];
-		case repDCC14:break;
+		case repDCC14:
 			return dcc14[value];
 		case repPercent:
 			return prozent[value];
@@ -37,7 +38,28 @@ int SpeedKonverter::fromInternal(representations rep, int value) {
 			Logger::log(LogLevel::ERROR, "CONV", "Ungültige Rep " + String(value));
 			return 0;
 	}
-	return 0;
+}
+
+
+
+int SpeedKonverter::fromInternal(int  speedSteps, int value) {
+	if (value < 0 || value >127) {
+		Logger::log(LogLevel::ERROR, "CONV," "Ungültiger Wert " + String(value));
+		return 0;
+	}
+	switch (speedSteps) {
+		case 128:
+			return dcc128[value];
+		case 28:
+			return dcc28[value];
+		case 14:
+			return dcc14[value];
+		case 100:
+			return prozent[value];
+		default:
+			Logger::log(LogLevel::ERROR, "CONV", "Ungültige Rep " + String(value));
+			return 0;
+	}
 }
 
 String SpeedKonverter::fromInternal(int value) {
@@ -46,6 +68,36 @@ String SpeedKonverter::fromInternal(int value) {
 		return "XXX";
 	}
 	return desc[value];
+}
+
+
+int SpeedKonverter::fromExternal(int speedSteps, int value) {
+	switch (speedSteps) {
+		case 128:
+			for (int idx = 0; idx < 128; idx++) {
+				if (dcc128[idx] == value) {
+					return idx;
+				}
+			}
+			break;
+		case 100:
+			for (int idx = 0; idx < 128; idx++) {
+				if (prozent[idx] == value) {
+					return idx;
+				}
+			}
+			break;
+		case 28:
+			for (int idx = 0; idx < 128; idx++) {
+				if (dcc28[idx] == value) {
+					return idx;
+				}
+			}
+		default:
+			break;
+	}
+	Logger::log(LogLevel::ERROR, "CONV," "ext2int: Keine Umrechnung möglich " + String(value) + " / " + String(speedSteps));
+	return Consts::SPEED_STOP;
 }
 
 const  int   SpeedKonverter::internal[128] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127};

@@ -22,7 +22,9 @@ public:
 		repDCC14 = 5,
 		repPercent = 6
 	};
+	static int fromExternal(int speedSteps, int value);
 	static int fromInternal(representations rep, int value);
+	static int fromInternal(int speedSteps, int value);
 	static String fromInternal(int value);
 
 private:

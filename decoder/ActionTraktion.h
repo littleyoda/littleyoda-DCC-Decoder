@@ -15,9 +15,9 @@ class ActionTraktion : public INotify{
 public:
 	ActionTraktion(Controller* c, int n, int t, int v, int f);
 	virtual ~ActionTraktion();
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
-	virtual void DCCFunc(int id, int bit, int newvalue, int source);
-	virtual void getRequestList(LinkedList<requestInfo*>* list);
+	virtual void DCCSpeed(int id, int speed, int direction, int source) override;
+	virtual void DCCFunc(int id, int bit, int newvalue, int source) override;
+	virtual void getRequestList(LinkedList<requestInfo*>* list) override;
 private:
 	int normalAddr;
 	int normalTraktion;

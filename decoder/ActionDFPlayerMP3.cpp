@@ -122,13 +122,13 @@ void ActionDFPlayerMP3::sendCommand(uint8_t cmd, uint16_t data) {
 }
 
 
-void ActionDFPlayerMP3::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void ActionDFPlayerMP3::DCCSpeed(int id, int speed, int direction, int source) {
 	if (id == locoId || id == Consts::LOCID_ALL) {
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			cmdStop();
 			return;
 		}
-		int v = 30 * speed / SpeedSteps;
+		int v = 30 * speed / 127;
 		cmdVolume(v);
 	}
 }

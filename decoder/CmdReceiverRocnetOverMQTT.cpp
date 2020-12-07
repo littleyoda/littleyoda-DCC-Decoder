@@ -25,6 +25,7 @@
 #include "Logger.h"
 #include "CmdSenderBase.h"
 #include "Utils.h"
+#include "SpeedKonverter.h"
 
 CmdReceiverRocnetOverMQTT::CmdReceiverRocnetOverMQTT(Controller* c) : CmdReceiverBase(c), CmdSenderBase() {
 	client = new PubSubClient(espClient);
@@ -117,10 +118,11 @@ void rocnetovermqttcallback(char* topic, byte* payload, unsigned int length) {
 void CmdReceiverRocnetOverMQTT::parse(String s) {
 	if (s.startsWith("<lc ")) {
 		int addr = extractXMLAttribute(s, "addr").toInt();
+		int speed = SpeedKonverter::fromExternal(100, extractXMLAttribute(s, "V").toInt());
 		controller->notifyDCCSpeed(addr,
-				extractXMLAttribute(s, "V").toInt(),
+				speed,
 				extractXMLAttribute(s, "dir").equals("true") ? 1 : -1,
-						100, Consts::SOURCE_ROCRAIL);
+						 Consts::SOURCE_ROCRAIL);
 		if (extractXMLAttribute(s, "fn").equals("false")) {
 			controller->notifyDCCFun(addr, 0, 31, 0, Consts::SOURCE_ROCRAIL);
 		}

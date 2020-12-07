@@ -83,7 +83,7 @@ void ActionDCCGeneration::DCCFunc(int id, unsigned long int newvalue, int source
 }
 
 
-void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void ActionDCCGeneration::DCCSpeed(int id, int speed, int direction, int source) {
 	if (id == LOCO_ADR || id == Consts::LOCID_ALL) {
 		if (enableGpio->getPin() != Consts::DISABLE) {
 			Logger::log(LogLevel::WARNING, "Emergency? " + String(speed == Consts::SPEED_EMERGENCY));

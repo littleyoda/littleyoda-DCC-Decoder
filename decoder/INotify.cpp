@@ -19,7 +19,7 @@ INotify::~INotify() {
 void INotify::TurnoutCmd(int id, int direction, int source) {
 }
 
-void INotify::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void INotify::DCCSpeed(int id, int speed, int direction, int source) {
 }
 
 void INotify::DCCFunc(int id, int bit, int newvalue, int source) {

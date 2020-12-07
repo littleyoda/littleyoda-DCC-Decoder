@@ -36,7 +36,7 @@ public:
 	void sendLocoInfoToClient(int addr);
 	void handleSetLocoFunc(unsigned int locoid);
 	void handleSetLoco(int locoid);
-	void DCCSpeed(int addr, int speed, int direction, int SpeedSteps, int source);
+//	void DCCSpeed(int addr, int speed, int direction, int source);
 	void sendCfg16Request();
 	void sendCfg12Request();
 	void sendFrimwareVersionRequest();
@@ -45,8 +45,8 @@ public:
 	void sendSetTurnout(String id, String status);
 	void requestLocoInfo(int addr);
 	virtual void setName(String s) {};
-	virtual String getName();
-	virtual String getInternalStatus(String key);
+	virtual String getName()  override;
+	//virtual String getInternalStatus(String key)  override;
 
 protected:
 	bool debugEnabled = true;

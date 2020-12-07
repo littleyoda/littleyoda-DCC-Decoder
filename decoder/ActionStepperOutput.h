@@ -10,7 +10,6 @@
 
 #include "ISettings.h"
 #include "Pin.h"
-#include "INotify.h"
 #include "ISettings.h"
 #include "GPIO.h"
 
@@ -18,10 +17,10 @@ class ActionStepperOutput: public ISettings, public ILoop  {
 public:
 	ActionStepperOutput(Pin* p1, Pin* p2, Pin* p3, Pin* p4, boolean _persistent);
 	virtual ~ActionStepperOutput();
-	virtual int loop();
-	virtual void setSettings(String key, String value);
-	virtual String getHTMLController(String urlprefix);
-	virtual String getHTMLCfg(String urlprefix);
+	virtual int loop() override;
+	virtual void setSettings(String key, String value) override;
+	virtual String getHTMLController(String urlprefix) override;
+	virtual String getHTMLCfg(String urlprefix) override;
 	void load();
 
 private:

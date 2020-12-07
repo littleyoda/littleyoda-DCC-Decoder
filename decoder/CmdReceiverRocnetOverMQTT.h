@@ -33,12 +33,12 @@ public:
 	virtual ~CmdReceiverRocnetOverMQTT();
 	virtual int loop();
 	void parse(String s);
-	virtual void sendSetTurnout(String id, String status) { /* TODO */ };
-	virtual void sendSetSensor(uint16_t id, uint8_t status) { /* TODO */  };
-	virtual void sendDCCSpeed(int id, LocData* d);
-	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
-	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list) {requestList = list;};
-	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
+	virtual void sendSetTurnout(String id, String status)  override { /* TODO */ };
+	virtual void sendSetSensor(uint16_t id, uint8_t status)  override { /* TODO */  };
+	virtual void sendDCCSpeed(int id, LocData* d)  override;
+	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit)  override;
+	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list)  override {requestList = list;};
+	virtual void getInternalStatus(IInternalStatusCallback* cb, String key)  override;
 
 private:
 	WiFiClient espClient;

@@ -8,18 +8,18 @@
 #ifndef ACTIONSERVO_H_
 #define ACTIONSERVO_H_
 
-#include "INotify.h"
 #include "ISettings.h"
+#include "ILoop.h"
 
 class ActionServo: public ILoop, public ISettings {
 public:
 	ActionServo(int pin);
 	virtual ~ActionServo();
 
-	virtual int loop();
-	virtual String getHTMLCfg(String urlprefix);
-	virtual String getHTMLController(String urlprefix);
-	virtual void setSettings(String key, String value);
+	virtual int loop()  override;
+	virtual String getHTMLCfg(String urlprefix) override;
+	virtual String getHTMLController(String urlprefix) override;
+	virtual void setSettings(String key, String value) override;
 private:
 	int pin;
 	int id;

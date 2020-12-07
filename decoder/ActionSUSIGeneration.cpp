@@ -105,13 +105,14 @@ void ActionSUSIGeneration::DCCFunc(int id, unsigned long int newvalue, int sourc
 }
 
 
-void ActionSUSIGeneration::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void ActionSUSIGeneration::DCCSpeed(int id, int speed, int direction, int source) {
 	if (id == LOCO_ADR || id == Consts::LOCID_ALL) {
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
-		} else if (SpeedSteps == 29) {
-			speed = speed * 127.0f / SpeedSteps;
-		}
+		} 
+		// else if (SpeedSteps == 29) {
+		// 	speed = speed * 127.0f / SpeedSteps;
+		// }
 		DIR_STATE = (direction == Consts::SPEED_FORWARD);
 		SPEED_STATE = speed;
 	}

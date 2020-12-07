@@ -21,6 +21,7 @@
         #include <WiFi.h>
 #endif
 #include "InternalStatusWifiSys.h"
+#include "SpeedKonverter.h"
 
 Controller::Controller() {
 	cmdlogger = NULL;
@@ -159,7 +160,7 @@ LocData* Controller::getLocData(int id) {
 		data = new LocData();
 		data->status = 0;
 		data->speed = Consts::SPEED_STOP;
-		data->speedsteps = 128;
+		data->speedsteps = Consts::DEFAULTSPEEDSTEPS;
 		data->direction = Consts::SPEED_FORWARD;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
@@ -199,12 +200,28 @@ void Controller::notifyGPIOChange(int pin, int newvalue) {
 	}
 }
 
+void Controller::notifySpeeSteps(int id, int SpeedSteps) {
+	if (id == Consts::LOCID_ALL) {
+		return;
+	}
+	// Filter out known commands
+	LocData* data;
+	if (items.find(id) == items.end()) {
+		data = new LocData();
+		data->status = 0;
+		data->speed = 0;
+		data->speedsteps = SpeedSteps;
+	} else {
+		data = items[id];
+		data->speedsteps = SpeedSteps;
+	}
+}
+
 /**
  * @param speed see Consts.h
  * @param direction 1 = forward / -1 = reverse
  */
-LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
-		int SpeedSteps, int source) {
+LocData* Controller::notifyDCCSpeed(int id, int speed, int direction, int source) {
 	if (direction == 0) {
 		Logger::log(LogLevel::ERROR, "CNT", "DCC-Speed: Ungültige Richtung (0)");
 	}
@@ -213,6 +230,7 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 	LocData* data;
 	if (items.find(id) == items.end()) {
 		data = new LocData();
+		data->speedsteps = Consts::DEFAULTSPEEDSTEPS;
 		data->status = 0;
 		if (id != Consts::LOCID_ALL) {
 			items[id] = data;
@@ -220,21 +238,25 @@ LocData* Controller::notifyDCCSpeed(int id, int speed, int direction,
 		}
 	} else {
 		data = items[id];
-		if (data->direction == direction && data->speed == speed
-				&& data->speedsteps == SpeedSteps) {
+		bool sameSpeed = (SpeedKonverter::fromInternal(data->speedsteps, data->speed) ==  SpeedKonverter::fromInternal(data->speedsteps, speed));
+		if (sameSpeed && source == Consts::SOURCE_RCKP) {
+			// Beim Kontroller genauer prüfen
+			sameSpeed = (data->speed == speed);
+		}
+//		Serial.println("SameSpeed: " + String(sameSpeed) + " " + String(data->speed) + ":" + String(speed) + " Source: " + String(source));
+		if (data->direction == direction && sameSpeed ) {
 			return nullptr;
 		}
 	}
 
 	data->direction = direction;
 	data->speed = speed;
-	data->speedsteps = SpeedSteps;
-	Logger::getInstance()->printf(LogLevel::TRACE, "[CNT] DCC-Speed: %d D: %d  %d/%d", id, direction, speed, SpeedSteps);
+	Logger::getInstance()->printf(LogLevel::TRACE, "[CNT] DCC-Speed: ID: %d S: %d D: %d", id, speed, direction);
 
 	// Send the information to the actions
 	int idx;
 	for (idx = 0; idx < actions.size(); idx++) {
-		actions.get(idx)->DCCSpeed(id, speed, direction, SpeedSteps, source);
+		actions.get(idx)->DCCSpeed(id, speed, direction, source);
 	}
 	if (id == Consts::LOCID_ALL) {
 		delete data;
@@ -329,7 +351,7 @@ void Controller::updateRequestList() {
 
 void Controller::emergencyStop(int source) {
 	notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
-				   Consts::SPEED_FORWARD, 128, source);
+				   Consts::SPEED_FORWARD, source);
 }
 
 void Controller::enableAPModus() {
@@ -528,7 +550,7 @@ void Controller::sendSetSensor(uint16_t id, uint8_t status) {
  * Informiert andere(!) Geräte  über eine durch dieses Gerät gewünschte Änderung an einer Lok Geschwindigkeit
  */
 void Controller::sendDCCSpeed(int id, int speed, int direction, int source) {
-  LocData* d = notifyDCCSpeed(id, speed, direction, 128, Consts::SOURCE_RCKP);
+  LocData* d = notifyDCCSpeed(id, speed, direction, Consts::SOURCE_RCKP);
   if (d == nullptr) {
 		return;
   }

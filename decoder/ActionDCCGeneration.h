@@ -21,11 +21,11 @@ public:
 	ActionDCCGeneration(Pin* gpioenable, int locoaddr, int dccoutput);
 	virtual ~ActionDCCGeneration();
 	virtual int loop();
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
-	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
-	virtual void getHTMLConfig(String urlprefix, Controller* c);
-	virtual void setSettings(String key, String value);
-	virtual void getInternalStatus(IInternalStatusCallback* cb, String key);
+	virtual void DCCSpeed(int id, int speed, int direction, int source) override;
+	virtual void DCCFunc(int id, unsigned long int newvalue, int source) override;
+	virtual void getHTMLConfig(String urlprefix, Controller* c) override;
+	virtual void setSettings(String key, String value) override;
+	virtual void getInternalStatus(IInternalStatusCallback* cb, String key) override;
 
 private:
 	void addToSpi(int i);

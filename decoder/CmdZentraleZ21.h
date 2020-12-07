@@ -35,7 +35,7 @@ public:
 	virtual void sendSetSensor(uint16_t id, uint8_t status);
 	virtual void sendDCCSpeed(int addr, LocData* data);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
-	String getInternalStatus(String key);
+//	String getInternalStatus(String key);
 protected:
 	virtual void adjustBroadcast(int addr);
 

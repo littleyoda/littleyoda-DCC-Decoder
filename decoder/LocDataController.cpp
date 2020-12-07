@@ -200,6 +200,9 @@ void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String ke
 	if (key.equals("*") || key.equals("speed")) {
         cb->send(getName(), "speed", SpeedKonverter::fromInternal(locdata->speed));
 	}
+	if (key.equals("*") || key.equals("steps")) {
+        cb->send(getName(), "steps", String(locdata->speedsteps));
+	}
 	if (key.equals("*") || key.equals("internalspeed")) {
         cb->send(getName(), "internalspeed", String(locdata->speed));
 	}

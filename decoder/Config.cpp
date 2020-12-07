@@ -391,6 +391,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 
 
 		} else if (m.equals("z21")) {
+			Consts::DEFAULTSPEEDSTEPS = parser->getValueByKey(idx, "defaultspeedsteps", "128").toInt();
 			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, parser->getValueByKey(idx, "ip"));
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);

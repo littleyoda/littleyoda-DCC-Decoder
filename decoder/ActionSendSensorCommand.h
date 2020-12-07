@@ -25,9 +25,9 @@ class ActionSendSensorCommand : public ISettings, public INotify, public ILoop {
 public:
   ActionSendSensorCommand(Controller* c, int id, LinkedList<int> *list);
   virtual ~ActionSendSensorCommand();
-  virtual void setSettings(String key, String value);
-  virtual void setSettings(SensorState status);
-  virtual void SensorCmd(int id, int direction, int source);
+  virtual void setSettings(String key, String value) override;
+  void setSettings(SensorState status);
+  void SensorCmd(int id, int direction, int source);
   virtual int loop();
 private:
   Controller* controller;

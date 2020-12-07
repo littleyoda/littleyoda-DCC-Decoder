@@ -26,7 +26,7 @@ void ConnectorLocoSpeed::DCCSpeed(int id, int speed, int direction, int SpeedSte
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;
 		}
-		send("sd", String(direction * 100 * speed / SpeedSteps));
+		send("sd", String(direction * speed));
 	}
 }
 

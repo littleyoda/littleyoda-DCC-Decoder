@@ -253,23 +253,23 @@ void CmdZentraleZ21::DCCSpeed(int addr, int speed, int direction, int SpeedSteps
 }
 
 
-String CmdZentraleZ21::getInternalStatus(String key) {
-	String out = Z21Format::getInternalStatus(key);
-	if (key == "clients" || key == "*") {
-		out += "clients\n";
-		for (int i = 0; i < clients.size(); i++) {
-			Z21Clients* c = clients[i];
-			out += c->ip.toString() + ":" + String(c->port);
-			for (int idx = 0; idx < c->ids.size(); idx++) {
-				int id = c->ids[idx];
-				out += "," + String(id);
-			}
-			out += "\n";
-		}
-	}
-	Serial.println(out);
-	return out;
-}
+// String CmdZentraleZ21::getInternalStatus(String key) {
+// 	String out = Z21Format::getInternalStatus(key);
+// 	if (key == "clients" || key == "*") {
+// 		out += "clients\n";
+// 		for (int i = 0; i < clients.size(); i++) {
+// 			Z21Clients* c = clients[i];
+// 			out += c->ip.toString() + ":" + String(c->port);
+// 			for (int idx = 0; idx < c->ids.size(); idx++) {
+// 				int id = c->ids[idx];
+// 				out += "," + String(id);
+// 			}
+// 			out += "\n";
+// 		}
+// 	}
+// 	Serial.println(out);
+// 	return out;
+// }
 
 
 // void CmdZentraleZ21::handleBroadcast() {

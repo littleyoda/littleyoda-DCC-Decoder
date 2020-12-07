@@ -20,7 +20,7 @@ const char gitversion[] = "{NONGITVERSION}";
 
 class Consts {
 public:
-
+	static int DEFAULTSPEEDSTEPS;
 	const static int SPEED_EMERGENCY = 0;
 	const static int SPEED_STOP = 1;
 	const static int SPEED_FORWARD = 1;
