@@ -29,6 +29,9 @@ ConnectorLights::~ConnectorLights() {
 }
 
 void ConnectorLights::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+	if (id != this->addr) {
+		return;
+	}
 	currentDirection = direction;
 	update();
 }
@@ -46,3 +49,4 @@ void ConnectorLights::update() {
 	int status = (currentDirection == direction && bit_is_set(currentFStatus, func)) ? 1 : 0;
 	send("status", String(status));
 }
+ 
