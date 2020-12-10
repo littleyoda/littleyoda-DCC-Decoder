@@ -15,11 +15,11 @@ class DisplaySSD1306 : public DisplayBase {
 public:
 	DisplaySSD1306(int rotation);
 	virtual ~DisplaySSD1306();
-	virtual void clear();
-	virtual void println(String s);
-	virtual void show();
-	virtual int columns() { return 10; };
-	virtual int rows() { return 5; };
+	virtual void clear() override;
+	virtual void println(String s) override;
+	virtual void show() override;
+	virtual int columns() override { return 10; } ;
+	virtual int rows() override { return 5; };
 
 private:
 	Adafruit_SSD1306* display;

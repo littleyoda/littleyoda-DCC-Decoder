@@ -15,9 +15,9 @@ class WebserviceWifiScanner: public WebserviceBase {
 public:
 	WebserviceWifiScanner();
 	virtual ~WebserviceWifiScanner();
-	virtual char const* getUri();
-	virtual void run();
-	virtual String  getLinkText();
+	virtual char const* getUri() override;
+	virtual void run() override;
+	virtual String  getLinkText() override;
 
 private:
 	int dbm2qual(int dbm);

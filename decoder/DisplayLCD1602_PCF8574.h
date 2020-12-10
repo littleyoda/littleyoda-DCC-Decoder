@@ -16,9 +16,9 @@ class DisplayLCD1602_PCF8574 : public DisplayBase {
 public:
 	DisplayLCD1602_PCF8574(int r, int c);
 	virtual ~DisplayLCD1602_PCF8574();
-	virtual void clear();
-	virtual void println(String s);
-	virtual void show();
+	virtual void clear() override;
+	virtual void println(String s) override;
+	virtual void show() override;
 private:
 	LCDIC2* lcd;
 	int y = 0;
