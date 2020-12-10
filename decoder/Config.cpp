@@ -567,9 +567,27 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
         		list->add(GPIOobj.string2gpio(parser->getString(element)));
         		element = parser->getNextSiblings(element);
       		}
-
-			Display* d = new Display(controller, 
-									parser->getValueByKey(idx, "text", "No Text"),
+			String text = "";
+			int textidx = parser->getIdxByKey(idx, "text");
+			if (textidx != -1) {
+				textidx =  parser->getFirstChild(textidx);
+			}
+			if (textidx == -1) {
+				text = "No Text";
+			} else if (parser->isArray(textidx)) {
+				element = parser->getFirstChild(textidx);
+				while (element!=-1) {
+					if (!text.isEmpty()) {
+						text = text + "\\n";
+					}
+					text = text +  parser->getString(element);
+					element = parser->getNextSiblings(element);
+				}
+			} else {
+				text = parser->getString(textidx);
+			}
+			Display* d = new Display(controller,
+									text, 
 									parser->getValueByKey(idx, "model", ""),
 									list,
 									parser->getValueByKey(idx, "cols", "0").toInt(),
