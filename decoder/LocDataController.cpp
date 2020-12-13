@@ -123,7 +123,7 @@ void LocDataController::setSettings(String key, String value) {
     }
     if (key.startsWith("setF")) {
         int bit = key.substring(4).toInt();
-        Logger::log(LogLevel::INFO, "LCNT", "ToggleF set: " + String(bit) + "/" + String(key.substring(4).toInt()));
+        Logger::log(LogLevel::INFO, "LCNT", "ToggleF set F" + String(bit) + ": " + String(value.toInt()));
         controller->sendDCCFun(currentADDR, bit, value.toInt(),Consts::SOURCE_RCKP);
         return;
     }
