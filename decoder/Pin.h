@@ -16,7 +16,7 @@ public:
 	Pin(String pindefinition);
 	virtual ~Pin() = default;
 	String toString();
-
+	uint16_t considerInvert(uint16_t);
 	uint16_t getPin() const;
 	bool isInvert() const;
 

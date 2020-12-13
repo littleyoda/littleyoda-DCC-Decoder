@@ -26,6 +26,6 @@ ConnectorGPIO::~ConnectorGPIO() {
 void ConnectorGPIO::GPIOChange(int p, int newValue) {
 	if (p != pin->getPin()) {
 		return;
-	}
-	send(var, String((newValue == 0) ? lowvalue : highvalue));
+    }
+	send(var, String((pin->considerInvert(newValue) == 0) ? lowvalue : highvalue));
 }

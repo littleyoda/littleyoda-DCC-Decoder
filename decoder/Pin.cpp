@@ -46,3 +46,14 @@ uint16_t Pin::getPin() const {
 	return pin;
 }
 
+uint16_t Pin::considerInvert(uint16_t v)  {
+	if (isInvert()) {
+		if (v == 0) {
+			return 1;
+		}
+		else if (v == 1) {
+			return 0;
+		}
+	}
+	return v;
+}
