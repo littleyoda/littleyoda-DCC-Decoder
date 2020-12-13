@@ -56,37 +56,44 @@ int Display::loop() {
 }
 
 String Display::fill(String s) {
+	char temp[100];
 	int status = 0;
 	String out = "";
-	String modul = "";
-	String key = "";
+	String var = "";
 	for (unsigned int i = 0; i < s.length(); i++) {
 		char c = s[i];
 		switch (status) {
 			case 0: if (c == '$') {
-						modul = "";
-						key = "";
-						status = 1;
+						var = "";
+						status = 2; // start of "${key|value}"
 					} else if (c == '\\') {
 						status = 3;
 					} else {
 						out += c;
 					}
 					break;
-			case 1: if (c == '{') {
-						//
-					} else if (c == '|') {
-						status = 2;
-					} else {
-						modul += c;
-					}
-					break;
+			// case 1: // Not used
 			case 2:
 					if (c == '}') {
 						status = 0;
-						out += controller->getInternalStatus(modul, key);
+						String data = controller->getInternalStatus(Utils::getSubstring(var, '|', 0), Utils::getSubstring(var, '|', 1));
+						String format = Utils::getSubstring(var, '|', 2);
+						if (format.isEmpty()) {
+							out += data;
+						} else if (format.startsWith("%")) {
+							size_t len = snprintf(temp, sizeof(temp), format.c_str(), data.c_str());
+							if (len >=0 && len < sizeof(temp)) {
+								out += temp;
+							} else {
+								out += "<PRINTF-ERROR>";
+							}
+						} else {
+							out += "<FORMAT-ERROR>";
+						}
+					} else if (c == '{') {
+						//
 					} else {
-						key += c;
+						var += c;
 					}
 					break;			
 			case 3:
