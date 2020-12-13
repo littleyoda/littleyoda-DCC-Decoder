@@ -20,7 +20,11 @@ Connectors::~Connectors() {
 
 
 void Connectors::addAction(ISettings* a) {
-    actions.add(a);
+    if (a == NULL) {
+        Logger::log(LogLevel::ERROR, "Action is null");
+    } else {
+     actions.add(a);
+    }
 }
 
 
