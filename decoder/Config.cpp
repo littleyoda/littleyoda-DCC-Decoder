@@ -542,9 +542,8 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 						if (isMcp23017) {
 							GPIOobj.addMCP23017(addr);
 						} else if (isArduinoExtender) {
-            			GPIOobj.addArduinoExtender(i2caddr, variant);
-						} else
-						{
+            				GPIOobj.addArduinoExtender(i2caddr, variant);
+						} else {
 							GPIOobj.addPCA9685(i2caddr);
 						}
 					}
