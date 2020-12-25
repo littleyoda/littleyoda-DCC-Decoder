@@ -111,7 +111,7 @@ void Webserver::handlepipefiltercmd() {
 	}
 	String dataType = "text/html";
 	String out = "";
-		out += (String() + "<html><body><form action = \"/pipefilters\" method = \"post\">" +
+		out += (String() + "<html><body><form action = \"/pipefilter\" method = \"post\">" +
 		        "<input type=\"text\" id=\"dest\" name=\"dest\" value=\"" + dest + "\"><br><br>"+
 		        "<input type=\"text\" id=\"key\" name=\"key\" value=\"" + key + "\"><br><br>"+
 		        "<input type=\"text\" id=\"value\" name=\"value\" value=\"" + value + "\"><br><br>" +
