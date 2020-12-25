@@ -18,10 +18,11 @@ public:
 	virtual void clear() override;
 	virtual void println(String s) override;
 	virtual void show() override;
-	virtual int columns() override { return 10; } ;
-	virtual int rows() override { return 5; };
+	virtual int columns() override { return rotate?5:10; } ;
+	virtual int rows() override { return rotate?10:5; };
 
 private:
+	bool rotate = false;
 	Adafruit_SSD1306* display;
 };
 
