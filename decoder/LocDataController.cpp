@@ -79,14 +79,18 @@ void LocDataController::setSettings(String key, String value) {
     	requestLocData();
         return;
     }
-    if (key.equalsIgnoreCase("locid+") && value == "1") {
+    if (key.equalsIgnoreCase("locid+")) {
+        if (value == "1") {
         currentIdx = currentIdx + 1;
     	requestLocData();
+        }
         return;
     }
-    if (key.equalsIgnoreCase("locid-") && value == "1") {
+    if (key.equalsIgnoreCase("locid-")) {
+        if (value == "1") {
         currentIdx = currentIdx - 1;
     	requestLocData();
+        }
         return;
     }
 
@@ -100,18 +104,24 @@ void LocDataController::setSettings(String key, String value) {
     	requestTurnoutData();
         return;
     }
-    if (key.equalsIgnoreCase("turnoutid+") && value == "1") {
-        currentTurnOutIdx = currentTurnOutIdx + 1;
-    	requestTurnoutData();
+    if (key.equalsIgnoreCase("turnoutid+")) {
+        if (value == "1") {
+            currentTurnOutIdx = currentTurnOutIdx + 1;
+    	    requestTurnoutData();
+        }
         return;
     }
-    if (key.equalsIgnoreCase("turnoutid-") && value == "1") {
-        currentTurnOutIdx = currentTurnOutIdx - 1;
-    	requestTurnoutData();
+    if (key.equalsIgnoreCase("turnoutid-")) {
+         if (value == "1") {
+            currentTurnOutIdx = currentTurnOutIdx - 1;
+    	    requestTurnoutData();
+         }
         return;
     }
 
-    if (key.startsWith("toggleF") && value == "1") {
+    if (key.startsWith("toggleF")) {
+
+        if (value == "1") {
         int bit = key.substring(7).toInt();
         Logger::log(LogLevel::INFO, "LCNT", "ToggleF parsed: " + String(bit) + "/" + String(key.substring(7).toInt()));
         if (bit_is_set(locdata->status, bit)) {
@@ -119,11 +129,12 @@ void LocDataController::setSettings(String key, String value) {
         } else {
             controller->sendDCCFun(currentADDR, bit, 1,Consts::SOURCE_RCKP);
         }
+        }
         return;
     }
     if (key.startsWith("setF")) {
         int bit = key.substring(4).toInt();
-        Logger::log(LogLevel::INFO, "LCNT", "ToggleF set F" + String(bit) + ": " + String(value.toInt()));
+        Logger::log(LogLevel::INFO, "LCNT", "SetF set F" + String(bit) + ": " + String(value.toInt()));
         controller->sendDCCFun(currentADDR, bit, value.toInt(),Consts::SOURCE_RCKP);
         return;
     }
@@ -196,6 +207,16 @@ void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String ke
             }
         }
 		cb->send(getName(), "fstatus", out);
+    }
+    for (unsigned int idx = 0; idx < 29; idx++) {
+        String x = "f" + String(idx);
+        if (key.equals("*") || key.equals(x)) {
+            if (bit_is_set(locdata->status, idx)) {
+                cb->send(getName(), x, "1");
+            } else { 
+                cb->send(getName(), x, "0");
+            }
+        }
     }
 	if (key.equals("*") || key.equals("speed")) {
         cb->send(getName(), "speed", SpeedKonverter::fromInternal(locdata->speed));
