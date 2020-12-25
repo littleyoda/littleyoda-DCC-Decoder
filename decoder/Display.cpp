@@ -77,19 +77,27 @@ String Display::fill(String s) {
 					if (c == '}') {
 						status = 0;
 						String data = controller->getInternalStatus(Utils::getSubstring(var, '|', 0), Utils::getSubstring(var, '|', 1));
-						String format = Utils::getSubstring(var, '|', 2);
-						if (format.isEmpty()) {
-							out += data;
-						} else if (format.startsWith("%")) {
-							size_t len = snprintf(temp, sizeof(temp), format.c_str(), data.c_str());
-							if (len >=0 && len < sizeof(temp)) {
-								out += temp;
+						int idx = 2;
+						String format = Utils::getSubstring(var, '|', idx);
+						while (!format.isEmpty()) { 
+							if (format.startsWith("%")) {
+								size_t len = snprintf(temp, sizeof(temp), format.c_str(), data.c_str());
+								if (len >=0 && len < sizeof(temp)) {
+									data = temp;
+								} else {
+									data = "<PRINTF-ERROR>";
+									break;
+								}
+							} else if (format.startsWith("s/")) {
+								data.replace(Utils::getSubstring(format, '/', 1),  Utils::getSubstring(format, '/', 2));
 							} else {
-								out += "<PRINTF-ERROR>";
+								data = "<FORMAT-ERROR>";
+								break;
 							}
-						} else {
-							out += "<FORMAT-ERROR>";
+							idx++;
+							format = Utils::getSubstring(var, '|', idx);
 						}
+						out += data;
 					} else if (c == '{') {
 						//
 					} else {
