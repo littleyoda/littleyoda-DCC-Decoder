@@ -33,7 +33,7 @@ void LocDataController::requestTurnoutData() {
             currentTurnOutIdx = 0;
 
         }
-        currentTurnOutIdx = turnoutaddrlist->get(currentTurnOutIdx);
+        currentTurnOutAddr = turnoutaddrlist->get(currentTurnOutIdx);
     } else {
         if (currentTurnOutIdx < 1) {
             currentTurnOutIdx = 1;
