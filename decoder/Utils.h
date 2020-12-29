@@ -156,7 +156,7 @@ public:
 					out += " [STA/AÜ]";
 					break;
 				default:
-					out += " [unknown]";
+					out += " [unknown;" + String(status) + "]";
 					break;
 			}
 		}

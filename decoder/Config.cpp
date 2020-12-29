@@ -477,7 +477,9 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			controller->registerLoop(new WifiCheck(controller));
 
 		} else if (m.equals("ap")) {
-			IPAddress Ip(192, 168, 0, 111);
+			String ip = parser->getValueByKey(idx, "ip","192.168.0.111");
+			IPAddress Ip;
+			Ip.fromString(ip);
 			IPAddress NMask(255, 255, 255, 0);
 			int ch = 1;
 			String kanal = parser->getValueByKey(idx, "kanal");

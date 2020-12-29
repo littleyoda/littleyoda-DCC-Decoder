@@ -33,7 +33,7 @@ int WifiCheck::loop() {
 	if (lastWifiStatus != Utils::getExtWifiStatus()) {
 		Logger::getInstance()->addToLog(LogLevel::INFO, 
 				"Wifi status changed: " + Utils::extwifi2String(lastWifiStatus)
-		+ " => " + Utils::extwifi2String(WiFi.status()) + " IP:"
+		+ " => " + Utils::extwifi2String(Utils::getExtWifiStatus()) + " IP:"
 		+ WiFi.localIP().toString());
 		Serial.printf("Connection to: %s (Q:%d)\r\n", WiFi.BSSIDstr().c_str(), WiFi.RSSI());
 		lastWifiStatus = Utils::getExtWifiStatus();
