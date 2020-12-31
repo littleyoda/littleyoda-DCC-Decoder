@@ -489,8 +489,14 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			String ssid = parser->getValueByKey(idx, "ssid");
 			String pwd = parser->getValueByKey(idx, "pwd");
 			WiFi.softAPConfig(Ip, Ip, NMask);
-			if (!WiFi.softAP(ssid.c_str(), pwd.c_str(), ch)) {
+			int maxconn = 4;
+			#ifdef ESP32
+				maxconn = ESP_WIFI_MAX_CONN_NUM;
+			#endif
+			if (!WiFi.softAP(ssid.c_str(), pwd.c_str(), ch, 0, maxconn)) {
 				Logger::log(LogLevel::ERROR, "softAP fehlgeschlagen!");
+			} else {
+				Logger::log(LogLevel::INFO, "SoftAP aktiviert. (max: " + String(maxconn) + ")");
 			}
 			WiFi.enableAP(true);
 			Serial.println("AP-IP: " + WiFi.softAPIP().toString());
