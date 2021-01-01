@@ -74,7 +74,7 @@ public:
 	TurnOutData* getTurnOutData(int id);
 
 	String createDebugDiagramm();
-	void emergencyStop(int source);
+	void emergencyStop(int source, bool enable);
 
 	LinkedList<CmdSenderBase*>* getSender()  {
 		return &sender;

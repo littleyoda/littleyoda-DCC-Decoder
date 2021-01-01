@@ -39,7 +39,7 @@ int CmdZentraleZ21::loop() {
 	long int time = millis();
 	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 Zentrale Timeout");
-		cnt->emergencyStop(Consts::SOURCE_Z21SERVER);
+		cnt->emergencyStop(Consts::SOURCE_Z21SERVER, true);
 		timeout = 0;
 	}
 	if (clients.size() > 0 && (time - lastBroadcastTime) > 500) {
@@ -167,7 +167,7 @@ void CmdZentraleZ21::printPacketBuffer(int size) {
 
 
 void CmdZentraleZ21::emergencyStop() {
-	cnt->emergencyStop(Consts::SOURCE_Z21SERVER);
+	cnt->emergencyStop(Consts::SOURCE_Z21SERVER, true);
 }
 
 

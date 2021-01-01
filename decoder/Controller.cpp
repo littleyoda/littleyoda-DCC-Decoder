@@ -349,9 +349,25 @@ void Controller::updateRequestList() {
 
 }
 
-void Controller::emergencyStop(int source) {
-	notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
-				   Consts::SPEED_FORWARD, source);
+void Controller::emergencyStop(int source, bool enable) {
+	// Ignore multiple emergencyStop-Commands
+	if (enable == EMERGENCYActive) {
+		return;
+	}
+	if (enable) {
+		notifyDCCSpeed(Consts::LOCID_ALL, Consts::SPEED_EMERGENCY,
+					Consts::SPEED_FORWARD, source);
+	}
+	EMERGENCYActive = enable;
+	LinkedList<CmdSenderBase*>* list = getSender();
+	for (int i = 0; i < list->size(); i++) {
+		CmdSenderBase* b = list->get(i);
+		if (b == NULL) {
+			Logger::log(LogLevel::ERROR, "Controller: Sender is null");
+			continue;
+		}
+		b->notifyEmergencyStop(source, enable);
+	}
 }
 
 void Controller::enableAPModus() {

@@ -49,19 +49,25 @@ bool Z21Format::parseServer2Client(unsigned char pb[], int cb) {
 		if (pb[6] == lastZ21Status) {
 			return true;
 		}
+		bool newstatus = false;
 		//csEmergencyStop
 		if ((pb[6] & 0x01) > 0) {
 			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csEmergencyStop");
-			emergencyStop();
+			newstatus = true;
 		}
 		//csTrackVoltageOff
 		if ((pb[6] & 0x02) > 0) {
 			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csTrackVoltageOff");
-			emergencyStop();
+			newstatus = true;
 		}
 		//csShortCircuit
 		if ((pb[6] & 0x04) > 0) {
 			Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21: csShortCircuit");
+			newstatus = true;
+		}
+		if (newstatus != z21EmergencyStop) {
+			z21EmergencyStop = newstatus;
+			emergencyStop(z21EmergencyStop);
 		}
 		//csProgrammingModeActive
 		if ((pb[6] & 0x20) > 0) {
@@ -98,7 +104,7 @@ bool Z21Format::parseServer2Client(unsigned char pb[], int cb) {
 			&& pb[3] == 0x00 && pb[4] == 0x61
 			&& pb[5] == 0x00 && pb[6] == 0x61;
 	if (poweroff) {
-		emergencyStop();
+		emergencyStop(true);
 		return true;
 	}
 
@@ -108,7 +114,7 @@ bool Z21Format::parseServer2Client(unsigned char pb[], int cb) {
 			&& pb[3] == 0x00 && pb[4] == 0x81
 			&& pb[5] == 0x00 && pb[6] == 0x81;
 	if (emergencystop) {
-		emergencyStop();
+		emergencyStop(true);
 		return true;
 	}
 
@@ -118,7 +124,7 @@ bool Z21Format::parseServer2Client(unsigned char pb[], int cb) {
 			&& pb[3] == 0x00 && pb[4] == 0x61
 			&& pb[5] == 0x01 && pb[6] == 0x60;
 	if (poweron) {
-		// todo
+		emergencyStop(true);
 		return true;
 	}
 
@@ -330,8 +336,8 @@ void Z21Format::printPacketBuffer(String msg, unsigned char pb[], int size) {
 }
 
 
-void Z21Format::emergencyStop() {
-	controller->emergencyStop(Consts::SOURCE_WLAN);
+void Z21Format::emergencyStop(bool status) {
+	controller->emergencyStop(Consts::SOURCE_WLAN, status);
 }
 
 
@@ -778,6 +784,26 @@ void Z21Format::requestLocoInfo(int addr) {
 
 	pb[7] = addr & 0xFF;
 	pb[8] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7];
+	send();
+}
+
+
+void Z21Format::setTrackPower(bool b) {
+	memset(pb, 0, packetBufferSize);
+
+	// SET TRACKER POWER OFF/ON
+	pb[0] = 0x07;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
+	pb[4] = 0x21;
+
+	if (b) {
+		pb[5] = 0x81;	// Power on  -- E false 
+	} else {
+		pb[5] = 0x80;	// Power off -- E True
+	}
+	pb[6] = pb[4] ^ pb[5];
 	send();
 }
 

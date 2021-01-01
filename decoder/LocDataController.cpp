@@ -118,7 +118,24 @@ void LocDataController::setSettings(String key, String value) {
          }
         return;
     }
-
+    if (key.equalsIgnoreCase("toggleEmergencyStop")) {
+        if (value == "1") {
+            controller->emergencyStop(Consts::SOURCE_LOCCONTROLLER, !controller->isEmergency());
+        }
+        return;
+    }
+    if (key.equalsIgnoreCase("enableEmergencyStop")) {
+        if (value == "1") {
+            controller->emergencyStop(Consts::SOURCE_LOCCONTROLLER, true);
+        }
+        return;
+    }
+    if (key.equalsIgnoreCase("disableEmergencyStop")) {
+        if (value == "1") {
+            controller->emergencyStop(Consts::SOURCE_LOCCONTROLLER, false);
+        }
+        return;
+    }
     if (key.startsWith("toggleF")) {
 
         if (value == "1") {
@@ -247,5 +264,9 @@ void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String ke
         } else {
             cb->send(getName(), "turnoutdirection", " ");
         }
+	}
+
+	if (key.equals("*") || key.equals("isEmergency")) {
+        cb->send(getName(), "isEmergency", String(controller->isEmergency()));
 	}
 }

@@ -32,7 +32,9 @@ int CmdReceiverZ21Wlan::loop() {
 	long int time = millis();
 	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
-		controller->emergencyStop(Consts::SOURCE_INTERNAL);
+		lastZ21Status = 255;
+		z21EmergencyStop = true;
+		controller->emergencyStop(Consts::SOURCE_INTERNAL, true);
 		timeout = 0;
 		timeouts++;
 	}
@@ -240,6 +242,7 @@ void CmdReceiverZ21Wlan::resetTimeout() {
 	if (timeout == 1) {
 		Logger::log(LogLevel::INFO, "First Command from Z21 received!");
 	}
+	sendXGetStatus();
 	timeout = millis();
 }
 
@@ -247,4 +250,12 @@ void CmdReceiverZ21Wlan::send() {
 	udp->beginPacket(*z21Server, localPort);
 	udp->write(pb, pb[0]);
 	udp->endPacket();
+}
+
+void CmdReceiverZ21Wlan::notifyEmergencyStop(int source, boolean enabled) {
+	if (source == Consts::SOURCE_Z21SERVER || source == Consts::SOURCE_WLAN) {
+		return;
+	}
+	Serial.println("EmergenyStop: " + String(enabled) + " from " + String(source));
+	setTrackPower(!enabled);
 }

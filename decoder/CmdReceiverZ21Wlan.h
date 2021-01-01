@@ -28,6 +28,8 @@ public:
 	virtual void sendDCCSpeed(int id, LocData* d);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
 	bool udpSetup = false;
+	virtual void notifyEmergencyStop(int source, boolean enabled) override;
+
 private:
 	WiFiUDP* udp = nullptr;
 	unsigned int localPort = 21105;

@@ -35,6 +35,7 @@ public:
 	const static int SOURCE_Z21SERVER = 3;
 	const static int SOURCE_ROCRAIL = 4;
 	const static int SOURCE_RCKP = 5;
+	const static int SOURCE_LOCCONTROLLER = 5;
 
 	const static uint16_t DISABLE = 9999;
 };

@@ -44,21 +44,23 @@ public:
 	void enableBroadcasts();
 	void sendSetTurnout(String id, String status);
 	void requestLocoInfo(int addr);
-	virtual void setName(String s) {};
+	virtual void setName(String s) override {};
 	virtual String getName()  override;
 	//virtual String getInternalStatus(String key)  override;
 
 protected:
 	bool debugEnabled = true;
+	bool z21EmergencyStop = false;
 	virtual void send();
 	unsigned char lastZ21Status = 0;
 	void printPacketBuffer(String msg, unsigned char packetBuffer[], int size);
-	void emergencyStop();
+	void emergencyStop(bool status);
 	void handleTurnout(unsigned char packetBuffer[]);
 	void handleDCCSpeed(unsigned int locoid, unsigned char packetBuffer[]);
 	void handleFunc(unsigned int locoid, unsigned char packetBuffer[]);
 	void handleRailcomdata(unsigned char packetBuffer[]);
 	void handleFirmware(unsigned char packetBuffer[]);
+	void setTrackPower(bool b);
 	int turnoutOffset = -1;
 	int firmwareVersion = 0;
 //	Controller* controller;
