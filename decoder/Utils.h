@@ -141,6 +141,7 @@ public:
 		return status;
 	}
 
+
 	static String extwifi2String(int status) {
 		String out = wifi2String(status & 15);
 		if (status > 15) {
@@ -153,7 +154,7 @@ public:
 					out += " [AP]";
 					break;
 				case 0x03: // STATIONAP_MODE
-					out += " [STA/AÜ]";
+					out += " [STA/AP]";
 					break;
 				default:
 					out += " [unknown;" + String(status) + "]";
