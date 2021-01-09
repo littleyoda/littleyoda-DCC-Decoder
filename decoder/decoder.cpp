@@ -58,8 +58,15 @@ void loadCFG(Webserver* web) {
 		return;
 	}
 	size_t size = configFile.size();
-	if (size > 5024) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "Konfig-File ist größer als 5024 bytes");
+	#ifdef ESP8266
+	size_t maxsize = 5024;
+	#endif
+	#ifdef ESP32
+	size_t maxsize = 10000;
+	#endif
+	if (size > maxsize) {
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Konfig-File ist größer als " + String(maxsize) + " bytes.");
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "Bitte json minify probieren.");
 		controller->registerLoop(web);
 		controller->registerLoop(Logger::getInstance());
 		controller->updateRequestList();
