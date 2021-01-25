@@ -14,6 +14,7 @@
 #include "Utils.h"
 #include <Arduino.h>
 #include "Logger.h"
+#include "WifiCheck.h"
 
 InternalStatusWifiSys::InternalStatusWifiSys() {
 	// TODO Auto-generated constructor stub
@@ -61,6 +62,12 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 				break;
 		}
 		cb->send("wifi", "status", status);
+		}
+		if (modul.equals("channel") || modul.equals("*")) {
+			cb->send("wifi", "channel", "" + String(WifiCheck::getWifiChannel()));
+		}
+		if (modul.equals("channelAP") || modul.equals("*")) {
+			cb->send("wifi", "channelAP", String(WifiCheck::getAPChannel()));
 		}
 		if (key.equals("ip sta") || key.equals("*")) {
 			cb->send("wifi", "sta ip", WiFi.localIP().toString());

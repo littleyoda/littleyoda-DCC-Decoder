@@ -16,6 +16,11 @@ public:
 	WifiCheck(Controller* c);
 	virtual ~WifiCheck();
 	virtual int loop();
+	static int wifiGetOpMode();
+	static bool wifiISAPActive();
+    static uint8_t getAPChannel();
+	static int32_t getWifiChannel();
+
 private:
 	int lastWifiStatus = 6;
 	Controller* controll;

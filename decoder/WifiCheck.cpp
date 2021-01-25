@@ -15,6 +15,8 @@
 #else
 	#include <WiFi.h>
 	#include <ESPmDNS.h>
+	#include <esp_wifi.h>
+
 #endif
 
 #include "Utils.h"
@@ -87,5 +89,39 @@ int WifiCheck::loop() {
 		default:
 			return 100;
 	}
+	#endif
+}
+
+
+int WifiCheck::wifiGetOpMode() {
+			#ifdef ESP8266
+		return wifi_get_opmode();
+			#else
+		return WiFi.getMode();
+			#endif
+}
+
+bool WifiCheck::wifiISAPActive() {
+	return (wifiGetOpMode() & 0x02) > 0;
+}
+
+uint8_t WifiCheck::getAPChannel() {
+	#ifdef ESP8266
+	struct softap_config conf_compare;
+	wifi_softap_get_config(&conf_compare);
+	return conf_compare.channel;
+	#endif
+	#ifdef ESP32
+	wifi_config_t conf_current;
+	esp_wifi_get_config(WIFI_IF_AP, &conf_current);
+	return conf_current.ap.channel;
+	#endif
+}
+
+int32_t WifiCheck::getWifiChannel() {
+	#ifdef ESP8266
+	return wifi_get_channel();
+	#else
+	return  WiFi.channel();
 	#endif
 }

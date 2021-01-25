@@ -39,22 +39,24 @@
 #include "FilterPolynom.h"
 #include "InputRotoryEncoder.h"
 #include "InputAnalog.h"
-#include "CmdReceiverDCC.h"
-#include "CmdZentraleZ21.h"
 #include "CmdReceiverZ21Wlan.h"
-#include "CmdReceiverRocnetOverMQTT.h"
 
 #include "WebserviceCommandLogger.h"
 #include "WebserviceLog.h"
 #include "WebserviceWifiScanner.h"
 
 #include "ISettings.h"
-#include "Display.h"
-#include "LocDataController.h"
 #include "WifiCheck.h"
 
 #include "CmdReceiverESPNOW.h"
 
+#ifndef FLASH1MB
+	#include "Display.h"
+	#include "CmdZentraleZ21.h"
+	#include "LocDataController.h"
+	#include "CmdReceiverRocnetOverMQTT.h"
+	#include "CmdReceiverDCC.h"
+#endif
 #ifdef LY_FEATURE_AUDIO
 	#include "ActionAudioI2S.h"
 #endif
@@ -333,6 +335,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			controller->registerLoop(a);
 
 		#endif
+		#ifndef FLASH1MB
 		} else if (m.equals("locdatacontroller")) {
 			int element = parser->getFirstChildOfArrayByKey(idx, "locaddr");
 		    LinkedList<int> *loclist = new LinkedList<int>();
@@ -352,6 +355,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			l->setName(id);
 			controller->registerSettings(l);
 
+		#endif
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
@@ -384,12 +388,12 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			controller->dccSniffer = new WebserviceDCCSniffer();
 			web->registerWebServices(controller->dccSniffer);
 
-
+		#ifndef FLASH1MB
 		} else if (m.equals("dcc")) {
 			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio"));
 			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
 
-
+		#endif 
 		} else if (m.equals("z21")) {
 			Consts::DEFAULTSPEEDSTEPS = parser->getValueByKey(idx, "defaultspeedsteps", "128").toInt();
 			CmdReceiverZ21Wlan* rec = new CmdReceiverZ21Wlan(controller, parser->getValueByKey(idx, "ip"));
@@ -398,13 +402,14 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			controller->registerStatus(rec);
 
 
+		#ifndef FLASH1MB
 		} else if (m.equalsIgnoreCase("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);
 			controller->registerStatus(rec);
 			controller->registerNotify(rec);
-
+		#endif
 		} else if (m.equals("espnow")) {
 			String role = parser->getValueByKey(idx, "role");
 			String key = parser->getValueByKey(idx, "key");
@@ -424,11 +429,12 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 				controller->registerCmdSender(rec);
 				controller->registerStatus(rec);
 			}
+		#ifndef FLASH1MB
 		} else if (m.equals("rocnetovermqtt")) {
 			CmdReceiverRocnetOverMQTT* c = new CmdReceiverRocnetOverMQTT(controller);
 			controller->registerCmdReceiver(c);
 			controller->registerCmdSender(c);
-
+		#endif
 		} else if (m.equals("webservicewifiscanner")) {
 			web->registerWebServices(new WebserviceWifiScanner());
 
@@ -567,6 +573,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		// 	ActionController* a = new ActionController(controller);
 		// 	controller->registerNotify(a);
 		// 	controller->registerLoop(a);
+		#ifndef FLASH1MB
 		} else if (m.equals("display")) {
       		int element = parser->getFirstChildOfArrayByKey(idx, "gpio");
 		    LinkedList<int> *list = new LinkedList<int>();
@@ -602,6 +609,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 									parser->getValueByKey(idx, "rotation", "0").toInt()
 									);
 		 	controller->registerLoop(d);
+		#endif
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
