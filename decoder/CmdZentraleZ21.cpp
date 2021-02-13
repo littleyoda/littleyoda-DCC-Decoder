@@ -42,23 +42,28 @@ int CmdZentraleZ21::loop() {
 		cnt->emergencyStop(Consts::SOURCE_Z21SERVER, true);
 		timeout = 0;
 	}
-	if (clients.size() > 0 && (time - lastBroadcastTime) > 500) {
-		if (broadcastClientIdx >= clients.size()) {
-			broadcastClientIdx = 0;
-		}
-		Z21Clients* c = clients.get(broadcastClientIdx);
-		if (c->ids.size()> 0) {
-			if (c->broadcastIdx >= c->ids.size()) {
-				c->broadcastIdx = 0; 
+
+	if (clients.size() > 0) {
+		// Goal => each client receive two package pre second 
+		int intervall = 500 / clients.size();
+		if  ((time - lastBroadcastTime) > intervall) {
+			if (broadcastClientIdx >= clients.size()) {
+				broadcastClientIdx = 0;
 			}
-			currentDestIP = c->ip;
-			currentDestPort = c->port;
-			sendLocoInfoToClient(c->ids.get(c->broadcastIdx));
-			currentDestPort = 0;
-			c->broadcastIdx++;
+			Z21Clients* c = clients.get(broadcastClientIdx);
+			if (c->ids.size()> 0) {
+				if (c->broadcastIdx >= c->ids.size()) {
+					c->broadcastIdx = 0; 
+				}
+				currentDestIP = c->ip;
+				currentDestPort = c->port;
+				sendLocoInfoToClient(c->ids.get(c->broadcastIdx));
+				currentDestPort = 0;
+				c->broadcastIdx++;
+			}
+			broadcastClientIdx++;
+			lastBroadcastTime = time;
 		}
-		broadcastClientIdx++;
-		lastBroadcastTime = time;
 	}
 	return 2;
 
@@ -88,9 +93,9 @@ void CmdZentraleZ21::doReceive() {
 	unsigned char SET_BROADCASTFLAGS[4] = {0x08, 0x00, 0x50, 0x00};
 	if (cb>= 8 && memcmp(SET_BROADCASTFLAGS, pb, 4) == 0) {
 		uint32_t value = pb[7] << 24 | pb[6] << 16 | pb[5] << 8 | pb[4];
-		Serial.println("Brodcast-Request" + String(value));
-		Serial.println(value, BIN);
-		Serial.println(value, HEX);
+		// Serial.println("Brodcast-Request" + String(value));
+		// Serial.println(value, BIN);
+		// Serial.println(value, HEX);
 		IPAddress ip = udp->remoteIP();
 		uint16_t port =  udp->remotePort();
 		Z21Clients* c = getClient(ip, port);
@@ -342,39 +347,12 @@ void CmdZentraleZ21::sendSetSensor(uint16_t id, uint8_t status) {
 
 
 void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
-	memset(pb, 0, packetBufferSize);
-	pb[0] = 14;
-	pb[1] = 0x00;
-	pb[2] = 0x40;
-	pb[3] = 0x00;
+	createDCCSpeedCmd(addr, data);
 
-	pb[4] = 0xEF;
-	pb[5] = (addr >> 8) & 0x3F;
-	if (addr >= 128) {
-		pb[5] += 0b11000000;
-	}
-
-	pb[6] = addr & 255;
-
-	pb[7] = 4; // 128 Fahrstufen
-	unsigned int v = (data->speed & 127);
-	// Adjust to match NmraDCC Schema
-	if (v == Consts::SPEED_STOP) {
-		v = 0;
-	} else if (v == Consts::SPEED_EMERGENCY) {
-		v = 1;
-	}
-	pb[8] = v | ((data->direction == -1) ? 0 : 128);
-	pb[9] = ((data->status >> 1) & 15) | (data->status & 1) << 4;
-	pb[10] = (data->status >> 5) & 255;
-	pb[11] = (data->status >> 13) & 255;
-	pb[12] = (data->status >> 21) & 255;
-
-	pb[13] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8] ^ pb[9] ^ pb[10] ^ pb[11] ^ pb[12];
 	for (int idx = 0; idx < clients.size(); idx++) {
 			Z21Clients* c = clients.get(idx);
 			Serial.println("Sending " + c->ip.toString());
-			Serial.println(String(addr) + " " + String(v));
+			Serial.println(String(addr) + " " + String(data->speed));
 			udp->beginPacket(c->ip, c->port);
 			udp->write(pb, pb[0]);
 			int ret = udp->endPacket();
