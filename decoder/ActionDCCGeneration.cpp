@@ -351,6 +351,24 @@ void ActionDCCGeneration::getInternalStatus(IInternalStatusCallback* cb, String 
 	if (key.equals("*") || key.equals("trackenabled")) {
 		cb->send(getName(), "trackenabled", String(trackenabled));
 	}
+	if (key.equals("*") || key.equals("f")) {
+		cb->send(getName(), "f", String(FUNC_STATE, BIN));
+	}
+	// if (key.equals("*") || key.equals("f")) {
+	// 	cb->send(getName(), "f", String(FUNC_STATE, BIN));
+	// }
+	if (key.equals("*") || key.equals("speed")) {
+		cb->send(getName(), "speed", String(SPEED_STATE));
+	}
+	if (key.equals("*") || key.equals("direction")) {
+        if (DIR_STATE == 1) {
+            cb->send(getName(), "direction", ">");
+        } else if (DIR_STATE == 0) {
+            cb->send(getName(), "direction", "<");
+        } else {
+            cb->send(getName(), "direction", " ");
+        }
+	}
 }
 
 

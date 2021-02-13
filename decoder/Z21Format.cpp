@@ -807,6 +807,40 @@ void Z21Format::setTrackPower(bool b) {
 	send();
 }
 
+
+void Z21Format::createDCCSpeedCmd(int addr, LocData* data) {
+	memset(pb, 0, packetBufferSize);
+	pb[0] = 14;
+	pb[1] = 0x00;
+	pb[2] = 0x40;
+	pb[3] = 0x00;
+
+	pb[4] = 0xEF;
+	pb[5] = (addr >> 8) & 0x3F;
+	if (addr >= 128) {
+		pb[5] += 0b11000000;
+	}
+
+	pb[6] = addr & 255;
+
+	pb[7] = 4; // 128 Fahrstufen
+	unsigned int v = (data->speed & 127);
+	// Adjust to match NmraDCC Schema
+	if (v == Consts::SPEED_STOP) {
+		v = 0;
+	} else if (v == Consts::SPEED_EMERGENCY) {
+		v = 1;
+	}
+	pb[8] = v | ((data->direction == -1) ? 0 : 128);
+	pb[9] = ((data->status >> 1) & 15) | (data->status & 1) << 4;
+	pb[10] = (data->status >> 5) & 255;
+	pb[11] = (data->status >> 13) & 255;
+	pb[12] = (data->status >> 21) & 255;
+
+	pb[13] = pb[4] ^ pb[5] ^ pb[6] ^ pb[7] ^ pb[8] ^ pb[9] ^ pb[10] ^ pb[11] ^ pb[12];
+}
+
+
 /* 
 void CmdReceiverZ21Wlan::sendLanGetSerialNumber() {
 	memset(packetBuffer, 0, packetBufferSize);

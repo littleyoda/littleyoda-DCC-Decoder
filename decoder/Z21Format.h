@@ -49,7 +49,7 @@ public:
 	//virtual String getInternalStatus(String key)  override;
 
 protected:
-	bool debugEnabled = true;
+	bool debugEnabled = false;
 	bool z21EmergencyStop = false;
 	virtual void send();
 	unsigned char lastZ21Status = 0;
@@ -66,6 +66,7 @@ protected:
 //	Controller* controller;
 	virtual void adjustBroadcast(int addr);
 	void debugMsg(String s);
+	void createDCCSpeedCmd(int addr, LocData* data);
 
 };
 
