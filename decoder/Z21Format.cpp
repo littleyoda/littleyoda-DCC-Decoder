@@ -362,6 +362,8 @@ void Z21Format::handleDCCSpeed(unsigned int locoid, unsigned char pb[]) {
 		fahrstufen = 14;
 	} else if (fahrstufen == 2) {
 		fahrstufen = 28;
+	} else if (fahrstufen == 3) {
+		fahrstufen = 128;
 	} else if (fahrstufen == 4) {
 		fahrstufen = 128;
 	}
@@ -731,9 +733,9 @@ void Z21Format::enableBroadcasts() {
 
 	// Flags = 0x00 01 00 01 (Little Endian)
 	// 0x01 and 0x01 00 00
-	pb[4] = 0x01;
+	pb[4] = 0x01; // 0x00000001
 	pb[5] = 0x00;
-	pb[6] = 0x01;
+	pb[6] = 0x01; // Client bekommt nun LAN_X_LOCO_INFO, 
 	pb[7] = 0x00;
 	send();
 }
