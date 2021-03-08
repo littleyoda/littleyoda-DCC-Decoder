@@ -14,7 +14,7 @@ class ConnectorLocoSpeed: public Connectors {
 public:
 	ConnectorLocoSpeed(ISettings* a, int locoaddr);
 	virtual ~ConnectorLocoSpeed();
-	void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
+	virtual void DCCSpeed(int id, int speed, int direction, int source) override;
 
 private:
 	int addr;

@@ -14,7 +14,7 @@ class ConnectorTurnout2Value : public Connectors {
 public:
 	ConnectorTurnout2Value(ISettings* a, int locoaddr, int *array, int arraylength);
 	virtual ~ConnectorTurnout2Value();
-	virtual void TurnoutCmd(int id, int direction, int source);
+	virtual void TurnoutCmd(int id, int direction, int source) override;
 
 private:
 	int *array;

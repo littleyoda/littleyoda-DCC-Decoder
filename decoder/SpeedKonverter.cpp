@@ -96,7 +96,7 @@ int SpeedKonverter::fromExternal(int speedSteps, int value) {
 		default:
 			break;
 	}
-	Logger::log(LogLevel::ERROR, "CONV," "ext2int: Keine Umrechnung möglich " + String(value) + " / " + String(speedSteps));
+	Logger::log(LogLevel::ERROR, "CONV," "ext2int: Keine Umrechnung möglich. Value: " + String(value) + " / Speedsteps: " + String(speedSteps));
 	return Consts::SPEED_STOP;
 }
 

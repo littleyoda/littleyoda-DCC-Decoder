@@ -14,7 +14,7 @@ class ConnectorFunc2Value : public Connectors {
 public:
 	ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int arraylength);
 	virtual ~ConnectorFunc2Value();
-	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
+	virtual void DCCFunc(int id, unsigned long int newvalue, int source) override;
 
 private:
 	int *array;

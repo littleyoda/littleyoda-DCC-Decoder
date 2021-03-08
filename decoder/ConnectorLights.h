@@ -15,8 +15,8 @@ class ConnectorLights : public Connectors {
 public:
 	ConnectorLights(ISettings* x, int locoaddr, int fkey, int richtung);
 	virtual ~ConnectorLights();
-	virtual void DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source);
-	virtual void DCCFunc(int id, unsigned long int newvalue, int source);
+	virtual void DCCSpeed(int id, int speed, int direction, int source) override;
+	virtual void DCCFunc(int id, unsigned long int newvalue, int source) override;
 
 private:
 	void update();

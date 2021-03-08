@@ -28,7 +28,7 @@ ConnectorLights::ConnectorLights(ISettings* x, int locoaddr, int fkey, int richt
 ConnectorLights::~ConnectorLights() {
 }
 
-void ConnectorLights::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void ConnectorLights::DCCSpeed(int id, int speed, int direction, int source) {
 	if (id != this->addr) {
 		return;
 	}

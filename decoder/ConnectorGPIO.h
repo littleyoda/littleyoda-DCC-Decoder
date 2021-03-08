@@ -16,7 +16,7 @@ class ConnectorGPIO : public Connectors {
 public:
 	ConnectorGPIO(ISettings* a, Pin* gpio, uint16_t high, uint16_t low, String v);
 	virtual ~ConnectorGPIO();
-	virtual void GPIOChange(int pin, int newValue);
+	virtual void GPIOChange(int pin, int newValue)  override;
 private:
 	Pin* pin;
 	uint16_t highvalue;

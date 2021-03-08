@@ -21,7 +21,8 @@ ConnectorLocoSpeed::ConnectorLocoSpeed(ISettings* b, int locoaddr) {
 ConnectorLocoSpeed::~ConnectorLocoSpeed() {
 }
 
-void ConnectorLocoSpeed::DCCSpeed(int id, int speed, int direction, int SpeedSteps, int source) {
+void ConnectorLocoSpeed::DCCSpeed(int id, int speed, int direction, int source) {
+	Serial.println("Connector: " + String(id) + "" + String(speed)); 
 	if (id == addr|| id == Consts::LOCID_ALL) {
 		if (speed == Consts::SPEED_EMERGENCY || speed == Consts::SPEED_STOP) {
 			speed = 0;

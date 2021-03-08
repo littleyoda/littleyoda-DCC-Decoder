@@ -576,10 +576,19 @@ void Z21Format::handleSetLocoFunc(unsigned int locoid) {
 
 void Z21Format::handleSetLoco(int locoid) {
 	unsigned int fahrstufen = pb[5] & 7;
+	if (fahrstufen == 0) {
+		fahrstufen = 14;
+	} else if (fahrstufen == 2) {
+		fahrstufen = 28;
+	} else if (fahrstufen == 3) {
+		fahrstufen = 128;
+	} else if (fahrstufen == 4) {
+		fahrstufen = 128;
+	}
 	int richtung = (pb[8] & 128) == 0 ? -1 : 1;	
-	int v = (pb[8] & 15);
+	int v = (pb[8] & 127);
 	v = SpeedKonverter::fromExternal(fahrstufen, v);
-//	Serial.println("[z21] Received: " + String(richtung) + " " + String(v) + "/" + String(fahrstufen));
+	Serial.println("[z21] Received: " + String(richtung) + " " + String(v) + "/" + String(fahrstufen));
 	controller->notifySpeeSteps(locoid, fahrstufen);
 	controller->notifyDCCSpeed(locoid, v, richtung, 1);
 	sendLocoInfoToClient(locoid);

@@ -15,7 +15,7 @@ class ConnectorONOFF: public Connectors {
 public:
 	ConnectorONOFF(ISettings* a, int locoaddr, int f);
 	virtual ~ConnectorONOFF();
-	virtual void DCCFunc(int id, int bit, int newvalue, int source);
+	virtual void DCCFunc(int id, int bit, int newvalue, int source) override;
 
 private:
 	int addr;

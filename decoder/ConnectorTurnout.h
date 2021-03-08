@@ -15,7 +15,7 @@ class ConnectorTurnout: public Connectors {
 public:
 	ConnectorTurnout(ISettings* a, int addr);
 	virtual ~ConnectorTurnout();
-	virtual void TurnoutCmd(int id, int direction, int source);
+	virtual void TurnoutCmd(int id, int direction, int source)  override;
 
 private:
 	int id;
