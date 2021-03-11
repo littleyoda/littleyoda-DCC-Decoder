@@ -49,13 +49,15 @@ void ActionPWMOutput::getHTMLConfig(String urlprefix, Controller *c) {
 }
 
 String ActionPWMOutput::getHTMLController(String urlprefix) {
-	String action = "document.getElementById('pwmValue').textContent=this.value; send('" + urlprefix + "&key=sd&value='+this.value)";
+	String action = "document.getElementById('pwmValue').textContent=document.getElementById('pwmSlider').value; send('" + urlprefix + "&key=sd&value='+document.getElementById('pwmSlider').value)";
+	String action2 = "document.getElementById('pwmSlider').value = 0;";
 	String message = "<div class=\"row\"> <div class=\"column column-10\">";
 	message += "PWM ";
 	message +="</div>";
 	message +="<div class=\"column column-90\">";
 	message += "<div id=\"pwmValue\">0</div>";
-	message +=" <input type=range min=-100 max=100 value=0 step=5 oninput=\"" + action + "\" onchange=\"" + action + "\"><br/>";
+	message +=" <input id=\"pwmSlider\" type=range min=-100 max=100 value=0 step=5 oninput=\"" + action + "\" onchange=\"" + action + "\"><br/>";
+	message += "<a class=\"button\" href=\"javascript:void(0)\" onclick=\"" + action2 +";" + action + "\">Stop</a>";
 	message +="</div>";
 	message +="</div>";
 	return message;
