@@ -99,6 +99,10 @@ public:
 		return out;
 	}
 
+	static boolean timeDiff(unsigned long last, unsigned long intervall) {
+		return millis()-last > intervall;
+	}
+
 	static String repeatString(String rep, int number) {
 		String s;
 		s.reserve(rep.length() * number);

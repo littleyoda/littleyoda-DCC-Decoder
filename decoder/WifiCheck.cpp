@@ -21,15 +21,129 @@
 
 #include "Utils.h"
 
+#ifdef ESP32
+void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
+	WifiCheck::connectedClients++;
+	Logger::log(LogLevel::INFO,"Client connected: " + String(info.sta_connected.mac[0],HEX) + "-"
+					 + String(info.sta_connected.mac[1],HEX) + "-"
+		         	 + String(info.sta_connected.mac[2],HEX) + "-"
+		         	 + String(info.sta_connected.mac[3],HEX) + "-"
+		         	 + String(info.sta_connected.mac[4],HEX) + "-"
+		         	 + String(info.sta_connected.mac[5],HEX));
+	Logger::log(LogLevel::INFO,String (WifiCheck::connectedClients)  + " Clients connected");
+}
+
+void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
+	WifiCheck::connectedClients--;
+	Logger::log(LogLevel::INFO,"Client Disconnected: " + String(info.sta_connected.mac[0],HEX) + "-"
+					 + String(info.sta_connected.mac[1],HEX) + "-"
+		         	 + String(info.sta_connected.mac[2],HEX) + "-"
+		         	 + String(info.sta_connected.mac[3],HEX) + "-"
+		         	 + String(info.sta_connected.mac[4],HEX) + "-"
+		         	 + String(info.sta_connected.mac[5],HEX));
+	Logger::log(LogLevel::INFO,String (WifiCheck::connectedClients)  + " Clients connected");
+}
+
+void WiFiEvent(WiFiEvent_t event) {
+    Serial.printf("[WiFi-event] event: %d\n", event);
+
+    switch (event) {
+        case SYSTEM_EVENT_WIFI_READY: 
+            Logger::log(LogLevel::INFO,"WiFi interface ready");
+            break;
+        case SYSTEM_EVENT_SCAN_DONE:
+            Logger::log(LogLevel::INFO,"Completed scan for access points");
+            break;
+        case SYSTEM_EVENT_STA_START:
+            Logger::log(LogLevel::INFO,"WiFi client started");
+            break;
+        case SYSTEM_EVENT_STA_STOP:
+            Logger::log(LogLevel::INFO,"WiFi clients stopped");
+            break;
+        case SYSTEM_EVENT_STA_CONNECTED:
+            Logger::log(LogLevel::INFO,"Connected to access point");
+            break;
+        case SYSTEM_EVENT_STA_DISCONNECTED:
+            Logger::log(LogLevel::INFO,"Disconnected from WiFi access point");
+            break;
+        case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
+            Logger::log(LogLevel::INFO,"Authentication mode of access point has changed");
+            break;
+        case SYSTEM_EVENT_STA_GOT_IP:
+            Logger::log(LogLevel::INFO, "Obtained IP address: ");
+            break;
+        case SYSTEM_EVENT_STA_LOST_IP:
+            Logger::log(LogLevel::INFO,"Lost IP address and IP address is reset to 0");
+            break;
+        case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
+            Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): succeeded in enrollee mode");
+            break;
+        case SYSTEM_EVENT_STA_WPS_ER_FAILED:
+            Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): failed in enrollee mode");
+            break;
+        case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT:
+            Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): timeout in enrollee mode");
+            break;
+        case SYSTEM_EVENT_STA_WPS_ER_PIN:
+            Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): pin code in enrollee mode");
+            break;
+        case SYSTEM_EVENT_AP_START:
+            Logger::log(LogLevel::INFO,"WiFi access point started");
+            break;
+        case SYSTEM_EVENT_AP_STOP:
+            Logger::log(LogLevel::INFO,"WiFi access point  stopped");
+            break;
+        case SYSTEM_EVENT_AP_STACONNECTED:
+            Logger::log(LogLevel::INFO,"Client connected");
+            break;
+        case SYSTEM_EVENT_AP_STADISCONNECTED:
+            Logger::log(LogLevel::INFO,"Client disconnected");
+            break;
+        case SYSTEM_EVENT_AP_STAIPASSIGNED:
+            Logger::log(LogLevel::INFO,"Assigned IP address to client");
+            break;
+        case SYSTEM_EVENT_AP_PROBEREQRECVED:
+            Logger::log(LogLevel::INFO,"Received probe request");
+            break;
+        case SYSTEM_EVENT_GOT_IP6:
+            Logger::log(LogLevel::INFO,"IPv6 is preferred");
+            break;
+        case SYSTEM_EVENT_ETH_START:
+            Logger::log(LogLevel::INFO,"Ethernet started");
+            break;
+        case SYSTEM_EVENT_ETH_STOP:
+            Logger::log(LogLevel::INFO,"Ethernet stopped");
+            break;
+        case SYSTEM_EVENT_ETH_CONNECTED:
+            Logger::log(LogLevel::INFO,"Ethernet connected");
+            break;
+        case SYSTEM_EVENT_ETH_DISCONNECTED:
+            Logger::log(LogLevel::INFO,"Ethernet disconnected");
+            break;
+        case SYSTEM_EVENT_ETH_GOT_IP:
+            Logger::log(LogLevel::INFO,"Obtained IP address");
+            break;
+        default: break;
+    }
+}
+
+
+#endif
 
 WifiCheck::WifiCheck(Controller* c) {
 	controll = c;
+	#ifdef ESP32
+	WiFi.onEvent(WiFiEvent);
+	WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_AP_STACONNECTED);
+  	WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_AP_STADISCONNECTED);
+	#endif 
 }
 
 WifiCheck::~WifiCheck() {
 	// TODO Auto-generated destructor stub
 }
 
+int WifiCheck::connectedClients = 0;
 
 int WifiCheck::loop() {
 	if (lastWifiStatus != Utils::getExtWifiStatus()) {

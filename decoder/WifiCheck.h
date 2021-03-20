@@ -20,7 +20,7 @@ public:
 	static bool wifiISAPActive();
     static uint8_t getAPChannel();
 	static int32_t getWifiChannel();
-
+	static int connectedClients;
 private:
 	int lastWifiStatus = 6;
 	Controller* controll;
