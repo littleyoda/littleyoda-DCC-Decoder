@@ -8,8 +8,8 @@
 #include "PortsESP32.h"
 #include "Consts.h"
 #include "Logger.h"
-
 #ifdef ESP32
+#include "analogWrite.h"
 #include "ESP32_Servo.h"
 
 PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinOffset) {
@@ -36,6 +36,7 @@ PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinO
 	for (int i = 0; i < len; i++) {
 			addESP32Pin(pins[i]);
 	}
+	analogWriteResolution(13);
 }
 
 
@@ -55,7 +56,7 @@ void PortsESP32::digitalWrite(uint16_t pin, uint8_t val) {
 	::digitalWrite(pin, val);
 }
 void PortsESP32::analogWrite(uint16_t pin, int val) {
-	Serial.println("Analogwrite not supported");
+	::analogWrite(pin, val, 1023);
 }
 bool PortsESP32::initServo(uint8_t pin){
   if (!servoList.get(pin)){
@@ -211,5 +212,8 @@ void PortsESP32::addESP32Pin(int x)
 		Logger::log(LogLevel::ERROR, "Unbekannter ESP32-PIN: " + String(x));
 	}
 }
+
+
+
 
 #endif

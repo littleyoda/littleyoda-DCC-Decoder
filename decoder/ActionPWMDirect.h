@@ -12,12 +12,6 @@
 
 #include "ActionPWMOutput.h"
 
-#ifndef ESP8266
-
-// HACK
-#define PWMRANGE 1024
-
-#endif
 
 class ActionPWMDirect: public ActionPWMOutput {
 public:

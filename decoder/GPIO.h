@@ -80,6 +80,7 @@ public:
 
 	void intCallback(uint16_t pin);
 
+	int getPWMRange(); // TODO PWMRange pre Pin or change Ports:analogwrite to 0..1000
 private:
 	LinkedList<Ports*>* ports;
 	LinkedList<pinInfo*>* pinInfos;

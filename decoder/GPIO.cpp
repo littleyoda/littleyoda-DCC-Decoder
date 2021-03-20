@@ -275,3 +275,12 @@ int GPIOClass::loop() {
 	cache(false);
 	return 30;
 }
+
+
+int GPIOClass::getPWMRange() {
+	#ifdef ESP32
+		return 1024;
+	#else
+		return PWMRANGE;
+	#endif
+}
