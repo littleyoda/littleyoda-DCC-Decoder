@@ -61,6 +61,11 @@
 "board":"nodemcuv2",
 "version":"Alpha/Beta",
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.nodemcuv2.bin"
+},
+{
+"board":"esp32 with Lego Support",
+"version":"Alpha/Beta",
+"url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.esp32lego.ly32"
 }
 ]
 }
