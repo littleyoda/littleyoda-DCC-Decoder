@@ -56,7 +56,7 @@ jobs:
         cp ./.pio/build/d1_mini_pro/firmware.bin release/littleyoda-DCC-Decoder.d1_mini_pro.bin
         cp ./.pio/build/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
         cp ./.pio/build/esp8285min/firmware.bin release/littleyoda-DCC-Decoder.esp8285min.bin
-        for i in esp32dev esp32full mhetesp32minikit
+        for i in esp32dev esp32full mhetesp32minikit esp32lego
         do
           dir=_$i
           mkdir $dir
