@@ -10,8 +10,9 @@
 
 #include "ISettings.h"
 #include "Controller.h"
+#include "INotify.h"
 
-class LocDataController: public ISettings {
+class LocDataController: public ISettings, public INotify {
 public:
 	LocDataController(Controller* c, LinkedList<int> *loclist, LinkedList<int> *tolist);
 	virtual ~LocDataController();
@@ -19,6 +20,7 @@ public:
 	void requestLocData();
 	void requestTurnoutData();
 	void getInternalStatus(IInternalStatusCallback* cb, String key);
+	virtual void getRequestList(LinkedList<requestInfo*>* list) override;
 	
 private:
 	Controller* controller;
@@ -31,6 +33,8 @@ private:
 	int currentTurnOutIdx = 1;
 	TurnOutData* turnoutdata;
 	LinkedList<int> *turnoutaddrlist;
+
+	LinkedList<requestInfo*> list;
 };
 
 #endif /* LOCDATACONTROLLER_H_ */

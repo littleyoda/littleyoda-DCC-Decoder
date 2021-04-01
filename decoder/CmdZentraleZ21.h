@@ -38,6 +38,8 @@ public:
 //	String getInternalStatus(String key);
 protected:
 	virtual void adjustBroadcast(int addr);
+	unsigned long timeout = 0;
+	Controller* cnt;
 
 
 private:
@@ -56,12 +58,10 @@ private:
 	void sendStatusChanged();
 
 	virtual void send();
-	Controller* cnt;
 
 	WiFiUDP* udp;
 	bool udpSetup = false;
 	unsigned int localPort = 21105;
-	unsigned long timeout = 0;
 	unsigned long nextSend = 0;
 	void doReceive();
 	void resetTimeout();

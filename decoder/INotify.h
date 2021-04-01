@@ -6,7 +6,8 @@
 #include "ILoop.h"
 #include "INamed.h"
 
-/** Benachrichtung über Änderungen + Verwaltung der RequestListen
+/** Benachrichtung die Module über Änderungen
+ *  + Verwaltung der RequestListen
  * 
  * Author: sven
  */
@@ -35,9 +36,9 @@ public:
 		uint16_t id;
 	} __attribute__ ((packed));
 	virtual void getRequestList(LinkedList<requestInfo*>* list);
+	requestInfo* r;
 protected:
 	boolean requestListContains(LinkedList<requestInfo*>* list, requestInfo* element);
-	requestInfo* r;
 
 };
 

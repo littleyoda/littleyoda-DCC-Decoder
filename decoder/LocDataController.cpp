@@ -22,6 +22,18 @@ LocDataController::LocDataController(Controller* c, LinkedList<int> *loclist, Li
     currentTurnOutIdx = 0;
     requestLocData();
     requestTurnoutData();
+    for (int i = 0; i < loclist->size(); i++) {
+	    requestInfo* r = new requestInfo();
+	    r->art = requestInfo::LOCO;
+	    r->id = loclist->get(i);
+        list.add(r);
+    }
+    for (int i = 0; i < tolist->size(); i++) {
+	    requestInfo* r = new requestInfo();
+	    r->art = requestInfo::TURNOUT;
+	    r->id = tolist->get(i);
+        list.add(r);
+    }
 }
 
 void LocDataController::requestTurnoutData() {
@@ -269,4 +281,13 @@ void LocDataController::getInternalStatus(IInternalStatusCallback* cb, String ke
 	if (key.equals("*") || key.equals("isEmergency")) {
         cb->send(getName(), "isEmergency", String(controller->isEmergency()));
 	}
+}
+
+void LocDataController::getRequestList(LinkedList<requestInfo*>* list) {
+	for (int i = 0; i < list->size(); i++) {
+        if (!requestListContains(list, r)) {
+		    list->add(r);
+	    }
+	}
+
 }
