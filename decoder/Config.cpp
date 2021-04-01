@@ -61,6 +61,9 @@
 	#include "ActionAudioI2S.h"
 #endif
 
+#ifdef LY_FEATURE_LEGO
+	#include "ActionLegoHub.h"
+#endif
 
 #ifdef ESP32
 	#include "FS.h"
@@ -178,6 +181,14 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 			l->setName(id);
 			controller->registerSettings(l);
 
+#ifdef LY_FEATURE_LEGO
+
+		} else if (m.equals("lpf2hub")) {
+			ActionLegoHub* a = new ActionLegoHub();
+			a->setName(id);
+			controller->registerSettings(a);
+			controller->registerLoop(a);
+#endif
 		} else if (m.equals("pwm")) {
 			String type = parser->getValueByKey(idx, "type");
 			ActionPWMOutput* a = NULL;
@@ -448,6 +459,16 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 						// int tx = GPIOobj.string2gpio(value["tx"].as<const char*>());
 						// int rx = GPIOobj.string2gpio(value["rx"].as<const char*>());
 						// controller->registerNotify(new ActionDFPlayerMP3(addr, tx, rx));
+		} else if (m.equals("log")) {
+			String ip = parser->getValueByKey(idx, "ip", "");
+			if (ip.length() != 0) {
+					IPAddress* addr = new IPAddress();
+					if (addr->fromString(ip)) {
+						Logger::getInstance()->setIPAddress(addr);
+					} else {
+						Logger::log(LogLevel::ERROR, "IP not parseable: " + ip);
+					}
+			}
 
 		} else if (m.equals("wlan")) {
 			WiFi.enableSTA(true);
@@ -882,6 +903,7 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 					"Config: Unbekannter Eintrag " + m);
 		}
 		if (c != NULL) {
+			Logger::log(LogLevel::INFO, "Register for " + m);
 			controller->registerNotify(c);
 			controller->registerConnectors(c);
 		}
