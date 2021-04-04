@@ -79,6 +79,11 @@ void CmdZentraleZ21::doReceive() {
 	if (cb > packetBufferSize) {
 		cb = packetBufferSize;
 	}
+	if (udp->available() < cb-1) {
+		Logger::log(LogLevel::INFO, "Unvollständiges UDP-Paket " + String(cb -1) + "/" + udp->available());
+		udp->read(&pb[1], udp->available());
+		return;
+	}
 	int ret = udp->read(&pb[1], cb - 1);
 	if (debugEnabled) {
 		Serial.print("RECV: ");
@@ -195,7 +200,11 @@ void CmdZentraleZ21::send() {
 	udp->beginPacket(currentDestIP, currentDestPort);
 //	printPacketBuffer(pb[0]);
 	udp->write(pb, pb[0]);
-	udp->endPacket();
+	int ret = udp->endPacket(); 
+	if (ret == 0) {
+		Logger::log(LogLevel::ERROR, "UDP Send Error");
+	}
+	delay(1);
 }
 
 
@@ -250,7 +259,10 @@ void CmdZentraleZ21::DCCSpeed(int addr, int speed, int direction, int SpeedSteps
 			if (id == addr)  {
 				udp->beginPacket(c->ip, c->port);
 				udp->write(pb, pb[0]);
-				udp->endPacket();
+				int ret = udp->endPacket(); 
+				if (ret == 0) {
+					Logger::log(LogLevel::ERROR, "UDP Send Error -- DCCSpeed ClientIdx: " + String(i));
+				}
 				delay(2);
 			}
 		}
@@ -335,7 +347,7 @@ void CmdZentraleZ21::sendSetTurnout(String sid, String status) {
 			udp->write(pb, pb[0]);
 			int ret = udp->endPacket();
 			if (ret == 0) {
-				Serial.println("Failed");
+				Logger::log(LogLevel::ERROR, "UDP Send Error -- Turnout ClientIdx: " + String(idx));
 			}
 	}
 }
@@ -357,8 +369,9 @@ void CmdZentraleZ21::sendDCCSpeed(int addr, LocData* data) {
 			udp->write(pb, pb[0]);
 			int ret = udp->endPacket();
 			if (ret == 0) {
-				Serial.println("Failed");
+				Logger::log(LogLevel::ERROR, "UDP Send Error -- sendDCCSpeed: " + String(idx));
 			}
+			delay(1);
 	}
 };
 
