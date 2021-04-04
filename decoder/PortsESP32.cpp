@@ -66,6 +66,9 @@ bool PortsESP32::initServo(uint8_t pin){
   return true;
 }
 
+void PortsESP32::setFreq(double f) {
+	::analogWriteFrequency(f);
+}
 void PortsESP32::servoWrite(uint16_t pin, uint8_t val) {
   
   Servo* s = servoList.get(pin);

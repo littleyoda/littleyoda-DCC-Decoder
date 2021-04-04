@@ -196,7 +196,7 @@ void GPIOClass::analogWriteFreq(uint32_t freq) {
 #ifdef ESP8266
 	::analogWriteFreq(freq);
 #elif ESP32
-	// Hack
+	PortsESP32::setFreq(freq);
 #endif
 }
 

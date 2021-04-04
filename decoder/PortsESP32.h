@@ -21,6 +21,7 @@ public:
 	virtual void digitalWrite(uint16_t pin, uint8_t val);
 	virtual void analogWrite(uint16_t pin, int val);
 	virtual void servoWrite(uint16_t pin, uint8_t val);
+	static void setFreq(double f);
 private:
 	void addESP32Pin(int x);
   LinkedList<Servo*> servoList;
