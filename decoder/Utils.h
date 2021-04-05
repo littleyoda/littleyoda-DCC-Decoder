@@ -100,7 +100,7 @@ public:
 	}
 
 	static boolean timeDiff(unsigned long last, unsigned long intervall) {
-		return millis()-last > intervall;
+		return (millis()-last) > intervall;
 	}
 
 	static String repeatString(String rep, int number) {

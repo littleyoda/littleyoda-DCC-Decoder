@@ -36,8 +36,7 @@ int CmdZentraleZ21::loop() {
 		}
 		currentDestPort = 0;
 	}
-	long int time = millis();
-	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
+	if ((timeout > 0) && Utils::timeDiff(timeout, emergencyStopTimeout)) {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 Zentrale Timeout");
 		cnt->emergencyStop(Consts::SOURCE_Z21SERVER, true);
 		timeout = 0;
@@ -45,8 +44,9 @@ int CmdZentraleZ21::loop() {
 
 	if (clients.size() > 0) {
 		// Goal => each client receive two package pre second 
-		int intervall = 500 / clients.size();
-		if  ((time - lastBroadcastTime) > intervall) {
+		unsigned long intervall = 500 / clients.size();
+//		if  ((time - lastBroadcastTime) > intervall) {
+		if (Utils::timeDiff(lastBroadcastTime, intervall)) {
 			if (broadcastClientIdx >= clients.size()) {
 				broadcastClientIdx = 0;
 			}
@@ -62,7 +62,7 @@ int CmdZentraleZ21::loop() {
 				c->broadcastIdx++;
 			}
 			broadcastClientIdx++;
-			lastBroadcastTime = time;
+			lastBroadcastTime = millis();
 		}
 	}
 	return 2;

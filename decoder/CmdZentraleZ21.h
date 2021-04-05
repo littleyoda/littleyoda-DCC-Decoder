@@ -72,7 +72,7 @@ private:
 	void emergencyStop();
 //	void handleSetLocoFunc(unsigned int locoid);
 
-	long int lastBroadcastTime = 0;
+	unsigned long lastBroadcastTime = 0;
 	static const int emergencyStopTimeout = 4200;
 
 	LinkedList<Z21Clients*> clients = LinkedList<Z21Clients*>();

@@ -48,8 +48,8 @@ private:
 
 
 	long int lastTime = 0;
-	static const int emergencyStopTimeout = 1000;
-	static const int cmdSendTime = 100;
+	static const unsigned int emergencyStopTimeout = 1000;
+	static const unsigned int cmdSendTime = 100;
 	const int firstLoopStatus = -1;
 	int loopStatus = firstLoopStatus;
 	int subloopstatus = 0;

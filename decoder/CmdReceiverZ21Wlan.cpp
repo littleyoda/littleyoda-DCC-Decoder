@@ -29,8 +29,7 @@ CmdReceiverZ21Wlan::CmdReceiverZ21Wlan(Controller* c, String ip) :
 }
 
 int CmdReceiverZ21Wlan::loop() {
-	long int time = millis();
-	if ((timeout > 0) && ((time - timeout) > emergencyStopTimeout)) {
+	if ((timeout > 1) && Utils::timeDiff(timeout, emergencyStopTimeout)) {
 		Logger::getInstance()->addToLog(LogLevel::WARNING, "Z21 wlan Timeout");
 		lastZ21Status = 255;
 		z21EmergencyStop = true;
@@ -58,8 +57,8 @@ int CmdReceiverZ21Wlan::loop() {
 
 
 	// Scheduler for Requests
-	if (time - lastTime > (cmdSendTime)) {
-		lastTime = time;
+	if (Utils::timeDiff(lastTime, cmdSendTime)) {
+		lastTime = millis();
 		if (loopStatus == -1) {
 			switch (subloopstatus) {
 				case 0: sendFrimwareVersionRequest(); break;
