@@ -26,6 +26,9 @@ private:
 	void parseFilter(Controller* c, Webserver* web, String n);
 	void parseIn(Controller* c, Webserver* web, String n);
 	void parseConnector(Controller* c, Webserver* web, String n);
+	#ifdef ESP32
+	void initSD(int gpio);
+	#endif 
 	ISettings* getSettingById(Controller* c, String id);
 	bool lowmemory;
 	json* parser;

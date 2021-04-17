@@ -340,7 +340,12 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 
 		#ifdef LY_FEATURE_AUDIO
 		} else if (m.equals("audioi2s")) {
-			ActionAudioI2S* a = new ActionAudioI2S();
+			String source = parser->getValueByKey(idx, "source");
+			bool useSD = false;
+			if (source.equalsIgnoreCase("sd") || source.equalsIgnoreCase("sdcard")) {
+				useSD = true;
+			}
+			ActionAudioI2S* a = new ActionAudioI2S(useSD);
 			a->setName(id);
 			controller->registerSettings(a);
 			controller->registerLoop(a);
@@ -584,10 +589,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 					}
 					child = parser->getNextSiblings(child);
 				}
-			} 
-      
-      
-			else {
+			} else {
 				Logger::getInstance()->addToLog(LogLevel::ERROR, "Unbekanntes Gerät (I2C): " + String(d));
 			}
 		// } else if (m.equals("lycontroller")) {
@@ -630,6 +632,12 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 									parser->getValueByKey(idx, "rotation", "0").toInt()
 									);
 		 	controller->registerLoop(d);
+		#endif
+		#ifdef ESP32
+		} else if (m.equals("sdcard")) {
+			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "cs", "IO05"));
+			initSD(gpio);
+
 		#endif
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
@@ -1009,3 +1017,34 @@ void Config::parseFilter(Controller* c, Webserver* web, String n) {
 	}
 
 }
+
+
+#ifdef ESP32
+void Config::initSD(int gpio) {
+			if(!SD.begin(gpio)){
+				Logger::log(LogLevel::ERROR, "SD Card not found!");
+				return;
+			}
+			uint8_t cardType = SD.cardType();
+
+			if (cardType == CARD_NONE){
+				Logger::log(LogLevel::ERROR, "No SD card attached!");
+				return;
+			}
+			String out = "";
+			if(cardType == CARD_MMC){
+				out += "MMC";
+			} else if(cardType == CARD_SD){
+			 	out += "SDSC";
+			} else if(cardType == CARD_SDHC){
+				out += "SDHC";
+			} else {
+				out += "UNKNOWN";
+			}
+			out += "-Card. Size: ";
+			uint32_t cardSize = SD.cardSize() / (1024 * 1024);
+			out += String(cardSize);
+			out += "MB";
+			Logger::log(LogLevel::INFO, out);
+}
+#endif
