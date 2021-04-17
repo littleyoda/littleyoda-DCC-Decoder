@@ -334,6 +334,13 @@ void Controller::registerCmdSender(CmdSenderBase* base) {
 	sender.add(base);
 }
 
+/**
+ * Sammelt von Modulen die Information ein, welche Lok-ID und Weichen-ID benötigt werden
+ *
+ * und
+ *
+ * übermittelt diese Information an alle Befehlssender
+ */
 void Controller::updateRequestList() {
 	requestList.clear();
 	// Create Requestlist from all actions-Items
@@ -513,6 +520,12 @@ void Controller::internalStatusObjStatus(IInternalStatusCallback* cb, String mod
             	INotify::requestInfo* d = l->get(i);
 				cb->send("requestlist", (d->art == d->LOCO) ? "Lok" : "Weiche", String(d->id));
         	}
+		}
+	}
+
+	if (modul.equals("cnt") || modul.equals("*")) {
+		if (key.equals("*") || key.equals("estop")) {
+				cb->send("cnt", "estop", String(isEmergency()));
 		}
 	}
 
