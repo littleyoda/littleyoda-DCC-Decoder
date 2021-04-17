@@ -54,6 +54,11 @@ int ActionLegoHub::loop() {
 			Logger::log(LogLevel::ERROR,"Failed to connect to HUB");
 			return 1000;
 		}
+	} else {
+		if (isInitialized) {
+			Logger::log(LogLevel::ERROR,"Lego Hub: Connection lost");
+			isInitialized = false;
+		}
 	}
 	return 1000;
 }
