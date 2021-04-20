@@ -17,6 +17,7 @@
 #include <AudioOutputI2S.h>
 #include <AudioGenerator.h>
 #include <AudioFileSource.h>
+#include <HTTPClient.h>
 
 #include "ISettings.h"
 #include "ILoop.h"
