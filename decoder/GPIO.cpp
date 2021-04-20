@@ -102,6 +102,25 @@ void GPIOClass::intCallback(uint16_t pin) {
 }
 
 void GPIOClass::pinMode(Pin *pin, uint8_t mode, String usage) {
+	pinInfo* p = getPinInfoByGPin(pin->getPin());
+	if (p == nullptr) {
+		Logger::log(LogLevel::ERROR, "PinMode: No Information about " + pin->toString());
+	} else {
+		if (mode == INPUT_PULLUP && (
+									((p->supportedFunctions & (unsigned long) Ports::F::PULL_UP) == 0) &&
+									((p->supportedFunctions & (unsigned long) Ports::F::SUPPORTS_PULLUP) == 0)
+									)) {
+			Logger::log(LogLevel::ERROR, "Pin does not support Pullup " + pin->toString());
+		}
+		#ifdef INPUT_PULLDOWN
+		if (mode == INPUT_PULLDOWN && (
+									((p->supportedFunctions & (unsigned long) Ports::F::PULL_DOWN) == 0) &&
+									((p->supportedFunctions & (unsigned long) Ports::F::SUPPORTS_PULLDOWN) == 0)
+									)) {
+			Logger::log(LogLevel::ERROR, "Pin does not support Pulldown " + pin->toString());
+		}
+		#endif
+	}	
 	pinMode(pin->getPin(), mode, usage);
 }
 

@@ -65,19 +65,6 @@ public:
 	String getUsage(String sep);
 	virtual int loop();
 	void debug();
-
-	enum F {
-		DIGITAL_INPUT = 1,
-		DIGITAL_OUTPUT = 2,
-		SUPPORTS_PULLUP = 4,
-		SUPPORTS_PULLDOWN = 8,
-		UNSTABLE_AT_STARTUP = 16,
-		SUPPORTS_PWM = 32,
-		SUPPORTS_ADC = 64,
-		SUPPORTS_DAC = 128,
-		PIN_STRAPPING_AT_STARTUP = 256,
-	};
-
 	void intCallback(uint16_t pin);
 
 	int getPWMRange(); // TODO PWMRange pre Pin or change Ports:analogwrite to 0..1000
