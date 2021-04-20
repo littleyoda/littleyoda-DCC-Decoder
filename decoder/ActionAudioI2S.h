@@ -11,33 +11,32 @@
 #define ACTIONAUDIOI2S_H_
 
 #include <WiFi.h> 
-#include <HTTPClient.h>
 #include <FS.h>
 #include <SPIFFS.h>
 #include <SD.h>
-#include "ActionAudioI2S.h"
 #include <AudioOutputI2S.h>
-#include <AudioFileSourcePROGMEM.h>
-#include <AudioGeneratorFLAC.h>
-#include <AudioFileSourceSPIFFS.h>
+#include <AudioGenerator.h>
+#include <AudioFileSource.h>
+
 #include "ISettings.h"
 #include "ILoop.h"
 
- 
 class ActionAudioI2S : public ISettings, public ILoop {
 public:
-	ActionAudioI2S();
+	ActionAudioI2S(bool useSD);
 	virtual ~ActionAudioI2S();
-	virtual int loop();
-	virtual void setSettings(String key, String value);
-	virtual String getHTMLCfg(String urlprefix) ;
-	virtual String getHTMLController(String urlprefix);
- 
+	virtual int loop() override;
+	virtual void setSettings(String key, String value) override;
+	virtual String getHTMLController(String urlprefix) override;
+ 	virtual void getHTMLConfig(String urlprefix, Controller* c) override;
+
 private:
 	AudioOutputI2S *out;
 	AudioGenerator *generator;
-  	AudioFileSourceSPIFFS *file;
+	AudioFileSource *file;
 	void play(int idx);
+	boolean useSD = false;
+	FS* source;
 };
 
  
