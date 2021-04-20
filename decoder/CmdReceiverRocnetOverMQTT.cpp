@@ -37,6 +37,11 @@ CmdReceiverRocnetOverMQTT::CmdReceiverRocnetOverMQTT(Controller* c) : CmdReceive
 CmdReceiverRocnetOverMQTT::~CmdReceiverRocnetOverMQTT() {
 }
 
+void CmdReceiverRocnetOverMQTT::setMQTT(String _addr, int _port) {
+	host = _addr;
+	port = _port;
+	discoveryModus = 1;
+}
 
 CmdReceiverRocnetOverMQTT *CmdReceiverRocnetOverMQTT::_instance = NULL;
 
@@ -90,7 +95,26 @@ int CmdReceiverRocnetOverMQTT::loop() {
 				return 0;
 			}
 		}
-		Udp.beginPacket("224.0.0.1", 8051);
+
+		switch (trying) {
+			case 0:
+				Udp.beginPacket("224.0.0.1", 8051);
+				break;
+
+			case 1:
+				Udp.beginPacket("224.0.1.20", 8051);
+				break;
+
+			case 2:
+				Udp.beginPacket(Utils::getbroadcastIP(), 8051);
+				break;
+
+		}
+		trying++;
+		if (trying == 3) {
+			trying = 0;
+		}
+
 		#ifdef ESP8266
 			Udp.write("BROKER-GET");
     	#elif ESP32
@@ -99,7 +123,9 @@ int CmdReceiverRocnetOverMQTT::loop() {
 			#error "This Arch is not supported"
 		#endif
 		Udp.endPacket();
-		return 200;
+
+
+ 		return 200;
 	}
 	return 500;
 }

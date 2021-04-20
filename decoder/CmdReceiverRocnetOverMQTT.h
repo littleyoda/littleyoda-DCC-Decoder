@@ -39,7 +39,7 @@ public:
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit)  override;
 	virtual void setRequestList(LinkedList<INotify::requestInfo*>* list)  override {requestList = list;};
 	virtual void getInternalStatus(IInternalStatusCallback* cb, String key)  override;
-
+	void setMQTT(String addr, int port);
 private:
 	WiFiClient espClient;
 	PubSubClient* client;
@@ -48,6 +48,7 @@ private:
 	String host = "";
 	int port = 0;
 	WiFiUDP Udp;
+	int trying = 0;
 	int discoveryModus = 0;
 };
 

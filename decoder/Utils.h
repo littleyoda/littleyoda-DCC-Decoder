@@ -145,6 +145,27 @@ public:
 		return status;
 	}
 
+	static IPAddress getbroadcastIP() {
+		#ifdef ESP32
+			return WiFi.broadcastIP();
+		#elif ESP8266
+			IPAddress subnet;
+			IPAddress gateway;
+			subnet = WiFi.subnetMask();
+			gateway = WiFi.gatewayIP();
+			IPAddress network = IPAddress(subnet[0] & (  gateway[0]),
+									subnet[1] & (   gateway[1]),
+									subnet[2] & (   gateway[2]),
+									subnet[3] & (   gateway[3]));
+			IPAddress bc = IPAddress((~ subnet[0]) | (network[0]),
+								 	 (~ subnet[1]) | (network[1]),
+									 (~ subnet[2]) |(network[2]),
+									 (~ subnet[3]) | (network[3]));
+			return bc;
+		#else
+			return null;
+		#endif
+	}
 
 	static String extwifi2String(int status) {
 		String out = wifi2String(status & 15);

@@ -450,6 +450,15 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 			CmdReceiverRocnetOverMQTT* c = new CmdReceiverRocnetOverMQTT(controller);
 			controller->registerCmdReceiver(c);
 			controller->registerCmdSender(c);
+
+			String ip = parser->getValueByKey(idx, "ip","");
+			String port = parser->getValueByKey(idx, "port", "");
+			if (ip.isEmpty() || ip.isEmpty()) {
+				Logger::log(LogLevel::ERROR, "rocnetovermqtt: ip or port not vaild!");
+			} else {
+				c->setMQTT(ip, port.toInt());
+			}
+
 		#endif
 		} else if (m.equals("webservicewifiscanner")) {
 			web->registerWebServices(new WebserviceWifiScanner());
@@ -633,7 +642,7 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 									);
 		 	controller->registerLoop(d);
 		#endif
-		#ifdef ESP32
+		#ifdef LY_FEATURE_AUDIO
 		} else if (m.equals("sdcard")) {
 			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "cs", "IO05"));
 			initSD(gpio);
@@ -1019,7 +1028,7 @@ void Config::parseFilter(Controller* c, Webserver* web, String n) {
 }
 
 
-#ifdef ESP32
+#ifdef LY_FEATURE_AUDIO
 void Config::initSD(int gpio) {
 			if(!SD.begin(gpio)){
 				Logger::log(LogLevel::ERROR, "SD Card not found!");
