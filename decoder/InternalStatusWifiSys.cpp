@@ -167,8 +167,7 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 
 void InternalStatusWifiSys::handleRequest(String key, String value) {
 	if (key == "log" && value == "bcast") {
-		IPAddress* addr = new IPAddress(192,168,2,255);
-		Logger::getInstance()->setIPAddress(addr);
+		Logger::getInstance()->setIPAddress(new IPAddress(Utils::getbroadcastIP()));
 		Logger::getInstance()->resendAll();
 	}
 }
