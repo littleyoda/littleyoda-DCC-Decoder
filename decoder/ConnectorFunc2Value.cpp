@@ -10,8 +10,9 @@
 #include "Logger.h"
 #include "Arduino.h"
 
-ConnectorFunc2Value::ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int len) {
+ConnectorFunc2Value::ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int len, String var) {
 	this->array = array;
+	this->var = var;
 	addr = locoaddr;
 	addAction(a);
 	arraylength = len;
@@ -44,5 +45,5 @@ void ConnectorFunc2Value::DCCFunc(int id, unsigned long int newvalue, int source
 		}
 	}
 	Logger::log(LogLevel::TRACE, "Func2Value Value " + String(out));
-	send("sd", String(out));
+	send(var, String(out));
 }

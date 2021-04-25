@@ -12,7 +12,7 @@
 
 class ConnectorFunc2Value : public Connectors {
 public:
-	ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int arraylength);
+	ConnectorFunc2Value(ISettings* a, int locoaddr, int *array, int arraylength, String var);
 	virtual ~ConnectorFunc2Value();
 	virtual void DCCFunc(int id, unsigned long int newvalue, int source) override;
 
@@ -20,6 +20,7 @@ private:
 	int *array;
 	int addr;
 	int arraylength;
+	String var;
 };
 
 #endif /* CONNECTORFUNC2VALUE_H_ */

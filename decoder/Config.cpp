@@ -791,11 +791,11 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
                         "m": "func2value",
                         "addr": "4711",
                         "out": [ "servo1" ],
-                        "func2value": { "3": "0", "4": "50", "5": "120"
-                        }
+                        "func2value": { "3": "0", "4": "50", "5": "120"}
 			 */
 			int addr = parser->getValueByKey(idx, "addr").toInt();
 			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			String var = parser->getValueByKey(idx, "var", "sd");
 
 			int child = parser->getIdxByKey(idx, "func2value");
 			child = parser->getFirstChild(child);
@@ -808,9 +808,8 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
 				array[pos++] = parser->getString(parser->getFirstChild(child)).toInt();
 				child = parser->getNextSiblings(child);
 			}
-
 			ISettings* a = getSettingById(controller, conn);
-			c = new ConnectorFunc2Value(a, addr, array, arraysize);
+			c = new ConnectorFunc2Value(a, addr, array, arraysize, var);
 		} else if (m.equals("turnout2value")) {
 			/**
                         "m": "turnout2value",
