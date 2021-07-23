@@ -304,6 +304,19 @@ bool Z21Format::parseClient2Server(unsigned char pb[], int cb) {
 		return true;
 	}
 
+	// Wlan-Maus sends 0x07 0x00 0x40 0x00 0x21 0x80 0x00 
+	// CRC is wrong
+	unsigned char TRACK_OFF[6] = { 0x07, 0x00, 0x40, 0x00, 0x21, 0x80 /* 0x00*/  };
+	if (cb>= 7 && memcmp(TRACK_OFF, pb, 6) == 0) {
+		controller->emergencyStop(Consts::SOURCE_WLAN, true);
+		return true;
+	}
+
+	unsigned char TRACK_ON[6] = { 0x07, 0x00, 0x40, 0x00, 0x21, 0x81 /* 0x00*/  };
+	if (cb>= 7 && memcmp(TRACK_ON, pb, 6) == 0) {
+		controller->emergencyStop(Consts::SOURCE_WLAN, false);
+		return true;
+	}
 	//printPacketBuffer("Unbekanntes Paket", pb, cb);
 	return false;
 }
