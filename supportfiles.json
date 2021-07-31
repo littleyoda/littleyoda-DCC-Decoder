@@ -1,5 +1,5 @@
 {
-  files: ["https://raw.githubusercontent.com/littleyoda/littleyoda-DCC-Decoder/master/upload/css.css",
+  "files": ["https://raw.githubusercontent.com/littleyoda/littleyoda-DCC-Decoder/master/upload/css.css",
           "https://raw.githubusercontent.com/littleyoda/littleyoda-DCC-Decoder/master/upload/milligram.min.css",
           "https://raw.githubusercontent.com/littleyoda/littleyoda-DCC-Decoder/master/upload/vis-network.min.css",
           "https://github.com/littleyoda/littleyoda-DCC-Decoder/blob/master/upload/vis-network.min.js.gz?raw=true"]
