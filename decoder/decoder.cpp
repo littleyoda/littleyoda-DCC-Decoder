@@ -96,14 +96,16 @@ void loadCFG(Webserver* web) {
 bool scanRunning = false;
 const char* debugmodus="debug";
 int debugmodusPos = 0;
-bool transfermode = false;
 
 void handleSerial() {
+	if (Serial.available() == 0 && transfer->transfermode) {
+		transfer->loop();
+	} 
+	
 	if (Serial.available() > 0) {
 		int chr = Serial.read();
-		if (transfermode) {
+		if (transfer->transfermode) {
 			if (!(transfer->key(chr))) {
-				transfermode = false;
 				Serial.println("TRANSFER END");
 			}
 		} else if (debugmodusPos < 5) {
@@ -202,8 +204,8 @@ void handleSerial() {
 				Serial.println("file open failed");
 			}
 		} else if (chr == '_') {
-			transfermode = true;
 			Serial.println("TRANSFER ACTIVE");
+			transfer->start();
 		} else if (chr == 'x') {
 			Serial.println("Debugmodus deaktiviert");
 			debugmodusPos = 0;
