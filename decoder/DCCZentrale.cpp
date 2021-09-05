@@ -39,7 +39,7 @@ DCCZentrale::DCCZentrale(Pin* gpio, Controller* c) {
 
 DCCZentrale::~DCCZentrale() {
 	mySPI.end();
-}
+} 
 
 void DCCZentrale::check() {
 	if (controller->isEmergency() == isEmergency) {
@@ -188,7 +188,7 @@ uint8_t DCCZentrale::createDCCSequence(uint16_t address, LocData* data, unsigned
 			DCCBuf[idx] = 0x3F;                   // Erweitertes Befehlsbyte
 			idx++;
 			DCCBuf[idx] = data->speed;
-			bitWrite(DCCBuf[idx],7,data->direction);                  // Richtungsbit in Bit7 übernehmen
+			bitWrite(DCCBuf[idx],7,(data->direction == Consts::SPEED_FORWARD));                  // Richtungsbit in Bit7 übernehmen
 			idx++;
 		}
 		break;
