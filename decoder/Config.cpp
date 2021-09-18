@@ -34,6 +34,7 @@
 #include "ConnectorGPIO.h"
 #include "Config.h"
 #include "DCCZentrale.h"
+#include "RndLocController.h"
 
 #include "FilterLimitChange.h"
 #include "FilterPolynom.h"
@@ -913,7 +914,12 @@ void Config::parseIn(Controller* controller, Webserver* web, String n) {
       		}
 
 			c = ire;
-
+		} else if (m.equals("rndloccmd")) {
+			String conn = parser->getString(parser->getFirstChildOfArrayByKey(idx, "out"));
+			ISettings* a = getSettingById(controller, conn);
+			RndLocController* rlc = new RndLocController(a);
+			controller->registerLoop(rlc);
+			c = rlc;
 		} else {
 			Logger::getInstance()->addToLog(LogLevel::ERROR, 
 					"Config: Unbekannter Eintrag " + m);
