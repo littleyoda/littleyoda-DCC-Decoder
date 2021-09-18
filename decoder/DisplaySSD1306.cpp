@@ -26,6 +26,7 @@ DisplaySSD1306::DisplaySSD1306(int rotation) {
 			case 270: display->setRotation(3); rotate=true; break;
 
 		}
+		clear();
 	    display->display();
 }
 
@@ -41,10 +42,18 @@ void DisplaySSD1306::clear() {
 }
 
 
-void DisplaySSD1306::println(String s) {
-	display->println(s);
+void DisplaySSD1306::print(char c) {
+	display->print(c);
 }
 
 void DisplaySSD1306::show() {
 	display->display();
 }
+
+void DisplaySSD1306::setPos(int x, int y) {
+	if (x == 0 && y ==0) {
+		display->clearDisplay();
+		display->setCursor(0,0);
+	}
+//	display->setCursor(x * 6, y * 8);
+};

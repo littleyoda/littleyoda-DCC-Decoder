@@ -17,10 +17,12 @@ public:
 	DisplayLCD1602_PCF8574(int r, int c);
 	virtual ~DisplayLCD1602_PCF8574();
 	virtual void clear() override;
-	virtual void println(String s) override;
-	virtual void show() override;
+	virtual void print(char c) override;
+	virtual void setPos(int x, int y) override;
+
 private:
 	LCDIC2* lcd;
+	int x = 0;
 	int y = 0;
 	String empty = "                ";
 };

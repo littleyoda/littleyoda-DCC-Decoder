@@ -15,8 +15,9 @@ public:
 	DisplayBase() {};
 	virtual ~DisplayBase() {};
 	virtual void clear() {};
-	virtual void println(String s) {};
+	virtual void print(char c) {};
 	virtual void show() {};
+	virtual void setPos(int x, int y) {};
 	virtual int rows() { return _rows; };
 	virtual int columns() { return _cols; };
 public:

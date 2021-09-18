@@ -29,17 +29,19 @@ DisplayLCD1602_PCF8574::~DisplayLCD1602_PCF8574() {
 
 
 void DisplayLCD1602_PCF8574::clear() {
+	lcd->clear();
 	lcd->setCursor(0, 0);
 	y = 0;
+	x = 0;
 }
 
-void DisplayLCD1602_PCF8574::println(String s) {
-	lcd->setCursor(0, y);
-	String out = s + empty.substring(0, columns() - s.length());
-	lcd->print(out);
-	y++;
-}
 
-void DisplayLCD1602_PCF8574::show() {
 
+void DisplayLCD1602_PCF8574::setPos(int x, int y) {
+	lcd->setCursor(x, y);
+};
+
+
+void DisplayLCD1602_PCF8574::print(char c) {
+	lcd->print(c);
 }

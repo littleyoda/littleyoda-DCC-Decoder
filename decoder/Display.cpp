@@ -17,12 +17,13 @@
 #include "DisplayHD44780.h"
 #include "DisplayLCD1602_PCF8574.h"
 
-Display::Display(Controller* c, String text, String model, LinkedList<int>* list, int rows, int cols, int rotation) {
+Display::Display(Controller* c, String text, String _model, LinkedList<int>* list, int rows, int cols, int rotation) {
 	controller = c;
 	display = nullptr;
+	model = _model;
 	if (model.equalsIgnoreCase("Wemos OLED Shield")) {
-		Serial.println("Init");
 		display = new DisplaySSD1306(rotation);
+
 	} else if (model.equalsIgnoreCase("HD44780")) {
 		display = new DisplayHD44780(list);
 
@@ -41,21 +42,72 @@ Display::~Display() {
 }
 
 
+/**
+ * Loop ist so designt, dass es max. ein Zeichen pro Durchlauf ausgibt, um die Laufzeit möglichst gering zu halten.
+ * Dieses funktioniert nur, wenn das genutzte Display diese Funktion unterstützt.
+ */
 int Display::loop() {
 	if (display == nullptr) {
 		return 10000;
 	}
-	display->clear();
-	fill(pattern);
-	display->show();		  
-	count++;
-	if (count >= maxcount) {
-		count = 1;
+
+	if (idx == -1) {
+		if (subidx == 0) {
+			output.clear();
+			fill(pattern);
+			count++;
+			if (count >= maxcount) {
+				count = 1;
+			}
+
+		} else if (subidx == 1) {
+			//display->clear();
+			display->setPos(0, 0);
+		} else if (subidx == 2) {
+			for (int i = 0; i < output.size(); i++) {
+				//Serial.println(output.get(i));
+				// if (i > 0) {
+				// 	outputtext = outputtext + "\n";
+				// }
+				String s = output.get(i);
+				if (s.length() > display->columns()) {
+					// Scrolle durch den Text
+					if (s.length() > maxcount) {
+						maxcount = s.length();
+					}
+					s = ">" + s + "<";
+					int toolong = (s.length() - display->columns()) + 1;
+					int tidx = count % toolong;
+					output.set(i, s.substring(tidx, display->columns() + tidx));
+				}
+			}
+		}
+		subidx++;
+		if (subidx == 3) {
+			idx++;
+			subidx = 0;
+		}
 	}
-	return 500;
+	if (idx >= 0) {
+		display->print(output.get(idx)[subidx]);
+		subidx++;
+		if (subidx >= output.get(idx).length()) {
+			idx++;
+			subidx = 0;
+			display->setPos(0, idx);
+		}
+		if (idx == display->rows() || idx >= output.size() ) {
+			display->show();
+			idx = -1;
+			subidx = 0;
+			return 500;
+		}
+	}
+	return 1;
 }
 
-String Display::fill(String s) {
+void Display::fill(String s) {
+	output.clear();
 	char temp[100];
 	int status = 0;
 	String out = "";
@@ -106,30 +158,23 @@ String Display::fill(String s) {
 					break;			
 			case 3:
 				if (c == 'n') {
-					show(out);
+					while (out.length() < display->columns()) {
+						out = out + " ";
+					}
+//					Serial.println(">" + out  + "<");
+					output.add("" + out);
 					out = "";
 				}
 				status = 0;
 				break;
 		}
 	}
-	show(out);
-	return out;
-}
-
-void Display::show(String s) {
-	if (s.length() <= display->columns()) {
-		display->println(s);
-	} else {
-		// Scrolle durch den Text
-		if (s.length() > maxcount) {
-			maxcount = s.length();
+	if (!out.isEmpty()) {
+		while (out.length() < display->columns()) {
+			out = out + "%";
 		}
-		s = ">" + s + "<";
-		int toolong = (s.length() - display->columns()) + 1;
-		int idx = count % toolong;
-		String out;
-		out = s.substring(idx, display->columns() + idx);
-		display->println(out);
+//		Serial.println(">" + out  + "<");
+		output.add("" + out);
 	}
 }
+

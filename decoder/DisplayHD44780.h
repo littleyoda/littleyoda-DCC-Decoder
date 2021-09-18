@@ -17,11 +17,11 @@ class DisplayHD44780 : public DisplayBase {
 public:
 	DisplayHD44780(LinkedList<int>* list);
 	virtual ~DisplayHD44780();
-	virtual void clear();
-	virtual void println(String s);
-	virtual void show();
-	virtual int columns() { return 16; };
-	virtual int rows() { return 2; };
+	virtual void clear() override;
+	virtual int columns() override { return 16; };
+	virtual int rows() override { return 2; };
+	virtual void print(char c) override;
+	virtual void setPos(int x, int y) override;
 private:
 	LCD* lcd;
 	int y = 0;

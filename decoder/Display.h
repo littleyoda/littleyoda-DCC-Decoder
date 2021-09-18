@@ -12,6 +12,7 @@
 	
 #include <SPI.h>
 #include "Controller.h"
+#include "LinkedList.h"
 #include "DisplayBase.h"
 
 class Display : public ILoop {
@@ -22,13 +23,14 @@ public:
 private:
 	Controller* controller;
 	int count = 0;
-	void show(String);
-	String fill(String);
+	void fill(String);
 	unsigned int maxcount = 10;
 	String pattern;
 	String model;
 	DisplayBase* display;
-
+	int idx = -1;
+	int subidx = 0;
+	LinkedList<String> output = LinkedList<String>();
 };
 
 #endif /* DISPLAY_H_ */

@@ -17,8 +17,8 @@ DisplayHD44780::DisplayHD44780(LinkedList<int>* list) {
 	}
 	if (lcd != nullptr) {
 		lcd->begin(16, 2);
-		lcd->clear();
 	}
+	lcd->clear();
 }
 
 DisplayHD44780::~DisplayHD44780() {
@@ -33,16 +33,10 @@ void DisplayHD44780::clear() {
 	y = 0;
 }
 
-void DisplayHD44780::println(String s) {
-	if (lcd == nullptr) {
-		return;
-	}
-	lcd->setCursor(0, y);
-	String out = s + empty.substring(0, 16 - s.length());
-	lcd->print(out);
-	y++;
-}
+void DisplayHD44780::print(char c) {
+	lcd->print(c);
+};
 
-void DisplayHD44780::show() {
-
+void DisplayHD44780::setPos(int x, int y) {
+	lcd->setCursor(x, y);
 }
