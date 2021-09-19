@@ -7,76 +7,63 @@
  * 
  */
 
+#include <algorithm>
 #include "CmdReceiverESPNOW.h"
 #include "Logger.h"
 #include "Utils.h"
+#include "WifiCheck.h"
 
-CmdReceiverESPNOW::CmdReceiverESPNOW(Controller* c, String rollenName, String masterkey, int kanal) : Z21Format(c) {
-	oldstatus = "";
-	status = "";
-	setName("ESPNOW");
-	setModulName("ESPNOW");
-	#ifdef ESP32
-	uint64_t chipid=ESP.getEfuseMac();
-	myid = ((uint32_t)chipid ^ (uint32_t)(chipid >> 16));
-	#endif
-	#ifdef ESP8266
-	myid = system_get_chip_id();
-	#endif
-	msgsize = sizeof(msg);
-	if (sizeof(msg) != 32) {
-		Logger::getInstance()->addToLog(LogLevel::ERROR, "ESPNOW: Nachrichtengröße nicht 32 bytes");
-		return;
-	}
-	Serial.printf("Myid: %08X\r\n", myid);
-	instance = this;
-	Serial.println("Starting ESP NOW " + String(sizeof(msg)));
+void CmdReceiverESPNOW::setKey(String masterkey) {
 	for (int i  = 0; i < 16; i++) {
 		key[i] = Utils::hextoint(masterkey[i * 2]) * 16 + Utils::hextoint(masterkey[i * 2 + 1]);
 	}	
 	#ifdef espnowEncrypt 
 		cipher.setKey(key, cipher.keySize());
 	#endif
-	rolle = unknown;
-	if (rollenName.equals("master")) {
-		rolle = master;
-	} else if (rollenName.equals("repeater")) {
-		rolle = repeater;
-	} else if (rollenName.equals("receiver")) {
-		rolle = receiver;
-	} else {
+}
+
+CmdReceiverESPNOW::CmdReceiverESPNOW(Controller* c, String rollenName, String masterkey, int kanal) : Z21Format(c) {
+	setModulName("ESPNOW");
+
+	oldstatus = "";
+	status = "";
+	instance = this;
+	myid = getID();
+	msgsize = sizeof(msg);
+	Serial.printf("Myid: %08X\r\n", myid);
+	Serial.println("Starting ESP NOW");
+
+	setRolle(rollenName);
+	setKey(masterkey);
+	checkAP(kanal);
+	initESPNOW(kanal);
+
+	if (rolle == unknown) {
 		Logger::getInstance()->addToLog(LogLevel::ERROR, "ESPNOW: Unbekannte Rolle " + rolle);
 		return;
 	}
-	rolename = rollenName;
-
-	bool b = WiFi.softAP(("sender" + String(myid)).c_str(), "sendersender", kanal);
-	Serial.println("ESPNOW: SoftAP " + String(b) + " " + rollenName);
-	WiFi.mode(WIFI_AP_STA ); // Must be AP_STA!
-
-	int ret = esp_now_init();
-	if (ret == 0) {
-		Logger::log(LogLevel::ERROR, "ESP_NOW: OK");
-	} else {
-		Logger::log(LogLevel::ERROR, "ESP_NOW: FAILED! ERR: " + String(ret));
+	if (sizeof(msg) != 32) {
+		Logger::getInstance()->addToLog(LogLevel::ERROR, "ESPNOW: Nachrichtengröße nicht 32 bytes");
 		return;
 	}
-	delay(10);
+	init = true;
+	status = "No Master";
+}
 
-	#ifdef ESP32
- 		esp_now_peer_info_t slave;
-   		memset(&slave, 0, sizeof(slave));
-   		for (int i = 0; i < 6; ++i)
- 	    	slave.peer_addr[i] = 0xFF;
-   		slave.channel = kanal; // pick a channel
-   		slave.encrypt = 0; // no encryption
-		const esp_now_peer_info_t *peer = &slave;
-		esp_now_add_peer(peer);
-	#endif
-	#ifdef ESP8266
-		esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
-	#endif
-	esp_now_register_recv_cb(CmdReceiverESPNOW::cb_MsgReceived);
+bool CmdReceiverESPNOW::setRolle(String rollenName) {
+	if (rollenName.equals("master")) {
+		rolle = master;
+	} else if (rollenName.equals("receiver")) {
+		rolle = receiver;
+	} else if (rollenName.equals("repeater")) {
+		rolle = repeater;
+	} else if (rollenName.equals("receiver+repeater")) {
+		rolle = receiverrepeater;
+	} else {
+		status = "Role unknown";
+		rolle = unknown;
+	}
+	rolename = rollenName;
 }
 
 CmdReceiverESPNOW::~CmdReceiverESPNOW() {
@@ -84,66 +71,16 @@ CmdReceiverESPNOW::~CmdReceiverESPNOW() {
 
 
 int CmdReceiverESPNOW::loop() {
-	if (rolle == unknown) {
+	if (rolle == unknown || !init) {
 		return 1000;
 	}
 	// Handle Msg from the Query
-	if (receivedQuery.size() > 0) {
-		msg* m = receivedQuery.pop();
-		if (existsMsgId(m->id)) {
-			// Already known, Ignore Message
-			free(m); 
-		} else {
-			addMsgId(m->id);
-			if (rolle == repeater) {
-				m->hops++;
-				if (m->typ == messagetyps::internal 
-				    && m->subtyp == internalSubs::echoReply
-					&& m->hops < 5) {
-					int idx = m->hops * 4;
-					m->msg[idx] = myid & 0xFF;
-					m->msg[idx + 1] = (myid >> 8) & 0xFF;
-					m->msg[idx + 2] = (myid >> 16) & 0xFF;
-					m->msg[idx + 3] = (myid >> 24) & 0xFF;
-				}
-				sendQuery.add(m);
-			}
-			if (m->typ == messagetyps::z21FromMaster) {
-				if (rolle != master) {
-				bool p = parseServer2Client(m->msg, m->msg[0]);
-				if (!p) {
-					printPacketBuffer("Cannot parse (from Master): ", m->msg, m->msg[0]);
-				}
-				}
-			} else if (m->typ == messagetyps::z21ToMaster) {
-				if (rolle == master) {
-					bool p = parseClient2Server(m->msg, m->msg[0]);
-					if (!p) {
-						printPacketBuffer("Cannot parse (to Master): ", m->msg, m->msg[0]);
-					}
-				}
-			} else 	if (m->typ == messagetyps::internal) {
-				if (m->subtyp == internalSubs::echoRequest) {
-					sendEchoReply();
-				} else if (m->subtyp == internalSubs::echoReply) {
-					handleEchoReply(m);
-				} else {
-					Serial.println("Unbekannter Sub Message-Typ");
-				}
-			} else {
-				Serial.println("Unbekannter Message-Typ");
-				for (int i = 0; i < msgsize; i++) {
-					Serial.print(String(i, HEX));
-				}
-				Serial.println();
-			}
-			if (rolle != repeater) {
-				free(m);
-			}
-		}
+	if (receivedQueue.size() > 0) {
+		handleReceived();
 	}
-	if (sendQuery.size() > 0) {
-		msg* m = sendQuery.pop();
+	// Send Messages from Query
+	if (sendQueue.size() > 0) {
+		msg* m = sendQueue.pop();
 		addMsgId(m->id);
 		#ifdef espnowEncrypt 
 			unsigned char buffer[32];
@@ -156,14 +93,15 @@ int CmdReceiverESPNOW::loop() {
 		#endif
 		free(m);
 	}
-	// Send a Echo Request every 1 sec, if I'm the master
-	if (rolle == master &&  (last + 10000) < millis()) {
+	// Send a Echo Request every 5 sec, if I'm the master
+	if (rolle == master &&  Utils::timeDiff(last, 5000)) {
 		Serial.println("=============================================" + String(millis()));
 		sendEchoRequest();
 		last = millis();
+		lastMasterReceived = last; 			
 	}
 	// Enable Broadcast on a regular base or request Information about Loco or Turnout
-	if (rolle == receiver &&  (last + 5000) < millis()) {
+	if (isReceiver() &&  Utils::timeDiff(last, 1000)) {
 		if (requestList == nullptr) {
 			enableBroadcasts();
 		} else {
@@ -179,6 +117,19 @@ int CmdReceiverESPNOW::loop() {
 		}
 		last = millis();
 	}
+	if (rolle == master &&  loklist.size() > 0 && Utils::timeDiff(last, 1000 / loklist.size()))  {
+		int id = loklist.at(loopStatus);
+		// TODO
+		loopStatus = (loopStatus + 1) % loklist.size();
+		last = millis();
+	}
+	if ((lastMasterReceived > 0) && Utils::timeDiff(lastMasterReceived, 2000) && rolle != master) {
+		Logger::getInstance()->addToLog(LogLevel::WARNING, "ESP-Now Master Timeout");
+		// TODO cnt->emergencyStop(Consts::SOURCE_WLAN, true);
+		status = "Master lost";
+		lastMasterReceived = 0;
+	}
+
 	return 5;
 }
 
@@ -202,7 +153,7 @@ void CmdReceiverESPNOW::cb_MsgReceived(u8 *mac_addr, u8 *data, u8 len) {
 	#else
 		memcpy(m, recevied,len);
 	#endif
-	instance->receivedQuery.add(m);
+	instance->receivedQueue.add(m);
 }
 
 /**
@@ -217,11 +168,12 @@ void CmdReceiverESPNOW::sendEchoRequest() {
 		m->id = Utils::getRnd();;
 		m->typ = messagetyps::internal;
 		m->subtyp = internalSubs::echoRequest;
-		sendQuery.add(m);
+		sendQueue.add(m);
 }
 
 /**
  * Will be called from the z21 submodul
+ * encapsulate z21 command into a espnow message
  */
 void CmdReceiverESPNOW::send() {
 	msg* m = new msg;
@@ -236,7 +188,8 @@ void CmdReceiverESPNOW::send() {
 	for (int i = 0; i < pb[0]; i++) {
 		m->msg[i] = pb[i];
 	}
-	sendQuery.add(m);
+	messageCmdSend++;
+	sendQueue.add(m);
 }
 
 /**
@@ -245,6 +198,7 @@ void CmdReceiverESPNOW::send() {
 void CmdReceiverESPNOW::addMsgId(uint32_t id) {
 	msgIds[msgIdsIdx] = id;
 	msgIdsIdx = (msgIdsIdx + 1) % msgIdsSize;
+	messageCount++;
 }
 
 /**
@@ -256,6 +210,7 @@ bool CmdReceiverESPNOW::existsMsgId(uint32_t id) {
 	 		return true;
 		}
 	}
+	messageCount++;
 	return false;
 }
 
@@ -270,7 +225,7 @@ void CmdReceiverESPNOW::sendEchoReply() {
 	m->msg[1] = (myid >> 8) & 0xFF;
 	m->msg[2] = (myid >> 16) & 0xFF;
 	m->msg[3] = (myid >> 24) & 0xFF;
-	sendQuery.add(m);
+	sendQueue.add(m);
 }
 
 void CmdReceiverESPNOW::handleEchoReply(msg* m) {
@@ -288,13 +243,180 @@ void CmdReceiverESPNOW::handleEchoReply(msg* m) {
 }
 
 void CmdReceiverESPNOW::getInternalStatus(IInternalStatusCallback* cb, String key) {
+	String name = getName();
 	if (key.equals("status") || key.equals("*")) {
-		cb->send("espnow", "status", status);
+		cb->send(name, "status", status);
 	}
+	if (key.equals("role") || key.equals("*")) {
+		cb->send(name, "role", rolename);
+	}
+	if (key.equals("msgcount") || key.equals("*")) {
+		cb->send(name, "msgcount", String(messageCount));
+	}
+	if (rolle != master && (key.equals("cmdreceived") || key.equals("*"))) {
+		cb->send(name, "cmdreceived", String(messageCmdReceived));
+	}
+	if (rolle == master && (key.equals("cmdsend") || key.equals("*"))) {
+		cb->send(name, "cmdsend", String(messageCmdSend));
+	}
+	if (key.equals("id") || key.equals("*")) {
+		cb->send(name, "id", String(myid, HEX));
+	}
+}
+
+void CmdReceiverESPNOW::sendSetTurnout(String id, String status) {
+  // TODO
+}
+void CmdReceiverESPNOW::sendSetSensor(uint16_t id, uint8_t status) {
+  // TODO
+}
+
+void CmdReceiverESPNOW::sendDCCSpeed(int id, LocData* d) {
+	createDCCSpeedCmd(id, d);
+	send();
+}
+void CmdReceiverESPNOW::sendDCCFun(int id, LocData* d,  unsigned int changedBit) {
+	sendDCCSpeed(id, d);
+}
+
+
+String CmdReceiverESPNOW::getName() {
+	return "espnow";
+}  
+
+/**
+ * Wird vom z21-Parser aufgerufen, falls die Information für eine Lok-ID angefordert wird 
+ */
+void CmdReceiverESPNOW::adjustBroadcast(int addr) {
+	if ( std::find(loklist.begin(), loklist.end(), addr) == loklist.end() ) {
+		loklist.push_back(addr);
+	}
+}
+
+uint32_t CmdReceiverESPNOW::getID() {
+	#ifdef ESP32
+	uint64_t chipid=ESP.getEfuseMac();
+	return ((uint32_t)chipid ^ (uint32_t)(chipid >> 16));
+	#endif
+	#ifdef ESP8266
+	return system_get_chip_id();
+	#endif
+}
+
+void CmdReceiverESPNOW::checkAP(int kanal) {
+	bool apNeeded =true;
+	if (WifiCheck::wifiISAPActive()) {
+		if (WifiCheck::getAPChannel() == kanal) {
+			Logger::log(LogLevel::INFO, "[ESPNOW] Bestender AP wird genutzt.");
+			apNeeded = false;
+		} else {
+			Logger::log(LogLevel::ERROR, "[ESPNOW] Bestende AP kann nicht genutzt. (keine Kanalübereinstimmung)");
+		}
+	} 
+	if (apNeeded) {
+		bool b = WiFi.softAP(("sender" + String(myid)).c_str(), "sendersender", kanal);
+		if (!b) {
+			Logger::log(LogLevel::ERROR, "[ESPNOW] AP konnte nicht gestartet werden!");
+			return;
+		}
+		Logger::log(LogLevel::INFO, "[ESPNOW] Neuer AP gestartet. " + String(b));
+	}
+	WiFi.mode(WIFI_AP_STA ); // Must be AP_STA!
+}
+void CmdReceiverESPNOW::initESPNOW(int kanal) {
+	int ret = esp_now_init();
+	if (ret == 0) {
+		//
+	} else {
+		Logger::log(LogLevel::ERROR, "ESP_NOW: FAILED! ERR: " + String(ret));
+		return;
+	}
+	delay(10);
+
+	#ifdef ESP32
+ 		esp_now_peer_info_t slave;
+   		memset(&slave, 0, sizeof(slave));
+   		for (int i = 0; i < 6; ++i)
+ 	    	slave.peer_addr[i] = 0xFF;
+   		slave.channel = kanal; // pick a channel
+   		slave.encrypt = 0; // no encryption
+		const esp_now_peer_info_t *peer = &slave;
+		esp_now_add_peer(peer);
+	#endif
+	#ifdef ESP8266
+		esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
+	#endif
+	esp_now_register_recv_cb(CmdReceiverESPNOW::cb_MsgReceived);
+}
+
+void CmdReceiverESPNOW::handleReceived() {
+		msg* m = receivedQueue.pop();
+		if (existsMsgId(m->id)) {
+			// Already known, Ignore Message
+			free(m); 
+			return;
+		} 
+		addMsgId(m->id);
+		if (isRepeater()) {
+			m->hops++;
+			if (m->typ == messagetyps::internal 
+				&& m->subtyp == internalSubs::echoReply
+				&& m->hops < 5) {
+				int idx = m->hops * 4;
+				m->msg[idx] = myid & 0xFF;
+				m->msg[idx + 1] = (myid >> 8) & 0xFF;
+				m->msg[idx + 2] = (myid >> 16) & 0xFF;
+				m->msg[idx + 3] = (myid >> 24) & 0xFF;
+			}
+			sendQueue.add(m);
+		}
+		if (m->typ == messagetyps::z21FromMaster) {
+			if (lastMasterReceived == 0) {
+				status="no Connection";
+			}
+			lastMasterReceived = last; 	
+			messageCmdReceived++;		
+			if (rolle != master) {
+				bool p = parseServer2Client(m->msg, m->msg[0]);
+				if (!p) {
+					printPacketBuffer("Cannot parse (from Master): ", m->msg, m->msg[0]);
+				}
+			}
+		} else if (m->typ == messagetyps::z21ToMaster) {
+			if (rolle == master) {
+				bool p = parseClient2Server(m->msg, m->msg[0]);
+				if (!p) {
+					printPacketBuffer("Cannot parse (to Master): ", m->msg, m->msg[0]);
+				}
+			}
+		} else 	if (m->typ == messagetyps::internal) {
+			if (m->subtyp == internalSubs::echoRequest) {
+				sendEchoReply();
+			} else if (m->subtyp == internalSubs::echoReply) {
+				handleEchoReply(m);
+			} else {
+				Serial.println("Unbekannter Sub Message-Typ");
+			}
+		} else {
+			Serial.println("Unbekannter Message-Typ");
+			for (int i = 0; i < msgsize; i++) {
+				Serial.print(String(i, HEX));
+			}
+			Serial.println();
+		}
+		// Free message if not longer used
+		if (!isRepeater()) {
+			free(m);
+		}
+}
+
+bool CmdReceiverESPNOW::isReceiver() {
+	return rolle == receiver || rolle == receiverrepeater;
+}
+
+bool CmdReceiverESPNOW::isRepeater() {
+	return rolle == repeater || rolle == receiverrepeater;
 }
 
 int  CmdReceiverESPNOW::msgsize = sizeof(CmdReceiverESPNOW::msg);
 CmdReceiverESPNOW* CmdReceiverESPNOW::instance = NULL;
-
-
-
