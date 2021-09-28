@@ -7,9 +7,7 @@
 
 #include "DisplayLCD1602_PCF8574.h"
 
-DisplayLCD1602_PCF8574::DisplayLCD1602_PCF8574(int r, int c) {
-	_cols = c;
-	_rows = r;
+DisplayLCD1602_PCF8574::DisplayLCD1602_PCF8574(int r, int c) : DisplayBase(c, r) {
 	if (_rows == 0) {
 		_rows = 2;
 	}

@@ -22,7 +22,7 @@ Display::Display(Controller* c, String text, String _model, LinkedList<int>* lis
 	display = nullptr;
 	model = _model;
 	if (model.equalsIgnoreCase("Wemos OLED Shield")) {
-		display = new DisplaySSD1306(rotation);
+		display = new DisplaySSD1306(rotation, rows, cols);
 
 	} else if (model.equalsIgnoreCase("HD44780")) {
 		display = new DisplayHD44780(list);
@@ -171,7 +171,7 @@ void Display::fill(String s) {
 	}
 	if (!out.isEmpty()) {
 		while (out.length() < display->columns()) {
-			out = out + "%";
+			out = out + " ";
 		}
 //		Serial.println(">" + out  + "<");
 		output.add("" + out);

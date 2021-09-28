@@ -31,6 +31,7 @@ private:
 	int idx = -1;
 	int subidx = 0;
 	LinkedList<String> output = LinkedList<String>();
+	
 };
 
 #endif /* DISPLAY_H_ */

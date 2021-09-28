@@ -13,6 +13,7 @@
 class DisplayBase {
 public:
 	DisplayBase() {};
+	DisplayBase(int cols, int rows) {_cols = cols; _rows = rows;};
 	virtual ~DisplayBase() {};
 	virtual void clear() {};
 	virtual void print(char c) {};
