@@ -63,10 +63,10 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		}
 		cb->send("wifi", "status", status);
 		}
-		if (modul.equals("channel") || modul.equals("*")) {
+		if (key.equals("channel") || key.equals("*")) {
 			cb->send("wifi", "channel", "" + String(WifiCheck::getWifiChannel()));
 		}
-		if (modul.equals("channelAP") || modul.equals("*")) {
+		if (key.equals("channelAP") || key.equals("*")) {
 			cb->send("wifi", "channelAP", String(WifiCheck::getAPChannel()));
 		}
 		if (key.equals("ip sta") || key.equals("*")) {
@@ -86,7 +86,7 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 			cb->send("wifi", "modus", (midx >= 0 && midx <=3)? modes[midx]: "?");
 		}
 	}
-	if (modul.equals("sys") || modul.equals("*")) {
+	if (key.equals("sys") || key.equals("*")) {
 		
 		if (key.equals("compile_date") || key.equals("*")) {
 			cb->send("sys", "compile_date", compile_date);
