@@ -69,11 +69,17 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 		if (key.equals("channelAP") || key.equals("*")) {
 			cb->send("wifi", "channelAP", String(WifiCheck::getAPChannel()));
 		}
-		if (key.equals("ip sta") || key.equals("*")) {
+		if (key.equals("sta ip") || key.equals("*")) {
 			cb->send("wifi", "sta ip", WiFi.localIP().toString());
+		}
+		if (key.equals("sta ip 3") || key.equals("*")) {
+			cb->send("wifi", "sta ip 3", String(WiFi.localIP()[3]));
 		}
 		if (key.equals("ip ap") || key.equals("*")) {
 			cb->send("wifi", "ap ip", WiFi.softAPIP().toString());
+		}
+		if (key.equals("ip ap 3") || key.equals("*")) {
+			cb->send("wifi", "ip ap 3", String(WiFi.softAPIP()[3]));
 		}
 		if (key.equals("modus") || key.equals("*")) {
 			#ifdef ESP8266
