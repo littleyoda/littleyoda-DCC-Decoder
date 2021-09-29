@@ -76,6 +76,7 @@ private:
 	LinkedList<msg*> receivedQueue= LinkedList<msg*>();
 	static int msgsize;
 	unsigned long last = 0;
+	unsigned long lastCheck = 0;
 	unsigned long messageCount = 0;
 	unsigned long messageCmdReceived = 0;
 	unsigned long messageCmdSend = 0;
@@ -89,11 +90,11 @@ private:
 	uint32_t myid;
 	String myidString;
 	String status;
-	String oldstatus;
 	std::vector<int> loklist;
 	bool init = false;
 	uint32_t getID();
-
+	int espnowChannel;
+	int master_clientsFound = 0;
 	void checkAP(int kanal);
 	void sendEchoReply();
 	void sendEchoRequest();

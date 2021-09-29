@@ -25,15 +25,17 @@ void CmdReceiverESPNOW::setKey(String masterkey) {
 CmdReceiverESPNOW::CmdReceiverESPNOW(Controller* c, String rollenName, String masterkey, int kanal) : Z21Format(c) {
 	setModulName("ESPNOW");
 
-	oldstatus = "";
-	status = "";
+	status = "Init";
 	instance = this;
+	espnowChannel = kanal;
 	myid = getID();
 	msgsize = sizeof(msg);
 	Serial.printf("Myid: %08X\r\n", myid);
 	Serial.println("Starting ESP NOW");
 
-	setRolle(rollenName);
+	if (!setRolle(rollenName)) {
+		return;
+	}
 	setKey(masterkey);
 	checkAP(kanal);
 	initESPNOW(kanal);
@@ -47,7 +49,11 @@ CmdReceiverESPNOW::CmdReceiverESPNOW(Controller* c, String rollenName, String ma
 		return;
 	}
 	init = true;
-	status = "No Master";
+	if (rolle == master) {
+		status = "No Clients";
+	} else {
+		status = "No Master";
+	}
 }
 
 bool CmdReceiverESPNOW::setRolle(String rollenName) {
@@ -62,8 +68,10 @@ bool CmdReceiverESPNOW::setRolle(String rollenName) {
 	} else {
 		status = "Role unknown";
 		rolle = unknown;
+		return false;
 	}
 	rolename = rollenName;
+	return true;
 }
 
 CmdReceiverESPNOW::~CmdReceiverESPNOW() {
@@ -96,6 +104,8 @@ int CmdReceiverESPNOW::loop() {
 	// Send a Echo Request every 5 sec, if I'm the master
 	if (rolle == master &&  Utils::timeDiff(last, 5000)) {
 		Serial.println("=============================================" + String(millis()));
+		status = "D: " + String(master_clientsFound);
+		master_clientsFound = 0;
 		sendEchoRequest();
 		last = millis();
 		lastMasterReceived = last; 			
@@ -129,6 +139,25 @@ int CmdReceiverESPNOW::loop() {
 		status = "Master lost";
 		lastMasterReceived = 0;
 	}
+	if (Utils::timeDiff(lastCheck, 5000)) {
+		int32_t sta = WifiCheck::getWifiChannel();
+		int32_t ap = WifiCheck::getAPChannel();
+		boolean staDown = false;
+		if (sta != ap) {
+			Logger::getInstance()->addToLog(LogLevel::ERROR, "Channel AP ST unterschiedlich " + String(ap) + "/" + String(sta));
+			staDown = true;
+		}
+		if (ap != espnowChannel) {
+			Logger::getInstance()->addToLog(LogLevel::ERROR, "Channel für AP für ESP-NOW falsch SOLL:" + String(espnowChannel) + "  Ist: " + String(ap));
+			staDown = true;
+		}
+		if (staDown) {
+			Logger::getInstance()->addToLog(LogLevel::ERROR, "Deaktiviere Station-Modus");
+			WiFi.mode(WIFI_AP); // Must be AP!
+			WiFi.softAP(("sender" + String(myid)).c_str(), "sendersender", espnowChannel);
+		}
+		lastCheck = millis();
+	}
 
 	return 5;
 }
@@ -160,8 +189,6 @@ void CmdReceiverESPNOW::cb_MsgReceived(u8 *mac_addr, u8 *data, u8 len) {
  * Create a Echo Request Message
  */
 void CmdReceiverESPNOW::sendEchoRequest() {
-		oldstatus = status;
-		status = "";
 		msg* m = new msg;
 	   	memset(m, 0, sizeof(msg));
 		m->hops = 0;
@@ -235,11 +262,12 @@ void CmdReceiverESPNOW::handleEchoReply(msg* m) {
 	String hop = String(myid, HEX);
 	Serial.printf("Receive Reply from %02X%02X%02X%02X Hops: %d (%lu)\r\n", m->msg[0], m->msg[1], m->msg[2], m->msg[3], m->hops, millis());
 	Serial.println("I'm " + hop);
-	for (int idx = m->hops ; idx >= 0; idx--) {
-		String id = String(m->msg[idx * 4], HEX) + String(m->msg[idx * 4 + 1], HEX) + String(m->msg[idx * 4 + 2], HEX) + String(m->msg[idx * 4 + 3], HEX);
-		status += "\"" + hop + "\" -> \"" + id + "\";";
-		hop = id;
-	}
+	master_clientsFound++;
+	// for (int idx = m->hops ; idx >= 0; idx--) {
+	// 	String id = String(m->msg[idx * 4], HEX) + String(m->msg[idx * 4 + 1], HEX) + String(m->msg[idx * 4 + 2], HEX) + String(m->msg[idx * 4 + 3], HEX);
+	// 	status += "\"" + hop + "\" -> \"" + id + "\";";
+	// 	hop = id;
+	// }
 }
 
 void CmdReceiverESPNOW::getInternalStatus(IInternalStatusCallback* cb, String key) {
@@ -371,10 +399,8 @@ void CmdReceiverESPNOW::handleReceived() {
 			sendQueue.add(m);
 		}
 		if (m->typ == messagetyps::z21FromMaster) {
-			if (lastMasterReceived == 0) {
-				status="no Connection";
-			}
 			lastMasterReceived = last; 	
+			status = "Connect";
 			messageCmdReceived++;		
 			if (rolle != master) {
 				bool p = parseServer2Client(m->msg, m->msg[0]);
