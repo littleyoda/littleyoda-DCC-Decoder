@@ -380,3 +380,8 @@ void CmdZentraleZ21::sendDCCFun(int addr, LocData* data, unsigned int changedBit
 	Serial.println("Changed Bit");
 	sendDCCSpeed(addr,data);
 }
+
+void CmdZentraleZ21::setTimeout(int timeout) {
+	Logger::log(LogLevel::INFO, "Timeout: " + String(timeout) + " msec");
+	emergencyStopTimeout = timeout;
+}

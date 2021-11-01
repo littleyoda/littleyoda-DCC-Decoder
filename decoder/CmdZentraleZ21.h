@@ -35,6 +35,7 @@ public:
 	virtual void sendSetSensor(uint16_t id, uint8_t status);
 	virtual void sendDCCSpeed(int addr, LocData* data);
 	virtual void sendDCCFun(int id, LocData* d,  unsigned int changedBit);
+	void setTimeout(int timeout);
 //	String getInternalStatus(String key);
 protected:
 	virtual void adjustBroadcast(int addr);
@@ -73,7 +74,7 @@ private:
 //	void handleSetLocoFunc(unsigned int locoid);
 
 	unsigned long lastBroadcastTime = 0;
-	static const int emergencyStopTimeout = 4200;
+	int emergencyStopTimeout = 4200;
 
 	LinkedList<Z21Clients*> clients = LinkedList<Z21Clients*>();
 	Z21Clients* getClient(IPAddress addr, uint16_t port);

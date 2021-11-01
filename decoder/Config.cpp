@@ -422,6 +422,9 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		#ifndef FLASH1MB
 		} else if (m.equalsIgnoreCase("simulateZ21")) {
 			CmdZentraleZ21* rec = new CmdZentraleZ21(controller);
+			if (parser->keyExists(idx, "timeout")) {
+				rec->setTimeout(parser->getValueByKey(idx, "timeout").toInt() * 1000);
+			}
 			controller->registerCmdReceiver(rec);
 			controller->registerCmdSender(rec);
 			controller->registerStatus(rec);
