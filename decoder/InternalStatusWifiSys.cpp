@@ -92,7 +92,7 @@ void InternalStatusWifiSys::getInternalStatus(IInternalStatusCallback* cb, Strin
 			cb->send("wifi", "modus", (midx >= 0 && midx <=3)? modes[midx]: "?");
 		}
 	}
-	if (key.equals("sys") || key.equals("*")) {
+	if (modul.equals("sys") || modul.equals("*")) {
 		
 		if (key.equals("compile_date") || key.equals("*")) {
 			cb->send("sys", "compile_date", compile_date);
