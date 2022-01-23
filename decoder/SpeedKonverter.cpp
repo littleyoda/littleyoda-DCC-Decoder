@@ -74,6 +74,7 @@ String SpeedKonverter::fromInternal(int value) {
 int SpeedKonverter::fromExternal(int speedSteps, int value) {
 	switch (speedSteps) {
 		case 128:
+		case 127:
 			for (int idx = 0; idx < 128; idx++) {
 				if (dcc128[idx] == value) {
 					return idx;
@@ -88,6 +89,7 @@ int SpeedKonverter::fromExternal(int speedSteps, int value) {
 			}
 			break;
 		case 28:
+		case 29:
 			for (int idx = 0; idx < 128; idx++) {
 				if (dcc28[idx] == value) {
 					return idx;
