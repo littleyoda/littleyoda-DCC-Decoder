@@ -35,7 +35,7 @@ int SpeedKonverter::fromInternal(representations rep, int value) {
 		case repPercent:
 			return prozent[value];
 		default:
-			Logger::log(LogLevel::ERROR, "CONV", "Ungültige Rep " + String(value));
+			Logger::log(LogLevel::ERROR, "CONV", "Ungültige Rep (fi) " + String(rep));
 			return 0;
 	}
 }
@@ -57,7 +57,7 @@ int SpeedKonverter::fromInternal(int  speedSteps, int value) {
 		case 100:
 			return prozent[value];
 		default:
-			Logger::log(LogLevel::ERROR, "CONV", "Ungültige Rep " + String(value));
+			Logger::log(LogLevel::ERROR, "CONV", "Ungültige Speedsteps (fi) " + String(speedSteps));
 			return 0;
 	}
 }
