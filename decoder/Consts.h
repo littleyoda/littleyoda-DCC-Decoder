@@ -28,6 +28,10 @@ public:
 
 	const static int LOCID_ALL = -1;
 
+	const static int SPEEDSTEPS_128_127 = 128;
+	const static int SPEEDSTEPS_100 = 100;
+	const static int SPEEDSTEPS_28_27 = 28;
+	const static int SPEEDSTEPS_14 =  14;
 
 	const static int SOURCE_DCC = 1;
 	const static int SOURCE_WLAN = 0;
