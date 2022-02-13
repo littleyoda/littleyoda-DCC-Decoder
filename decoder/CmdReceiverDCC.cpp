@@ -55,8 +55,14 @@ void CmdReceiverDCC::handleTurnOut(uint16_t Addr, uint8_t Direction) {
 
 void CmdReceiverDCC::handleDccSpeed(uint16_t Addr, uint8_t Speed,
 		DCC_DIRECTION Dir, DCC_SPEED_STEPS SpeedSteps) {
-	controller->notifySpeeSteps(Addr, SpeedSteps);
-	Speed = SpeedKonverter::fromExternal(SpeedSteps, Speed);
+	int steps = 0;
+	if (SpeedSteps == DCC_SPEED_STEPS::SPEED_STEP_128) {
+		steps = Consts::SPEEDSTEPS_128_127;
+	} else if (SpeedSteps == DCC_SPEED_STEPS::SPEED_STEP_28) {
+		steps = Consts::SPEEDSTEPS_28_27;
+	}
+	controller->notifySpeeSteps(Addr, steps);
+	Speed = SpeedKonverter::fromExternal(steps, Speed);
 	controller->notifyDCCSpeed(Addr, Speed, (Dir == 1) ? Dir : Consts::SPEED_REVERSE, 0);
 }
 
