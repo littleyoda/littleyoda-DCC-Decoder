@@ -14,6 +14,7 @@
 #include "ActionServo.h"
 #include "ActionLed.h"
 #include "ActionPWMOutput.h"
+#include "ActionPWMPid.h"
 #include "ActionPWMDirect.h"
 #include "ActionDCCGeneration.h"
 #include "ActionSUSIGeneration.h"
@@ -202,6 +203,8 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 				int addr = parser->getValueByKey(idx, "i2caddr", "48").toInt();
 				int midx = parser->getValueByKey(idx, "motoridx", "0").toInt();
 				a = new ActionPWMSchieldV1Output(addr, midx);
+			} else if (type.equals("pid")) {
+				a = new ActionPWMPid();
 			} else {
 				Logger::log(LogLevel::ERROR, "Unbekannter Type: " + type);
 			}

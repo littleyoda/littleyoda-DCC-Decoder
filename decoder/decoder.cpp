@@ -1,6 +1,10 @@
 // Defines to save heap space
+
+// #include <Arduino.h>
+
+
 #define NO_GLOBAL_SERIAL1
-#include <Arduino.h>
+
 #include "lwip/init.h"
 #include "Controller.h"
 
@@ -8,11 +12,11 @@
 #include "Utils.h"
 #include "DoubleBootDetection.h"
 
+
 #include "Config.h"
 
-#include "Transfer.h"
 
-Controller* controller;
+#include "Transfer.h"
 
 #include "ActionLed.h"
 #include "ActionSendTurnoutCommand.h"
@@ -26,6 +30,16 @@ Controller* controller;
 #include "FS.h"
 #ifdef ESP32
 	#include "SPIFFS.h"
+//	#include "pid.h"  // passt dann nicht mehr ins Flash
+#endif
+
+
+
+Controller* controller; 
+
+//#include <FreeRTOS.h>
+#ifdef ESP32
+	TaskHandle_t Task2;
 #endif
 
 Transfer* transfer;
@@ -44,9 +58,11 @@ void initWifi() {
 	WiFi.disconnect();
 }
 
+
 /**
  * Auswertung der Configuration (json-Format)
  */
+
 void loadCFG(Webserver* web) {
 	File configFile = SPIFFS.open("/config.json", "r");
 	if (!configFile) {
@@ -96,6 +112,7 @@ void loadCFG(Webserver* web) {
 bool scanRunning = false;
 const char* debugmodus="debug";
 int debugmodusPos = 0;
+
 
 void handleSerial() {
 	if (Serial.available() == 0 && transfer->transfermode) {
@@ -350,10 +367,53 @@ void handleSerial() {
 }
 
 
+
+#ifdef ESP32
+//the Framework
+void Task2code( void * pvParameters ) {
+    
+  delay(1500);
+  Serial.print("Task2 (Framework) starting ");
+  Serial.println();
+  Serial.print("Task2 (Framework) running on core ");
+  Serial.println(xPortGetCoreID());
+  Serial.println();
+
+  for(;;){
+	controller->doLoops();
+	handleSerial();
+//	poti = analogRead(35);  // temporär, bis ich die Geschwindigkeit aus dem Framework habe
+  }
+}
+
+#endif
+
 void setup() {
 	Serial.begin(115200);
 	Serial.println("-------------------------------------------------");
 	Serial.println("[MEM] "  + String(ESP.getFreeHeap()) + " / Setup");
+	pinMode(2, OUTPUT);
+	pinMode(32, OUTPUT);
+	pinMode(33, OUTPUT);
+
+	
+
+#ifdef ESP32
+  //create a task that will be executed in the Task1code() function (speedController) , with priority 1 and executed on core 1
+	
+  //create a task that will be executed in the Task2code() function (Framework), with priority 1 and executed on core 0
+  xTaskCreatePinnedToCore(
+                    Task2code,   /* Task function. */ 
+                    "Framework",     /* name of task. */
+                    100000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &Task2,      /* Task handle to keep track of created task */
+                    1);          /* pin task to core 1 */                  
+  delay(500); 
+#endif
+  
+
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Started!");
 	#ifdef ARDUINO_MH_ET_LIVE_ESP32MINIKIT
 		Logger::getInstance()->addToLog(LogLevel::INFO, "Sonderfall ESP32 Minikit: Bei der Eingabe von Befehlen über die Serielle Schnittstelle RTS/CTS deaktivieren.");
@@ -376,9 +436,16 @@ void setup() {
 	Serial.println(GPIOobj.getUsage("\r\n"));
 	Logger::getInstance()->addToLog(LogLevel::INFO, "Setup finish!");
 	controller->longestLoop = 0;
+	
 }
 
+
 void loop() {
-	controller->doLoops();
-	handleSerial();
+	#ifdef ESP32
+//		delay(1000);  //system doesn't like empty loop() -> no, not required
+	#elif ESP8266
+		controller->doLoops();
+		handleSerial();
+	#endif
 }
+
