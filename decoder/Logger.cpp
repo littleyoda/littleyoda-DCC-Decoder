@@ -193,28 +193,28 @@ void Logger::log(LogLevel loglevel, String modul, String s) {
 }
 
 void Logger::changeLogLevel(int diff) {
-	#ifdef ESP8266
-	getInstance()->Debug.setLogLevel(getInstance()->Debug.getLogLevel() + diff);
-	String out = "";
-	switch (getInstance()->Debug.getLogLevel()) {
-		case LogLevel::TRACE: 
-			out = "TRACE";
-			break;
-		case LogLevel::DEBUG:
-			out = "DEBUG";
-			break;
-		case LogLevel::INFO:
-			out = "INFO";
-			break;
-		case LogLevel::WARNING:
-			out = "WARNING";
-			break;
-		case LogLevel::ERROR:
-			out = "ERROR";
-			break;
-		default:
-			out = "UNKNOWN";
-	}
-	log(LogLevel::ERROR, "Loglevel: " + out);
-	#endif
+	// TODO #ifdef ESP8266
+	// getInstance()->Debug.setLogLevel(getInstance()->Debug.getLogLevel() + diff);
+	// String out = "";
+	// switch (getInstance()->Debug.getLogLevel()) {
+	// 	case LogLevel::TRACE: 
+	// 		out = "TRACE";
+	// 		break;
+	// 	case LogLevel::DEBUG:
+	// 		out = "DEBUG";
+	// 		break;
+	// 	case LogLevel::INFO:
+	// 		out = "INFO";
+	// 		break;
+	// 	case LogLevel::WARNING:
+	// 		out = "WARNING";
+	// 		break;
+	// 	case LogLevel::ERROR:
+	// 		out = "ERROR";
+	// 		break;
+	// 	default:
+	// 		out = "UNKNOWN";
+	// }
+	// log(LogLevel::ERROR, "Loglevel: " + out);
+	// #endif
 }

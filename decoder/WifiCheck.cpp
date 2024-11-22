@@ -24,23 +24,23 @@
 #ifdef ESP32
 void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
 	WifiCheck::connectedClients++;
-	Logger::log(LogLevel::INFO,"Client connected: " + String(info.sta_connected.mac[0],HEX) + "-"
-					 + String(info.sta_connected.mac[1],HEX) + "-"
-		         	 + String(info.sta_connected.mac[2],HEX) + "-"
-		         	 + String(info.sta_connected.mac[3],HEX) + "-"
-		         	 + String(info.sta_connected.mac[4],HEX) + "-"
-		         	 + String(info.sta_connected.mac[5],HEX));
+	Logger::log(LogLevel::INFO,"Client connected: " + String(info.wifi_ap_staconnected.mac[0],HEX) + "-"
+					 + String(info.wifi_ap_staconnected.mac[1],HEX) + "-"
+		         	 + String(info.wifi_ap_staconnected.mac[2],HEX) + "-"
+		         	 + String(info.wifi_ap_staconnected.mac[3],HEX) + "-"
+		         	 + String(info.wifi_ap_staconnected.mac[4],HEX) + "-"
+		         	 + String(info.wifi_ap_staconnected.mac[5],HEX));
 	Logger::log(LogLevel::INFO,String (WifiCheck::connectedClients)  + " Clients connected");
 }
 
 void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
 	WifiCheck::connectedClients--;
-	Logger::log(LogLevel::INFO,"Client Disconnected: " + String(info.sta_connected.mac[0],HEX) + "-"
-					 + String(info.sta_connected.mac[1],HEX) + "-"
-		         	 + String(info.sta_connected.mac[2],HEX) + "-"
-		         	 + String(info.sta_connected.mac[3],HEX) + "-"
-		         	 + String(info.sta_connected.mac[4],HEX) + "-"
-		         	 + String(info.sta_connected.mac[5],HEX));
+	Logger::log(LogLevel::INFO,"Client Disconnected: " + String(info.wifi_ap_staconnected.mac[0],HEX) + "-"
+					+ String(info.wifi_ap_staconnected.mac[1],HEX) + "-"
+					+ String(info.wifi_ap_staconnected.mac[2],HEX) + "-"
+					+ String(info.wifi_ap_staconnected.mac[3],HEX) + "-"
+					+ String(info.wifi_ap_staconnected.mac[4],HEX) + "-"
+					+ String(info.wifi_ap_staconnected.mac[5],HEX));
 	Logger::log(LogLevel::INFO,String (WifiCheck::connectedClients)  + " Clients connected");
 }
 
@@ -134,8 +134,8 @@ WifiCheck::WifiCheck(Controller* c) {
 	controll = c;
 	#ifdef ESP32
 	WiFi.onEvent(WiFiEvent);
-	WiFi.onEvent(WiFiStationConnected, SYSTEM_EVENT_AP_STACONNECTED);
-  	WiFi.onEvent(WiFiStationDisconnected, SYSTEM_EVENT_AP_STADISCONNECTED);
+	WiFi.onEvent(WiFiStationConnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_CONNECTED);
+ 	WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
 	#endif 
 }
 

@@ -9,7 +9,6 @@
 #include "Consts.h"
 #include "Logger.h"
 #ifdef ESP32
-#include "analogWrite.h"
 #include "ESP32_Servo.h"
 
 PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinOffset) {
@@ -36,7 +35,7 @@ PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinO
 	for (int i = 0; i < len; i++) {
 			addESP32Pin(pins[i]);
 	}
-	analogWriteResolution(13);
+	analogWriteResolution(10);
 }
 
 
@@ -56,7 +55,7 @@ void PortsESP32::digitalWrite(uint16_t pin, uint8_t val) {
 	::digitalWrite(pin, val);
 }
 void PortsESP32::analogWrite(uint16_t pin, int val) {
-	::analogWrite(pin, val, 1023);
+	::analogWrite(pin, val);
 }
 bool PortsESP32::initServo(uint8_t pin){
   if (!servoList.get(pin)){
