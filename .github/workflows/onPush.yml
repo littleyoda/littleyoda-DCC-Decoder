@@ -38,35 +38,8 @@ jobs:
         commit-ish: 'HEAD~'
         # if you unshallow in a separate step, use the following option:
         # skip-unshallow: 'true'
-    - name: Prepare for Compile
-      run: |
-        sed -i "s/default_envs = .*//g"  platformio.ini 
-        sed -i "s/env_default = .*//g"  platformio.ini 
-        sed -i "s/{NONGITVERSION}/`git describe --tags`/g" decoder/Consts.h 
-        git describe --tags
-        grep git decoder/Consts.h
-    - name: Compile
-      run: pio run
-    - name: Collect Firmware Files
-      run: |
-        mkdir release
-        cp ./.pio/build/nodemcuv2/firmware.bin release/littleyoda-DCC-Decoder.nodemcuv2.bin
-        cp ./.pio/build/esp8285/firmware.bin release/littleyoda-DCC-Decoder.esp8285.bin
-        cp ./.pio/build/d1_mini/firmware.bin release/littleyoda-DCC-Decoder.d1_mini.bin
-        cp ./.pio/build/d1_mini_pro/firmware.bin release/littleyoda-DCC-Decoder.d1_mini_pro.bin
-        cp ./.pio/build/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
-        cp ./.pio/build/esp8285min/firmware.bin release/littleyoda-DCC-Decoder.esp8285min.bin
-        for i in esp32dev esp32full mhetesp32minikit esp32lego
-        do
-          dir=_$i
-          mkdir $dir
-          cp ~/.platformio/packages/framework-arduinoespressif32/tools/sdk/bin/bootloader_dio_40m.bin $dir/0x1000
-          cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin $dir/0xe000
-          cp ./.pio/build/$i/partitions.bin $dir/0x8000
-          cp ./.pio/build/$i/firmware.bin $dir/0x10000
-          zip -j release/littleyoda-DCC-Decoder.${i}.ly32 $dir/0x*
-        done
-        find release _* -ls
+    - name: Build
+      run: ./.github/bin/build
 
     - name: Deploy to gh-pages
       uses: JamesIves/github-pages-deploy-action@3.7.1

@@ -1,0 +1,35 @@
+#!/bin/bash
+sed -i "s/default_envs = .*//g"  platformio.ini 
+sed -i "s/env_default = .*//g"  platformio.ini 
+sed -i "s/{NONGITVERSION}/`git describe --tags`/g" decoder/Consts.h 
+git describe --tags
+grep git decoder/Consts.h
+pio run || exit 1
+mkdir release
+cp ./.pio/build/nodemcuv2/firmware.bin release/littleyoda-DCC-Decoder.nodemcuv2.bin
+cp ./.pio/build/esp8285/firmware.bin release/littleyoda-DCC-Decoder.esp8285.bin
+cp ./.pio/build/d1_mini/firmware.bin release/littleyoda-DCC-Decoder.d1_mini.bin
+cp ./.pio/build/d1_mini_pro/firmware.bin release/littleyoda-DCC-Decoder.d1_mini_pro.bin
+cp ./.pio/build/nodemcu/firmware.bin release/littleyoda-DCC-Decoder.nodemcu.bin
+for i in esp32dev esp32full mhetesp32minikit
+do
+	dir=_$i
+	mkdir $dir
+	cp ./.pio/build/$i/bootloader.bin $dir/0x1000
+	cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin $dir/0xe000
+	cp ./.pio/build/$i/partitions.bin $dir/0x8000
+	cp ./.pio/build/$i/firmware.bin $dir/0x10000
+	zip -j release/littleyoda-DCC-Decoder.${i}.ly32 $dir/0x*
+done
+for i in seeed_xiao_esp32c3
+do
+	dir=_$i
+	mkdir $dir
+	cp ./.pio/build/$i/bootloader.bin $dir/0x0000
+	cp ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/boot_app0.bin $dir/0xe000
+	cp ./.pio/build/$i/partitions.bin $dir/0x8000
+	cp ./.pio/build/$i/firmware.bin $dir/0x10000
+	zip -j release/littleyoda-DCC-Decoder.${i}.ly32 $dir/0x*
+done
+
+find release _* -ls
