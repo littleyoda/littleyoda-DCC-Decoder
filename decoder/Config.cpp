@@ -408,8 +408,9 @@ void Config::parseCfg(Controller* controller, Webserver* web, String n) {
 		#ifndef FLASH1MB
 		} else if (m.equals("dcc")) {
 			int gpio = GPIOobj.string2gpio(parser->getValueByKey(idx, "gpio"));
-			controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
-
+			if (gpio != Consts::DISABLE) {
+				controller->registerCmdReceiver(new CmdReceiverDCC(controller, gpio, gpio));
+			}
 		#endif 
 		} else if (m.equals("z21")) {
 			Consts::DEFAULTSPEEDSTEPS = parser->getValueByKey(idx, "defaultspeedsteps", "128").toInt();
