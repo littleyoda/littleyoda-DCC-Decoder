@@ -8,6 +8,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.d1_mini.bin",
 "arch":"esp8266",
 "status":"release"
+,"id": "1"
 },
 {
 "board":"ESP8265: esp8285",
@@ -15,6 +16,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.esp8285.bin",
 "arch":"esp8265",
 "status":"release"
+,"id": "2"
 
 },
 {
@@ -23,6 +25,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.nodemcu.bin",
 "arch":"esp8266",
 "status":"release"
+,"id": "3"
 
 },
 {
@@ -31,6 +34,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.nodemcuv2.bin",
 "arch":"esp8266",
 "status":"release"
+,"id": "4"
 
 },
 {
@@ -39,6 +43,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.esp32dev.ly32",
 "arch":"esp32",
 "status":"release"
+,"id": "5"
 
 },
 {
@@ -47,6 +52,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.esp32full.ly32",
 "arch":"esp32",
 "status":"release"
+,"id": "6"
 
 },
 {
@@ -55,6 +61,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/releases/download/v1.3.0/littleyoda-DCC-Decoder.mhetesp32minikit.ly32",
 "arch":"esp32",
 "status":"release"
+,"id": "7"
 
 },
 
@@ -64,6 +71,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.d1_mini.bin",
 "arch":"esp8266",
 "status":"alpha/beta"
+,"id": "8"
 },
 {
 "board":"d1_mini_pro",
@@ -71,6 +79,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.d1_mini_pro.bin",
 "arch":"esp8266",
 "status":"alpha/beta"
+,"id": "9"
 },
 {
 "board":"esp32dev",
@@ -78,6 +87,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.esp32dev.ly32",
 "arch":"esp32",
 "status":"alpha/beta"
+,"id": "10"
 },
 {
 "board":"esp32full",
@@ -85,6 +95,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.esp32full.ly32",
 "arch":"esp32",
 "status":"alpha/beta"
+,"id": "11"
 },
 {
 "board":"esp8285",
@@ -92,6 +103,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.esp8285.bin",
 "arch":"esp8285",
 "status":"alpha/beta"
+,"id": "12"
 },
 {
 "board":"mhetesp32minikit",
@@ -99,6 +111,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.mhetesp32minikit.ly32",
 "arch":"esp32",
 "status":"alpha/beta"
+,"id": "13"
 },
 {
 "board":"nodemcu",
@@ -106,6 +119,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.nodemcu.bin",
 "arch":"esp8266",
 "status":"alpha/beta"
+,"id": "14"
 },
 {
 "board":"nodemcuv2",
@@ -113,6 +127,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.nodemcuv2.bin",
 "arch":"esp8266",
 "status":"alpha/beta"
+,"id": "15"
 },
 {
 "board":"esp32 with Lego Support",
@@ -120,6 +135,7 @@
 "url":"https://github.com/littleyoda/littleyoda-DCC-Decoder/raw/gh-pages/littleyoda-DCC-Decoder.esp32lego.ly32",
 "arch":"esp32",
 "status":"alpha/beta"
+,"id": "16"
 }
 ]
 }
