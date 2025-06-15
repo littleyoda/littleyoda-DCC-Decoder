@@ -18,12 +18,12 @@ public:
 	virtual ~ActionPWMOutput();
 	virtual String getHTMLController(String urlprefix);
 	virtual void getHTMLConfig(String urlprefix, Controller* c);
-	void setPwmValues(uint8_t* arr);
-	uint8_t getValue(uint8_t pos);
+	void setPwmRampe(uint8_t* arr);
+	long handlePwmRampe(long pos);
 	virtual void setFreq(uint32_t value);
 
 private:
-	uint8_t* arr;
+	uint8_t* pwmRampe = nullptr;
 };
 
 #endif /* ACTIONPWMOUTPUT_H_ */

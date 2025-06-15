@@ -52,7 +52,8 @@ void ActionPWMDirect::setSettings(String key, String value) {
 		} else {
 			setDirection(1);
 		}
-		int s = GPIOobj.getPWMRange() * abs(value.toInt()) / 100;
+
+		int s = GPIOobj.getPWMRange() * handlePwmRampe((value.toInt())) / 127;
 		setSpeedInProcent(s);
 	} else if (key.equals("freq")) {
 		setFreq(value.toInt());
