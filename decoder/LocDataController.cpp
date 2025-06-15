@@ -169,7 +169,7 @@ void LocDataController::setSettings(String key, String value) {
     }
 
     boolean changed = false;
-    if (key.equalsIgnoreCase("relSpeed") || key.equalsIgnoreCase("setSpeed") || key.equalsIgnoreCase("toggleDir")) {
+    if (key.equalsIgnoreCase("relSpeed") || key.equalsIgnoreCase("setSpeed") || key.equalsIgnoreCase("setDirectionSpeed") || key.equalsIgnoreCase("toggleDir")) {
             int16_t speed = locdata->speed;
             int8_t dir = locdata->direction;
             if (key.equalsIgnoreCase("relSpeed")) {
@@ -193,6 +193,18 @@ void LocDataController::setSettings(String key, String value) {
             } else if (key.equalsIgnoreCase("toggleDir") && value == "1") {
                 speed = Consts::SPEED_STOP;
                 dir = -dir;
+                changed = true;
+            } else if (key.equalsIgnoreCase("setDirectionSpeed")) {
+                speed = value.toInt();
+                if (speed < 0) {
+                    dir = -1;
+                } else {
+                    dir = 1;
+                }
+                speed = abs(speed);
+                if (speed > 127) {
+                    speed = 127;
+                }
                 changed = true;
             }
             if (changed) {
