@@ -366,7 +366,7 @@ void Webserver::handleFilelist() {
 			if (!file.isDirectory()) {
 				output += "<tr><td>";
 				output += "<a href=\"" + String(file.name()) + "\">";
-				output += String(file.name()).substring(1);
+				output += file.name();
 				output += "</a>";
 				output += "</td><td>";
 				output += String(file.size());

@@ -200,10 +200,9 @@ int WifiCheck::loop() {
 		Serial.println("Wifi Begin");
 			WiFi.begin();
 			return 3000;
-		default:
-			return 100;
 	}
 	#endif
+	return 100;
 }
 
 

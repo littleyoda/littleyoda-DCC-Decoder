@@ -180,8 +180,9 @@ void SPINonClockingClass::setFrequency(uint32_t freq) {
 				memcpy(&bestReg, &reg, sizeof(bestReg));
 				break;
 			} else if(calFreq < (int32_t) freq) {
-				// never go over the requested frequency
-				if(abs(freq - calFreq) < abs(freq - bestFreq)) {
+				auto cal = std::abs(static_cast<int32_t>(freq) - calFreq);
+                auto best = std::abs(static_cast<int32_t>(freq) - bestFreq);
+                if(cal < best) {
 					bestFreq = calFreq;
 					memcpy(&bestReg, &reg, sizeof(bestReg));
 				}

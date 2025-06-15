@@ -300,6 +300,6 @@ int GPIOClass::getPWMRange() {
 	#ifdef ESP32
 		return 1024;
 	#else
-		return PWMRANGE;
+		return 255;
 	#endif
 }
