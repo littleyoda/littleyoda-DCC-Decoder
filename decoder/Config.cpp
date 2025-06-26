@@ -262,7 +262,7 @@ void Config::parseOut(Controller* controller, Webserver* web, String n) {
 						}
 						start = akt;
 					}
-					a->setPwmRampe(arr);
+					a->setPwmProfil(arr);
 				}
 			}
 

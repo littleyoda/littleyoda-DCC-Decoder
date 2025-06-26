@@ -40,7 +40,7 @@ void ActionPWMOutput::getHTMLConfig(String urlprefix, Controller *c) {
 	c->sendContent("<rect x=\"0\" y=\"0\" width=\"640\" height=\"128\"/>");
 	int xfactor = 5;
 	for (int i = 1; i < 128; i++) {
-		c->sendContent("<line x1=\"" + String((i - 1) * xfactor) + "\" y1=\"" + String(127 - handlePwmRampe(i - 1)) + "\" x2=\"" + String(i * xfactor) + "\" y2=\"" + String(127 - handlePwmRampe(i)) + "\"  />");
+		c->sendContent("<line x1=\"" + String((i - 1) * xfactor) + "\" y1=\"" + String(127 - handlePwmProfil(i - 1)) + "\" x2=\"" + String(i * xfactor) + "\" y2=\"" + String(127 - handlePwmProfil(i)) + "\"  />");
 	}
 	for (int i = 1; i < 6; i++) {
 		c->sendContent("<line x1=\"" + String(i * 25 * xfactor) + "\" y1=\"0\" x2=\"" + String(i * 25 * xfactor) + "\" y2=\"128\" />");
@@ -63,22 +63,19 @@ String ActionPWMOutput::getHTMLController(String urlprefix) {
 	return message;
 }
 
-void ActionPWMOutput::setPwmRampe(uint8_t *a) {
+void ActionPWMOutput::setPwmProfil(uint8_t *a) {
 	pwmRampe = a;
 }
 
-long ActionPWMOutput::handlePwmRampe(long pos) {
+long ActionPWMOutput::handlePwmProfil(long pos) {
 	if (pwmRampe != NULL) {
-		if (pos < -127 || pos > 127 )
+		if (pos < 0 || pos > 127 )
 			return pos;
 		if (pos == 0) {
 			return 0;
 		}
 		if (pos > 0) {
 			return pwmRampe[pos];
-		}
-		if (pos < 0) {
-			return -pwmRampe[-pos];
 		}
 		return pwmRampe[pos];
 	}

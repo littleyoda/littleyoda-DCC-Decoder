@@ -18,8 +18,8 @@ public:
 	virtual ~ActionPWMOutput();
 	virtual String getHTMLController(String urlprefix);
 	virtual void getHTMLConfig(String urlprefix, Controller* c);
-	void setPwmRampe(uint8_t* arr);
-	long handlePwmRampe(long pos);
+	void setPwmProfil(uint8_t* arr);
+	long handlePwmProfil(long pos);
 	virtual void setFreq(uint32_t value);
 
 private:
