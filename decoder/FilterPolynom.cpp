@@ -31,17 +31,23 @@ FilterPolynom::~FilterPolynom() {
 	// TODO Auto-generated destructor stub
 }
 
-void FilterPolynom::setSettings(String k, String value) {
-	if (key.equals("*") || key.equalsIgnoreCase(k)) {
+int FilterPolynom::calc(int x) {
 		float out = 0.0;
-		float x = value.toInt();
+
 		polyValues* pv;
 		for(int i = 0; i < polynom.size(); i++){
 			pv = polynom.get(i);
 			out = out +
 			    pv->a * pow((x - pv->xdiff), pv->y);
 		}
-		send(k, String(std::round(out)));
+		return (int) std::round(out);
+}
+
+void FilterPolynom::setSettings(String k, String value) {
+	if (key.equals("*") || key.equalsIgnoreCase(k)) {
+		float x = value.toInt();
+		int out = calc(x);
+		send(k, String(out));
 	} else {
 		send(k, value);
 	}

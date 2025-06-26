@@ -19,6 +19,7 @@ public:
 	void addPolynom(String typ, float a, float xdiff, float y);
 	virtual ~FilterPolynom();
 	virtual void setSettings(String key, String value);
+	int calc(int value);
 private:
 	struct polyValues {
 		float a;
