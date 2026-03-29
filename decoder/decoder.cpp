@@ -33,11 +33,13 @@ Transfer* transfer;
 
 void initWifi() {
 	Serial.println("Starting Wifi...");
-	WiFi.setAutoConnect(false);
-	WiFi.persistent(false);
 	#ifdef ESP8266
+		WiFi.setAutoConnect(false);
+		WiFi.persistent(false);
 		WiFi.hostname(controller->getHostname());
-	#elif ESP32
+	#elif defined(ESP32)
+		WiFi.setAutoReconnect(false);
+		WiFi.persistent(false);
 		WiFi.setHostname(controller->getHostname().c_str());
 	#endif
 	WiFi.mode(WIFI_OFF);
@@ -305,7 +307,7 @@ void handleSerial() {
 
 				#ifdef ESP8266
 					WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan, hidden_scan);
-				#elif ESP32
+				#elif defined(ESP32)
 					WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan);
 				#endif
 
@@ -328,7 +330,7 @@ void handleSerial() {
 				message += " ";
 				#ifdef ESP8266
 					message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? "OPEN" : "ENC ";
-				#elif ESP32
+				#elif defined(ESP32)
 					message += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "OPEN" : "ENC ";
 				#endif
 				message += "  Q:";

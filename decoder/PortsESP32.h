@@ -9,8 +9,9 @@
 #define PORTSESP32_H_
 #ifdef ESP32
 #include <Arduino.h>
+#include <map>
 #include "Ports.h"
-#include "ESP32_Servo.h"
+#include "ESP32Servo.h"
 
 class PortsESP32 : public Ports{
 public:
@@ -24,8 +25,10 @@ public:
 	static void setFreq(double f);
 private:
 	void addESP32Pin(int x);
-  LinkedList<Servo*> servoList;
-  bool initServo(uint8_t pin);
+	std::map<int, Servo*> servoMap;
+	LinkedList<uint16_t> analogWritePins;
+  	bool initServo(uint8_t pin);
+  	static double analogwritefrequency;
 };
 
 #endif

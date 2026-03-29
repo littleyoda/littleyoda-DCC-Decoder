@@ -370,11 +370,12 @@ void CmdReceiverESPNOW::initESPNOW(int kanal) {
    		slave.encrypt = 0; // no encryption
 		const esp_now_peer_info_t *peer = &slave;
 		esp_now_add_peer(peer);
+	// TODO Fix me	esp_now_register_recv_cb(CmdReceiverESPNOW::cb_MsgReceived);
 	#endif
 	#ifdef ESP8266
 		esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
+		esp_now_register_recv_cb(CmdReceiverESPNOW::cb_MsgReceived);
 	#endif
-	esp_now_register_recv_cb(CmdReceiverESPNOW::cb_MsgReceived);
 }
 
 void CmdReceiverESPNOW::handleReceived() {

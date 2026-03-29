@@ -24,7 +24,7 @@
 #ifdef ESP8266
 ESP8266WebServer* Webserver::server = 0;
 ESP8266HTTPUpdateServer* Webserver::httpUpdater = 0;
-#elif ESP32
+#elif defined(ESP32)
 WebServer* Webserver::server = 0;
 #endif
 
@@ -37,7 +37,7 @@ Webserver::Webserver(Controller* c) {
 	controll = c;
 #ifdef ESP8266
 	server = new ESP8266WebServer(80);
-#elif ESP32
+#elif defined(ESP32)
 	server = new WebServer(80);
 #endif
 
@@ -67,7 +67,7 @@ Webserver::Webserver(Controller* c) {
 	httpUpdater->setup(server, update_path, "admin", "admin");
 	
 	server->begin(); // Only for ESP8266; Bug in ESP 32 Framework; see below
-#elif ESP32
+#elif defined(ESP32)
 	server->on("/firmware", HTTP_GET, [](){
     	server->sendHeader("Connection", "close");
     	server->send(200, "text/html", F("<form method='POST' action='/firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"));
@@ -358,7 +358,7 @@ void Webserver::handleFilelist() {
 		output += "</a>";
 		output += "</td></tr>";
 	}
-#elif ESP32
+#elif defined(ESP32)
 	fs::File root = SPIFFS.open("/");
 	if (root && root.isDirectory()) {
 		File file = root.openNextFile();

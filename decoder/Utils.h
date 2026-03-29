@@ -57,7 +57,7 @@ public:
 
 			#ifdef ESP8266
 				WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan, hidden_scan);
-			#elif ESP32
+			#elif defined(ESP32)
 				WiFi.getNetworkInfo(i, ssid_scan, sec_scan, rssi_scan, BSSID_scan, chan_scan);
 			#endif
 
@@ -80,7 +80,7 @@ public:
 			message += " ";
 			#ifdef ESP8266
 				message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? "OPEN" : "ENC ";
-			#elif ESP32
+			#elif defined(ESP32)
 				message += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? "OPEN" : "ENC ";
 			#endif
 			message += "  Q:";
@@ -148,7 +148,7 @@ public:
 	static IPAddress getbroadcastIP() {
 		#ifdef ESP32
 			return WiFi.broadcastIP();
-		#elif ESP8266
+		#elif defined(ESP8266)
 			IPAddress subnet;
 			IPAddress gateway;
 			subnet = WiFi.subnetMask();

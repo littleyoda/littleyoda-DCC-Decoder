@@ -8,7 +8,7 @@
 #include <WiFiClient.h>
 	#ifdef ESP8266
 #include <ESP8266WiFi.h>
-	#elif ESP32
+	#elif defined(ESP32)
 #include <WiFi.h>
 	#endif
 
@@ -50,7 +50,7 @@ void WebserviceWifiScanner::run() {
 
 		#ifdef ESP8266
 			message += (WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "ENC";
-		#elif ESP32
+		#elif defined(ESP32)
 			message += (WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "ENC";
 		#endif
 		message += "</td></tr>\n";

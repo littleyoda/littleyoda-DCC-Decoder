@@ -11,7 +11,7 @@
 
 #ifdef ESP8266
 	#include <ESP8266WebServer.h>
-#elif ESP32
+#elif defined(ESP32)
 	#include <WebServer.h>
 #endif
 
@@ -30,7 +30,7 @@ public:
 	virtual void run() = 0;
 #ifdef ESP8266
 	void setServer(ESP8266WebServer* server);
-#elif ESP32
+#elif defined(ESP32)
 	void setServer(WebServer* server);
 #endif
 
@@ -40,7 +40,7 @@ public:
 protected:
 #ifdef ESP8266
 	ESP8266WebServer* server;
-#elif ESP32
+#elif defined(ESP32)
 	WebServer* server;
 #endif
 

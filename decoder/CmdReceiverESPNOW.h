@@ -19,7 +19,7 @@
 	#include <espnow.h>
 	#include "user_interface.h"
 	}
-#elif ESP32
+#elif defined(ESP32)
 	#include <Arduino.h>
 	#include <esp_now.h>
 	#include <WiFi.h>

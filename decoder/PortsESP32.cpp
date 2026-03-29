@@ -9,7 +9,9 @@
 #include "Consts.h"
 #include "Logger.h"
 #ifdef ESP32
-#include "ESP32_Servo.h"
+
+double PortsESP32::analogwritefrequency = 0;
+
 
 PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinOffset) {
 	add("DISABLE", Consts::DISABLE, Consts::DISABLE, 0);
@@ -35,9 +37,8 @@ PortsESP32::PortsESP32(LinkedList<pinInfo*>* pi, int pinOffset) : Ports(pi, pinO
 	for (int i = 0; i < len; i++) {
 			addESP32Pin(pins[i]);
 	}
-	analogWriteResolution(10);
+	analogwritefrequency = 0;
 }
-
 
 PortsESP32::~PortsESP32() {
 	// TODO Auto-generated destructor stub
@@ -55,35 +56,36 @@ void PortsESP32::digitalWrite(uint16_t pin, uint8_t val) {
 	::digitalWrite(pin, val);
 }
 void PortsESP32::analogWrite(uint16_t pin, int val) {
+	if (!analogWritePins.contains(pin)) {
+		analogWriteResolution(pin, 10);
+		if (analogwritefrequency > 0) {
+			::analogWriteFrequency(pin, analogwritefrequency);
+		}
+		analogWritePins.add(pin);
+	}		
 	::analogWrite(pin, val);
 }
+
 bool PortsESP32::initServo(uint8_t pin){
-  if (!servoList.get(pin)){
-    Servo* srv = new Servo();
-    servoList.add(pin, srv);
+  if (!servoMap.contains(pin)) {
+	    Servo* srv = new Servo();
+		servoMap[pin] = srv;
   }
   return true;
 }
 
 void PortsESP32::setFreq(double f) {
-	::analogWriteFrequency(f);
+	analogwritefrequency = f;
 }
+
 void PortsESP32::servoWrite(uint16_t pin, uint8_t val) {
-  
-  Servo* s = servoList.get(pin);
-  if (!s){
+  if (!servoMap.contains(pin)){
     bool worked = initServo(pin);
     if (!worked){
       return;
     }
-    else
-    {
-      s = servoList.get(pin);
-      if (!s){
-        return;
-      }
-    }
   }
+  Servo* s = servoMap[pin];
   s->attach(pin);
   delay(15);
   s->write(val);

@@ -117,7 +117,7 @@ int CmdReceiverRocnetOverMQTT::loop() {
 
 		#ifdef ESP8266
 			Udp.write("BROKER-GET");
-    	#elif ESP32
+    	#elif defined(ESP32)
 			Udp.write((const uint8_t *) "BROKER-GET", 10);
 		#else
 			#error "This Arch is not supported"

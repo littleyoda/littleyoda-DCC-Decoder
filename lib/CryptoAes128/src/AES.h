@@ -199,7 +199,7 @@ private:
 #define AES256 AES256_enum
 #ifdef ESP8266
 #include "hwcrypto/aes.h"
-#elif ESP32
+#elif defined(ESP32)
 #include "mbedtls/aes.h"
 #else
     #error "This Arch is not supported"

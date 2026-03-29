@@ -47,6 +47,7 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
 void WiFiEvent(WiFiEvent_t event) {
     Serial.printf("[WiFi-event] event: %d\n", event);
 
+	#ifdef ESP8266
     switch (event) {
         case SYSTEM_EVENT_WIFI_READY: 
             Logger::log(LogLevel::INFO,"WiFi interface ready");
@@ -125,6 +126,41 @@ void WiFiEvent(WiFiEvent_t event) {
             break;
         default: break;
     }
+	#endif
+	#ifdef ESP32
+  switch (event) {
+    case ARDUINO_EVENT_WIFI_READY:               Logger::log(LogLevel::INFO,"WiFi interface ready"); break;
+    case ARDUINO_EVENT_WIFI_SCAN_DONE:           Logger::log(LogLevel::INFO,"Completed scan for access points"); break;
+    case ARDUINO_EVENT_WIFI_STA_START:           Logger::log(LogLevel::INFO,"WiFi client started"); break;
+    case ARDUINO_EVENT_WIFI_STA_STOP:            Logger::log(LogLevel::INFO,"WiFi clients stopped"); break;
+    case ARDUINO_EVENT_WIFI_STA_CONNECTED:       Logger::log(LogLevel::INFO,"Connected to access point"); break;
+    case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:    Logger::log(LogLevel::INFO,"Disconnected from WiFi access point"); break;
+    case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE: Logger::log(LogLevel::INFO,"Authentication mode of access point has changed"); break;
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+      Logger::log(LogLevel::INFO,"Obtained IP address: " +  WiFi.localIP().toString());
+      break;
+    case ARDUINO_EVENT_WIFI_STA_LOST_IP:        Logger::log(LogLevel::INFO,"Lost IP address and IP address is reset to 0"); break;
+    case ARDUINO_EVENT_WPS_ER_SUCCESS:          Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): succeeded in enrollee mode"); break;
+    case ARDUINO_EVENT_WPS_ER_FAILED:           Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): failed in enrollee mode"); break;
+    case ARDUINO_EVENT_WPS_ER_TIMEOUT:          Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): timeout in enrollee mode"); break;
+    case ARDUINO_EVENT_WPS_ER_PIN:              Logger::log(LogLevel::INFO,"WiFi Protected Setup (WPS): pin code in enrollee mode"); break;
+    case ARDUINO_EVENT_WIFI_AP_START:           Logger::log(LogLevel::INFO,"WiFi access point started"); break;
+    case ARDUINO_EVENT_WIFI_AP_STOP:            Logger::log(LogLevel::INFO,"WiFi access point  stopped"); break;
+    case ARDUINO_EVENT_WIFI_AP_STACONNECTED:    Logger::log(LogLevel::INFO,"Client connected"); break;
+    case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED: Logger::log(LogLevel::INFO,"Client disconnected"); break;
+    case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:   Logger::log(LogLevel::INFO,"Assigned IP address to client"); break;
+    case ARDUINO_EVENT_WIFI_AP_PROBEREQRECVED:  Logger::log(LogLevel::INFO,"Received probe request"); break;
+    case ARDUINO_EVENT_WIFI_AP_GOT_IP6:         Logger::log(LogLevel::INFO,"AP IPv6 is preferred"); break;
+    case ARDUINO_EVENT_WIFI_STA_GOT_IP6:        Logger::log(LogLevel::INFO,"STA IPv6 is preferred"); break;
+    case ARDUINO_EVENT_ETH_GOT_IP6:             Logger::log(LogLevel::INFO,"Ethernet IPv6 is preferred"); break;
+    case ARDUINO_EVENT_ETH_START:               Logger::log(LogLevel::INFO,"Ethernet started"); break;
+    case ARDUINO_EVENT_ETH_STOP:                Logger::log(LogLevel::INFO,"Ethernet stopped"); break;
+    case ARDUINO_EVENT_ETH_CONNECTED:           Logger::log(LogLevel::INFO,"Ethernet connected"); break;
+    case ARDUINO_EVENT_ETH_DISCONNECTED:        Logger::log(LogLevel::INFO,"Ethernet disconnected"); break;
+    case ARDUINO_EVENT_ETH_GOT_IP:              Logger::log(LogLevel::INFO,"Obtained IP address"); break;
+    default:                                    break;
+  }	
+	#endif 
 }
 
 
@@ -225,7 +261,7 @@ uint8_t WifiCheck::getAPChannel() {
 	return conf_compare.channel;
 	#endif
 	#ifdef ESP32
-	wifi_config_t conf_current;
+		wifi_config_t conf_current;
 	esp_wifi_get_config(WIFI_IF_AP, &conf_current);
 	return conf_current.ap.channel;
 	#endif

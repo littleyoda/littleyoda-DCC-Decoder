@@ -13,7 +13,7 @@
 #ifdef ESP8266
 	#include <ESP8266WebServer.h>
 	#include <ESP8266HTTPUpdateServer.h>
-#elif ESP32
+#elif defined(ESP32)
 	#include <WebServer.h>
 	#include <Update.h>
 #else
@@ -34,7 +34,7 @@ public:
 	virtual ~Webserver();
 #ifdef ESP8266
 	static ESP8266WebServer* server;
-#elif ESP32
+#elif defined(ESP32)
 	static WebServer* server;
 #endif
 	void registerWebServices(WebserviceBase* base);
@@ -67,7 +67,7 @@ private:
 	LinkedList<WebserviceBase*> services = LinkedList<WebserviceBase*>();
 	#ifdef ESP8266
 		static ESP8266HTTPUpdateServer* httpUpdater;
-	#elif ESP32
+	#elif defined(ESP32)
 		boolean init = false;
 	#endif
 	String status;

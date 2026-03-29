@@ -8,7 +8,7 @@
 
 #ifdef ESP8266
 	#include <ESP8266WiFi.h>
-#elif ESP32
+#elif defined(ESP32)
 	#include <WiFi.h>
 #else
 	#error "This Arch is not supported"

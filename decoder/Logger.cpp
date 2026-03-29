@@ -146,7 +146,7 @@ boolean Logger::sendUDP() {
 	udp->beginPacket(*logserver, 5514);
 	#ifdef ESP8266
 		size_t ret = udp->write(log->msg.c_str(), log->msg.length());
-	#elif ESP32
+	#elif defined(ESP32)
 		size_t ret = udp->write((const uint8_t *)log->msg.c_str(), log->msg.length());
 	#else
 		#error "This Arch is not supported"

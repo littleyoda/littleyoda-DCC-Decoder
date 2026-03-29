@@ -18,6 +18,10 @@ struct SensorState{
   int gpio;
   int address;
   int value;
+
+  bool operator==(const SensorState& other) const {
+        return gpio == other.gpio && address == other.address && value == other.value;
+  }
 };
 
 
