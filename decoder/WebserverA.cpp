@@ -381,6 +381,9 @@ void Webserver::handleFilelist() {
 	}
 #endif
 	output += F("</tbody></table><hr>");
+#if defined(ESP32)
+	output += String(SPIFFS.usedBytes()) + "/" + String(SPIFFS.totalBytes()) + " Bytes"; 
+#endif
 	output += F("<form action=\"/upload\" method=\"post\" enctype=\"multipart/form-data\"><fieldset> <input name=\"Datei\" type=\"file\" size=\"50\"> ");
 	output += F("<input class=\"button-primary\" value=\"Send\" type=\"submit\"> </fieldset></form><p/>");
 	output += F("<a style=\"font-size: 4rem;\"  href=\"/editconfig\">");
@@ -535,8 +538,15 @@ void Webserver::registerWebServices(WebserviceBase* base) {
 }
 
 void Webserver::handleDel() {
-	SPIFFS.remove(server->arg("file"));
-	server->send(200, "text/html", F("<html><head><META http-equiv=\"refresh\" content=\"1;URL=/list\"></head><body>Deleting...</body></html>"));
+	String filename = server->arg("file");
+	if (!filename.startsWith("/")) {
+		filename = "/" + filename;
+	}
+	bool b = SPIFFS.remove(filename);
+	String out = F("<html><head><META http-equiv=\"refresh\" content=\"1;URL=/list\"></head><body>Deleting /");
+	out += server->arg("file") + ": " + String(b);
+	out += F("</body></html>");
+	server->send(200, "text/html", out);
 }
 void Webserver::handleSet() {
 	Serial.println("Webserver");
